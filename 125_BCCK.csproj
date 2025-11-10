@@ -180,6 +180,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Areas\Admin\" />
+    <Folder Include="Areas\Customer\" />
+    <Folder Include="Areas\Employee\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
