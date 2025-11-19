@@ -1,4 +1,5 @@
-﻿using System;
+﻿using _125_BCCK.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,23 +9,33 @@ namespace _125_BCCK.Controllers
 {
     public class HomeController : Controller
     {
+        private PetCareContext db = new PetCareContext();
+        // GET: Home/Index
         public ActionResult Index()
         {
-            return View();
+            // Lấy 6 dịch vụ nổi bật
+            var featuredServices = db.Services
+                .Where(s => s.IsActive)
+                .OrderByDescending(s => s.CreatedAt)
+                .Take(6)
+                .ToList();
+
+            return View(featuredServices);
         }
 
+        // GET: Home/About
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Contact()
+        protected override void Dispose(bool disposing)
         {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }
