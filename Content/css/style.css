@@ -1,0 +1,243 @@
+﻿/* ========================================
+   GENERAL STYLES
+======================================== */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ========================================
+   NAVBAR STYLES
+======================================== */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin: 0 5px;
+}
+
+    .navbar-nav .nav-link:hover {
+        transform: translateY(-2px);
+    }
+
+/* ========================================
+   HERO SECTION
+======================================== */
+.hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    min-height: 500px;
+}
+
+    .hero-section h1 {
+        animation: fadeInUp 0.8s ease;
+    }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========================================
+   FEATURE BOX
+======================================== */
+.feature-box {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+    .feature-box:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .feature-box i {
+        transition: all 0.3s ease;
+    }
+
+    .feature-box:hover i {
+        transform: scale(1.1);
+    }
+
+/* ========================================
+   CARD STYLES
+======================================== */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+.card-img-top {
+    position: relative;
+    overflow: hidden;
+}
+
+    .card-img-top::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3));
+    }
+
+/* ========================================
+   BUTTON STYLES
+======================================== */
+.btn {
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+/* ========================================
+   FORM STYLES
+======================================== */
+.form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+}
+
+.input-group .form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+}
+
+    .input-group .form-control:focus {
+        border-left: none;
+    }
+
+/* ========================================
+   BADGE STYLES
+======================================== */
+.badge {
+    padding: 8px 15px;
+    font-weight: 600;
+    border-radius: 50px;
+}
+
+/* ========================================
+   FOOTER STYLES
+======================================== */
+footer {
+    margin-top: auto;
+}
+
+    footer h5 {
+        color: var(--warning-color);
+        margin-bottom: 20px;
+    }
+
+/* ========================================
+   ALERT STYLES
+======================================== */
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* ========================================
+   ANIMATIONS
+======================================== */
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 400px;
+    }
+
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+
+    .feature-box {
+        margin-bottom: 20px;
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES
+======================================== */
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.shadow-hover {
+    transition: box-shadow 0.3s ease;
+}
+
+    .shadow-hover:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+.cursor-pointer {
+    cursor: pointer;
+}
