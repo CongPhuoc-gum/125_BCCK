@@ -142,7 +142,7 @@ namespace _125_BCCK.Controllers
             else if (role == "Staff")
                 return RedirectToAction("Dashboard", "Staff");
             else
-                // ĐÃ SỬA: Role Customer (hoặc các role khác) sẽ quay về trang chủ
+                // ĐÃ SỬA: Role Customer (hoặc các role khác) sẽ quay về trang chủ 122223435
                 return RedirectToAction("Index", "Home");
         }
 
