@@ -1,0 +1,87 @@
+﻿@model _125_BCCK.Models.User
+
+@{
+    ViewBag.Title = "Xóa Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="h3 mb-4 text-gray-800">Xóa Nhân Viên</h1>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 border-left-danger">
+                <h6 class="m-0 font-weight-bold text-danger">Bạn có chắc muốn xóa nhân viên này?</h6>
+            </div>
+            <div class="card-body">
+
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Lưu ý:</strong> Hành động này sẽ xóa hoàn toàn tài khoản khỏi hệ thống. Nếu nhân viên này đã có dữ liệu lịch sử (Lịch hẹn, Hóa đơn...), hệ thống sẽ chặn việc xóa để bảo toàn dữ liệu.
+                    <br />Trong trường hợp đó, hãy dùng chức năng <strong>"Khóa tài khoản"</strong> thay thế.
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">Họ và Tên:</th>
+                                <td class="font-weight-bold text-primary">@Html.DisplayFor(model => model.FullName)</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>@Html.DisplayFor(model => model.Email)</td>
+                            </tr>
+                            <tr>
+                                <th>Số điện thoại:</th>
+                                <td>@Html.DisplayFor(model => model.Phone)</td>
+                            </tr>
+                            <tr>
+                                <th>Địa chỉ:</th>
+                                <td>@Html.DisplayFor(model => model.Address)</td>
+                            </tr>
+                            <tr>
+                                <th>Vai trò:</th>
+                                <td><span class="badge badge-secondary">@Html.DisplayFor(model => model.Role)</span></td>
+                            </tr>
+                            <tr>
+                                <th>Trạng thái:</th>
+                                <td>
+                                    @if (Model.IsActive == true)
+                                    {
+                                        <span class="badge badge-success">Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Đã bị khóa</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Ngày tạo:</th>
+                                <td>@Html.DisplayFor(model => model.CreatedAt)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr>
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Xác nhận Xóa
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

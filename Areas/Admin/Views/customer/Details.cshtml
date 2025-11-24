@@ -1,0 +1,178 @@
+﻿@model _125_BCCK.Models.ViewModels.CustomerDetailViewModel
+
+@{
+    ViewBag.Title = "Hồ sơ khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        Hồ sơ: <span class="text-primary">@Model.Customer.FullName</span>
+    </h1>
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.Customer.UserId })" class="btn btn-sm btn-warning shadow-sm">
+            <i class="fas fa-edit fa-sm text-white-50"></i> Sửa thông tin
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Thông tin liên hệ</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Customer.FullName</div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            <p class="mb-1"><i class="fas fa-envelope fa-fw"></i> @Model.Customer.Email</p>
+                            <p class="mb-1"><i class="fas fa-phone fa-fw"></i> @Model.Customer.Phone</p>
+                            <p class="mb-0"><i class="fas fa-map-marker-alt fa-fw"></i> @Model.Customer.Address</p>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-id-card fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Số lượng thú cưng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Pets.Count bé</div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            Đang hoạt động trên hệ thống
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-paw fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Lịch sử đặt hẹn</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Appointments.Count lần</div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            Tổng chi tiêu: @Model.Appointments.Where(a => a.Status == "Completed").Sum(a => a.TotalPrice).ToString("#,##0") VNĐ
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-3 text-gray-800 border-bottom pb-2"><i class="fas fa-dog"></i> Danh sách Thú cưng</h5>
+
+<div class="row mb-4">
+    @if (Model.Pets.Count == 0)
+    {
+        <div class="col-12 text-muted font-italic">Khách hàng này chưa đăng ký thú cưng nào.</div>
+    }
+
+    @foreach (var pet in Model.Pets)
+    {
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">@pet.PetName</h6>
+                    <span class="badge badge-pill badge-secondary">@pet.Species</span>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-paw fa-3x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Giống loài
+                            <span class="font-weight-bold">@pet.Breed</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Tuổi / Màu
+                            <span class="font-weight-bold">@pet.Age tuổi - @pet.Color</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Cân nặng
+                            <span class="font-weight-bold">@pet.Weight kg</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-history"></i> Lịch sử cuộc hẹn</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Ngày hẹn</th>
+                        <th>Khung giờ</th>
+                        <th>Thú cưng</th>
+                        <th>Nhân viên</th>
+                        <th>Tổng tiền</th>
+                        <th class="text-center">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Appointments.Count == 0)
+                    {
+                        <tr><td colspan="6" class="text-center text-muted">Chưa có lịch sử đặt hẹn.</td></tr>
+                    }
+
+                    @foreach (var appt in Model.Appointments)
+                    {
+                        <tr>
+                            <td>@appt.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                            <td>@appt.TimeSlot</td>
+                            <td>@appt.Pet.PetName</td>
+                            <td>
+                                @if (appt.StaffId != null)
+                                {<span>@appt.Staff.FullName</span> }
+                            else
+                            { <span class="text-muted font-italic">Chưa phân công</span>}
+                            </td>
+                            <td class="font-weight-bold text-primary">@appt.TotalPrice.ToString("#,##0") đ</td>
+                            <td class="text-center">
+                                @if (appt.Status == "Pending")
+                                {<span class="badge badge-warning">Chờ duyệt</span> }
+                                else if (appt.Status == "Confirmed")
+                                { <span class="badge badge-info">Đã xác nhận</span> }
+                                else if (appt.Status == "Completed")
+                                { <span class="badge badge-success">Hoàn thành</span> }
+                                else if (appt.Status == "Cancelled")
+                                { <span class="badge badge-danger">Đã hủy</span>}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

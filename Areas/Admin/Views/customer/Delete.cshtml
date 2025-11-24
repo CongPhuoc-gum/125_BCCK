@@ -1,0 +1,60 @@
+﻿@model _125_BCCK.Models.User
+
+@{
+    ViewBag.Title = "Xóa Khách Hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="h3 mb-4 text-gray-800">Xóa Khách Hàng</h1>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 border-left-danger">
+                <h6 class="m-0 font-weight-bold text-danger">Cảnh báo hành động nguy hiểm</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Lưu ý:</strong> Bạn chỉ có thể xóa các tài khoản rác (chưa có thú cưng, chưa đặt lịch). <br />
+                    Nếu khách hàng đã sử dụng dịch vụ, hệ thống sẽ chặn hành động này để bảo toàn dữ liệu doanh thu.
+                </div>
+
+                <table class="table table-borderless">
+                    <tr>
+                        <th style="width: 30%">Họ tên:</th>
+                        <td class="font-weight-bold text-primary">@Model.FullName</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <th>SĐT:</th>
+                        <td>@Model.Phone</td>
+                    </tr>
+                    <tr>
+                        <th>Ngày tạo:</th>
+                        <td>@Model.CreatedAt</td>
+                    </tr>
+                </table>
+
+                <hr />
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Xác nhận Xóa vĩnh viễn
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
