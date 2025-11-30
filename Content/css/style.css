@@ -241,3 +241,115 @@ footer {
 .cursor-pointer {
     cursor: pointer;
 }
+
+/* ========================================
+   STAFF MODULE STYLES
+======================================== */
+.staff-dashboard .card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.staff-dashboard .card-body {
+    padding: 2rem;
+}
+
+.staff-dashboard .display-4 {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.appointment-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.table-hover tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.appointment-card {
+    border-left: 4px solid #0d6efd;
+    transition: all 0.3s ease;
+}
+
+.appointment-card:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.info-table th {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.info-table td {
+    color: #212529;
+}
+
+/* Status colors */
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-confirmed {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.status-completed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    border-bottom: 2px solid #e9ecef;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+}
+
+.modal-footer {
+    border-top: 2px solid #e9ecef;
+}
+
+/* Action buttons */
+.btn-group-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-group-actions .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+}

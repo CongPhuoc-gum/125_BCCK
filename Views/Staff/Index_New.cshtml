@@ -1,0 +1,129 @@
+@model _125_BCCK.Models.ViewModels.StaffDashboardViewModel
+@{
+    ViewBag.Title = "Dashboard - Nhan vien";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Nhan Vien</h2>
+            <p class="text-muted">Xin chao, @Session["FullName"]</p>
+            @if (ViewBag.DebugInfo != null)
+            {
+                <small class="text-muted">Debug: @ViewBag.DebugInfo</small>
+            }
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <strong>Loi:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (ViewBag.ErrorDetails != null)
+    {
+        <div class="alert alert-warning">
+            <details>
+                <summary>Chi tiet loi (click de xem)</summary>
+                <pre style="font-size: 11px;">@ViewBag.ErrorDetails</pre>
+            </details>
+        </div>
+    }
+
+    <!-- Thong ke -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-day fa-3x text-primary mb-3"></i>
+                    <h3 class="display-4">@Model.TodayAppointmentsCount</h3>
+                    <p class="text-muted">Lich hen hom nay</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-week fa-3x text-info mb-3"></i>
+                    <h3 class="display-4">@Model.WeekAppointmentsCount</h3>
+                    <p class="text-muted">Lich hen tuan nay</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lich hen hom nay -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Lich hen hom nay</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.TodayAppointments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Gio</th>
+                                <th>Khach hang</th>
+                                <th>Thu cung</th>
+                                <th>Dich vu</th>
+                                <th>Trang thai</th>
+                                <th>Thao tac</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.TodayAppointments)
+                            {
+                                <tr>
+                                    <td><strong>@item.TimeSlot</strong></td>
+                                    <td>@item.CustomerName</td>
+                                    <td>
+                                        @item.PetName
+                                        <small class="text-muted">(@item.Species)</small>
+                                    </td>
+                                    <td>@item.Services</td>
+                                    <td>
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">Cho xu ly</span>
+                                        }
+                                        else if (item.Status == "Confirmed")
+                                        {
+                                            <span class="badge bg-info">Da xac nhan</span>
+                                        }
+                                        else if (item.Status == "Completed")
+                                        {
+                                            <span class="badge bg-success">Hoan thanh</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Details", new { id = item.AppointmentId })" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> Chi tiet
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Khong co lich hen nao hom nay
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a href="@Url.Action("Appointments")" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Xem tat ca lich hen
+            </a>
+        </div>
+    </div>
+</div>

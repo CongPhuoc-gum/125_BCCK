@@ -361,3 +361,34 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# ============================================
+# Custom rules for PetCare project
+# ============================================
+
+# Web.config - chứa connection string nhạy cảm
+# Chỉ ignore bản local, giữ bản template
+Web.config
+!Web.config.template
+
+# Uploaded images (user content)
+images/appointments/*
+!images/appointments/.gitkeep
+
+# Test/Debug controllers - không nên deploy production
+# Controllers/TestController.cs
+# Controllers/DebugController.cs
+# Views/Test/
+# Views/Debug/
+
+# User-specific database files
+*.mdf
+*.ldf
+
+# App_Data folder (chứa database local)
+App_Data/
+
+# Package restore
+packages/
+!packages/repositories.config

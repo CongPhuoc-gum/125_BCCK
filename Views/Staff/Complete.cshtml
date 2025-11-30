@@ -1,0 +1,107 @@
+﻿@model _125_BCCK.Models.ViewModels.CompleteAppointmentViewModel
+@{
+    ViewBag.Title = "Hoàn thành lịch hẹn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-check-circle"></i> Hoàn thành lịch hẹn #@Model.AppointmentId</h2>
+            <a href="@Url.Action("Details", new { id = Model.AppointmentId })" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Thông tin hoàn thành</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Complete", "Staff", FormMethod.Post, new { @class = "needs-validation", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.AppointmentId)
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.PetCondition, new { @class = "form-label" })
+                            <span class="text-danger">*</span>
+                            @Html.TextAreaFor(m => m.PetCondition, new { @class = "form-control", rows = 3, placeholder = "VD: Thú cưng khỏe mạnh, không có vấn đề gì" })
+                            @Html.ValidationMessageFor(m => m.PetCondition, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Notes, new { @class = "form-label" })
+                            @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", rows = 4, placeholder = "Ghi chú thêm về quá trình thực hiện dịch vụ" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh (nếu có)</label>
+                            <input type="file" name="ImageFile" class="form-control" accept="image/*" id="imageInput" />
+                            <small class="text-muted">Chọn ảnh để tải lên (JPG, PNG, GIF - tối đa 5MB)</small>
+                            
+                            <!-- Preview ảnh -->
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 300px; max-height: 300px;" />
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Lưu ý:</strong> Sau khi hoàn thành, trạng thái lịch hẹn sẽ được chuyển sang "Hoàn thành" và không thể thay đổi.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Hoàn thành lịch hẹn
+                            </button>
+                            <a href="@Url.Action("Details", new { id = Model.AppointmentId })" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        // Preview ảnh trước khi upload
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                // Kiểm tra kích thước file (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước ảnh quá lớn! Vui lòng chọn ảnh nhỏ hơn 5MB.');
+                    e.target.value = '';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    return;
+                }
+
+                // Kiểm tra loại file
+                if (!file.type.match('image.*')) {
+                    alert('Vui lòng chọn file ảnh!');
+                    e.target.value = '';
+                    document.getElementById('imagePreview').style.display = 'none';
+                    return;
+                }
+
+                // Hiển thị preview
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
+    </script>
+}

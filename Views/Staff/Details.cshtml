@@ -1,0 +1,335 @@
+﻿@model _125_BCCK.Models.ViewModels.AppointmentDetailViewModel
+@{
+    ViewBag.Title = "Chi tiết lịch hẹn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-info-circle"></i> Chi tiết lịch hẹn #@Model.AppointmentId</h2>
+            <a href="@Url.Action("Appointments")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Thông tin lịch hẹn -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar"></i> Thông tin lịch hẹn</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Ngày hẹn:</th>
+                            <td><strong>@Model.AppointmentDate.ToString("dd/MM/yyyy")</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Giờ:</th>
+                            <td><strong>@Model.TimeSlot</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái:</th>
+                            <td>
+                                @if (Model.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                }
+                                else if (Model.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-info">Đã xác nhận</span>
+                                }
+                                else if (Model.Status == "Completed")
+                                {
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                }
+                                else if (Model.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Tổng tiền:</th>
+                            <td><strong class="text-danger">@Model.TotalPrice.ToString("N0") đ</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo:</th>
+                            <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </table>
+
+                    @if (!string.IsNullOrEmpty(Model.CustomerNotes))
+                    {
+                        <div class="alert alert-info">
+                            <strong><i class="fas fa-comment"></i> Ghi chú từ khách:</strong>
+                            <p class="mb-0 mt-2">@Model.CustomerNotes</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.StaffNotes))
+                    {
+                        <div class="alert alert-success">
+                            <strong><i class="fas fa-clipboard"></i> Ghi chú từ nhân viên:</strong>
+                            @{
+                                // Tách StaffNotes để tìm đường dẫn ảnh
+                                var notes = Model.StaffNotes;
+                                var imageUrl = "";
+                                
+                                // Tìm dòng có "Hình ảnh:"
+                                if (notes.Contains("Hình ảnh:"))
+                                {
+                                    var lines = notes.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (var line in lines)
+                                    {
+                                        if (line.Contains("Hình ảnh:"))
+                                        {
+                                            imageUrl = line.Replace("Hình ảnh:", "").Trim();
+                                            // Loại bỏ dòng này khỏi notes để hiển thị
+                                            notes = notes.Replace(line, "").Trim();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            <p class="mb-0 mt-2" style="white-space: pre-line;">@notes</p>
+                            
+                            @if (!string.IsNullOrEmpty(imageUrl))
+                            {
+                                <div class="mt-3">
+                                    <strong><i class="fas fa-image"></i> Hình ảnh:</strong>
+                                    <div class="mt-2">
+                                        <a href="@imageUrl" target="_blank">
+                                            <img src="@imageUrl" alt="Hình ảnh hoàn thành" class="img-thumbnail" style="max-width: 100%; max-height: 400px; cursor: pointer;" />
+                                        </a>
+                                        <br>
+                                        <small class="text-muted">Click vào ảnh để xem kích thước đầy đủ</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.CancelReason))
+                    {
+                        <div class="alert alert-danger">
+                            <strong><i class="fas fa-times-circle"></i> Lý do hủy:</strong>
+                            <p class="mb-0 mt-2">@Model.CancelReason</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin khách hàng -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Thông tin khách hàng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Họ tên:</th>
+                            <td>@Model.CustomerName</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>@Model.CustomerEmail</td>
+                        </tr>
+                        <tr>
+                            <th>Điện thoại:</th>
+                            <td><strong>@Model.CustomerPhone</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ:</th>
+                            <td>@Model.CustomerAddress</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Thông tin thú cưng -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-paw"></i> Thông tin thú cưng</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="40%">Tên:</th>
+                            <td><strong>@Model.PetName</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Loài:</th>
+                            <td>@Model.Species</td>
+                        </tr>
+                        <tr>
+                            <th>Giống:</th>
+                            <td>@Model.Breed</td>
+                        </tr>
+                        <tr>
+                            <th>Tuổi:</th>
+                            <td>@(Model.Age.HasValue ? Model.Age + " tuổi" : "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th>Cân nặng:</th>
+                            <td>@(Model.Weight.HasValue ? Model.Weight + " kg" : "N/A")</td>
+                        </tr>
+                        <tr>
+                            <th>Giới tính:</th>
+                            <td>@Model.Gender</td>
+                        </tr>
+                        <tr>
+                            <th>Màu lông:</th>
+                            <td>@Model.Color</td>
+                        </tr>
+                    </table>
+
+                    @if (!string.IsNullOrEmpty(Model.SpecialNotes))
+                    {
+                        <div class="alert alert-warning">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Ghi chú đặc biệt:</strong>
+                            <p class="mb-0 mt-2">@Model.SpecialNotes</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Dịch vụ -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> Dịch vụ</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tên dịch vụ</th>
+                                <th>Thời gian</th>
+                                <th>Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var service in Model.Services)
+                            {
+                                <tr>
+                                    <td>
+                                        @service.ServiceName
+                                        <br><small class="text-muted">@service.Category</small>
+                                    </td>
+                                    <td>@service.Duration phút</td>
+                                    <td>@service.Price.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Tổng cộng:</th>
+                                <th class="text-danger">@Model.TotalPrice.ToString("N0") đ</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Các nút thao tác -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex gap-2">
+                @if (Model.Status == "Pending")
+                {
+                    <button type="button" class="btn btn-success" onclick="confirmAppointment(@Model.AppointmentId)">
+                        <i class="fas fa-check"></i> Xác nhận lịch hẹn
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                        <i class="fas fa-times"></i> Từ chối lịch hẹn
+                    </button>
+                }
+                @if (Model.Status == "Confirmed")
+                {
+                    <a href="@Url.Action("Complete", new { id = Model.AppointmentId })" class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> Hoàn thành lịch hẹn
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal từ chối -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Từ chối lịch hẹn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Lý do từ chối <span class="text-danger">*</span></label>
+                    <textarea id="cancelReason" class="form-control" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="cancelAppointment(@Model.AppointmentId)">
+                    Xác nhận từ chối
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    function confirmAppointment(id) {
+        if (confirm('Bạn có chắc muốn xác nhận lịch hẹn này?')) {
+            $.post('@Url.Action("Confirm")', { id: id }, function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            });
+        }
+    }
+
+    function cancelAppointment(id) {
+        var reason = $('#cancelReason').val().trim();
+        if (!reason) {
+            alert('Vui lòng nhập lý do từ chối');
+            return;
+        }
+
+        $.post('@Url.Action("Cancel")', { id: id, reason: reason }, function(response) {
+            if (response.success) {
+                alert(response.message);
+                location.reload();
+            } else {
+                alert(response.message);
+            }
+        });
+    }
+</script>
+}

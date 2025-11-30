@@ -1,0 +1,216 @@
+﻿@{
+    ViewBag.Title = "Test Login - Chỉ dùng để TEST";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-warning">
+                <h4><i class="fas fa-exclamation-triangle"></i> TRANG TEST - CHỈ DÙNG ĐỂ PHÁT TRIỂN</h4>
+                <p class="mb-0">Trang này giúp bạn đăng nhập giả lập để test các chức năng mà không cần qua trang Login thật.</p>
+                <p class="mb-0"><strong>LƯU Ý:</strong> Nhớ xóa TestController trước khi deploy production!</p>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-vial"></i> Chọn tài khoản để test</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- Staff 1 -->
+                        <div class="col-md-6">
+                            <div class="card border-info h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-nurse fa-3x text-info mb-3"></i>
+                                    <h5>Nhân viên 1</h5>
+                                    <p class="text-muted mb-2">
+                                        <strong>Trần Thị Hương</strong><br>
+                                        huong.staff@petcare.com<br>
+                                        <small>Staff ID: 2</small>
+                                    </p>
+                                    <a href="@Url.Action("LoginAsStaff")" class="btn btn-info w-100">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Staff 2 -->
+                        <div class="col-md-6">
+                            <div class="card border-info h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-md fa-3x text-info mb-3"></i>
+                                    <h5>Nhân viên 2</h5>
+                                    <p class="text-muted mb-2">
+                                        <strong>Lê Văn Cường</strong><br>
+                                        cuong.staff@petcare.com<br>
+                                        <small>Staff ID: 3</small>
+                                    </p>
+                                    <a href="@Url.Action("LoginAsStaff2")" class="btn btn-info w-100">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer -->
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user fa-3x text-success mb-3"></i>
+                                    <h5>Khách hàng</h5>
+                                    <p class="text-muted mb-2">
+                                        <strong>Phạm Minh Tuấn</strong><br>
+                                        tuan.customer@gmail.com<br>
+                                        <small>Customer ID: 4</small>
+                                    </p>
+                                    <a href="@Url.Action("LoginAsCustomer")" class="btn btn-success w-100">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin -->
+                        <div class="col-md-6">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-shield fa-3x text-danger mb-3"></i>
+                                    <h5>Quản trị viên</h5>
+                                    <p class="text-muted mb-2">
+                                        <strong>Nguyễn Văn Admin</strong><br>
+                                        admin@petcare.com<br>
+                                        <small>Admin ID: 1</small>
+                                    </p>
+                                    <a href="@Url.Action("LoginAsAdmin")" class="btn btn-danger w-100">
+                                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <a href="@Url.Action("Logout")" class="btn btn-secondary">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin session hiện tại -->
+            @if (Session["UserId"] != null)
+            {
+                <div class="card mt-4 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-check-circle"></i> Đang đăng nhập</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr>
+                                <th width="30%">User ID:</th>
+                                <td>@Session["UserId"]</td>
+                            </tr>
+                            <tr>
+                                <th>Họ tên:</th>
+                                <td>@Session["FullName"]</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>@Session["Email"]</td>
+                            </tr>
+                            <tr>
+                                <th>Role:</th>
+                                <td><span class="badge bg-primary">@Session["Role"]</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> Chưa đăng nhập
+                </div>
+            }
+
+            <!-- Debug Tools -->
+            <div class="card mt-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-bug"></i> Debug Tools</h5>
+                </div>
+                <div class="card-body">
+                    <a href="@Url.Action("Index", "Debug")" class="btn btn-warning w-100">
+                        <i class="fas fa-tools"></i> Mở Debug Tools
+                    </a>
+                    <small class="text-muted d-block mt-2">
+                        Kiểm tra database, session, và dữ liệu Staff
+                    </small>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card mt-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-link"></i> Quick Links - Test Staff Module</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="@Url.Action("Index", "Staff")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt text-primary"></i> Staff Dashboard
+                        </a>
+                        <a href="@Url.Action("Appointments", "Staff")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt text-info"></i> Danh sách lịch hẹn
+                        </a>
+                        <a href="@Url.Action("Appointments", "Staff", new { filter = "today" })" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-day text-success"></i> Lịch hẹn hôm nay
+                        </a>
+                        <a href="@Url.Action("Appointments", "Staff", new { status = "Pending" })" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clock text-warning"></i> Lịch hẹn chờ xử lý
+                        </a>
+                        <a href="@Url.Action("Details", "Staff", new { id = 5 })" class="list-group-item list-group-item-action">
+                            <i class="fas fa-info-circle text-secondary"></i> Chi tiết lịch hẹn #5 (Pending)
+                        </a>
+                        <a href="@Url.Action("Details", "Staff", new { id = 3 })" class="list-group-item list-group-item-action">
+                            <i class="fas fa-info-circle text-secondary"></i> Chi tiết lịch hẹn #3 (Confirmed)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hướng dẫn -->
+            <div class="card mt-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-book"></i> Hướng dẫn test</h5>
+                </div>
+                <div class="card-body">
+                    <ol>
+                        <li>Click vào nút <strong>"Đăng nhập"</strong> của Nhân viên 1 hoặc 2</li>
+                        <li>Bạn sẽ được chuyển đến <strong>Staff Dashboard</strong></li>
+                        <li>Từ đó bạn có thể:
+                            <ul>
+                                <li>Xem thống kê lịch hẹn hôm nay và tuần này</li>
+                                <li>Xem danh sách lịch hẹn với bộ lọc</li>
+                                <li>Xem chi tiết lịch hẹn</li>
+                                <li>Xác nhận lịch hẹn (status = Pending)</li>
+                                <li>Từ chối lịch hẹn (status = Pending)</li>
+                                <li>Hoàn thành lịch hẹn (status = Confirmed)</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <div class="alert alert-info mb-0">
+                        <strong>Lưu ý:</strong> Theo database mẫu:
+                        <ul class="mb-0">
+                            <li>Staff ID 2 (Trần Thị Hương) có lịch hẹn: #1, #3</li>
+                            <li>Staff ID 3 (Lê Văn Cường) có lịch hẹn: #2, #4</li>
+                            <li>Lịch hẹn #5, #6 chưa có Staff (NULL) - status Pending</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
