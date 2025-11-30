@@ -1,6 +1,7 @@
 ﻿using _125_BCCK.Models;
 using _125_BCCK.Models.ViewModels;
 using System;
+using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +12,7 @@ namespace _125_BCCK.Areas.Admin.Controllers
     public class CustomerController : Controller
     {
         private PetCareContext db = new PetCareContext();
-        // GET: Admin/Custome
+        // GET: Admin/Customer
         public ActionResult Index(string searchString)
         {
             var customers = db.Users.Where(u => u.Role == "Customer");
@@ -34,12 +35,12 @@ namespace _125_BCCK.Areas.Admin.Controllers
                 //lấy ds thú cưng của khách này 
                 Pets = db.Pets.Where(p => p.OwnerId == id).ToList(),
                 //Lấy ds lịch hẹn của khách hàng 
-                Appointments = db.Appointments.Where(a => a.CustomerId == id).OrderByDescending(a => a.AppointmentDate).ToList()
+                Appointments = db.Appointments.Include("Staff").Include("Pet").Where(a => a.CustomerId == id).OrderByDescending(a => a.AppointmentDate).ToList()
             };
             return View(viewModel);
         }
         //Sửa thông tin 
-        public ActionResult Edit(int id) {
+        public ActionResult Edit(int? id) {
             var user = db.Users.Find(id);
             if (user == null) return HttpNotFound();
             return View(user);

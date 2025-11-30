@@ -31,8 +31,10 @@ namespace _125_BCCK.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]//chống hách
         public ActionResult Create(User user)
         {
+            ModelState.Remove("Role");
             if (ModelState.IsValid)
             {
+                
                 //Kiểm tra email đẫ tồn tại chưa 
                 var checkEmail = db.Users.FirstOrDefault(u => u.Email == user.Email);
                 if (checkEmail != null)

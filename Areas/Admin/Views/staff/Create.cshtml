@@ -19,7 +19,7 @@
                     @Html.AntiForgeryToken()
 
                     // Hiện thị lỗi nếu validate sai
-                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
 
                     <div class="form-group">
                         <label class="font-weight-bold">Họ và Tên <span class="text-danger">*</span></label>
