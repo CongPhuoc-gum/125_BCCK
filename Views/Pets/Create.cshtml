@@ -1,0 +1,298 @@
+﻿@model _125_BCCK.Models.Pet
+
+@{
+    ViewBag.Title = "Thêm thú cưng mới";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="mb-2" style="color: #5a6c7d; font-weight: 600;">
+                    <i class="fas fa-plus-circle" style="color: #7c9ab5;"></i> Thêm thú cưng mới
+                </h2>
+                <p class="text-muted" style="font-size: 0.95rem;">Điền thông tin chi tiết về thú cưng của bạn</p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm" style="border: none; border-radius: 12px;">
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Create", "Pets", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <!-- Tên thú cưng -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-paw" style="color: #8fb3d1; font-size: 0.85rem;"></i> Tên thú cưng
+                                    <span style="color: #e07a7a;">*</span>
+                                </label>
+                                @Html.TextBoxFor(model => model.PetName, new { @class = "form-control form-control-sm", placeholder = "Ví dụ: Milo", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.PetName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Loài -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-tag" style="color: #98c9a3; font-size: 0.85rem;"></i> Loài
+                                    <span style="color: #e07a7a;">*</span>
+                                </label>
+                                @Html.DropDownListFor(model => model.Species,
+                                    new SelectList(new[] { "Chó", "Mèo", "Chim", "Thỏ", "Hamster", "Khác" }),
+                                    "-- Chọn loài --",
+                                    new { @class = "form-select form-select-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Species, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Giống -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-dna" style="color: #a8c5dd; font-size: 0.85rem;"></i> Giống
+                                </label>
+                                @Html.TextBoxFor(model => model.Breed, new { @class = "form-control form-control-sm", placeholder = "Ví dụ: Golden Retriever", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Breed, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Giới tính -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-venus-mars" style="color: #d4a5c7; font-size: 0.85rem;"></i> Giới tính
+                                </label>
+                                @Html.DropDownListFor(model => model.Gender,
+                                    new SelectList(new[] { "Đực", "Cái" }),
+                                    "-- Chọn giới tính --",
+                                    new { @class = "form-select form-select-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Tuổi -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-birthday-cake" style="color: #f4b4a8; font-size: 0.85rem;"></i> Tuổi
+                                </label>
+                                @Html.TextBoxFor(model => model.Age, new { @class = "form-control form-control-sm", type = "number", min = "0", max = "50", placeholder = "0", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Age, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Cân nặng -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-weight" style="color: #8fb3d1; font-size: 0.85rem;"></i> Cân nặng (kg)
+                                </label>
+                                @Html.TextBoxFor(model => model.Weight, new { @class = "form-control form-control-sm", type = "number", step = "0.1", min = "0.1", max = "200", placeholder = "0.0", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Weight, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Màu lông -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-palette" style="color: #c9b8d4; font-size: 0.85rem;"></i> Màu lông
+                                </label>
+                                @Html.TextBoxFor(model => model.Color, new { @class = "form-control form-control-sm", placeholder = "Ví dụ: Vàng", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Color, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Upload ảnh -->
+                            <div class="col-12">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-image" style="color: #a8c5dd; font-size: 0.85rem;"></i> Ảnh thú cưng
+                                </label>
+                                <div class="image-upload-container">
+                                    <input type="file" name="ImageFile" id="imageFile" accept="image/*" class="form-control form-control-sm" style="border-color: #d4dce5; font-size: 0.9rem;" />
+                                    <div class="image-preview mt-3" id="imagePreview" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 250px; max-height: 250px; border-color: #d4dce5;">
+                                        <button type="button" class="btn btn-sm mt-2" onclick="removeImage()" style="background-color: #e8a19f; color: white; border: none; font-size: 0.85rem;">
+                                            <i class="fas fa-times"></i> Xóa ảnh
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2" style="font-size: 0.85rem;">
+                                        <i class="fas fa-info-circle"></i> Định dạng: JPG, JPEG, PNG, GIF. Tối đa 5MB
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Ghi chú đặc biệt -->
+                            <div class="col-12">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-notes-medical" style="color: #f4c28f; font-size: 0.85rem;"></i> Ghi chú đặc biệt
+                                </label>
+                                @Html.TextAreaFor(model => model.SpecialNotes, new { @class = "form-control", rows = "4", placeholder = "Ví dụ: Dị ứng với thức ăn hải sản, sợ tiếng nổ lớn...", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.SpecialNotes, "", new { @class = "text-danger small" })
+                                <small class="text-muted" style="font-size: 0.85rem;">
+                                    <i class="fas fa-lightbulb"></i> Ghi chú về sức khỏe, thói quen, dị ứng hoặc điều cần lưu ý
+                                </small>
+                            </div>
+
+                            <!-- Required field note -->
+                            <div class="col-12">
+                                <div class="alert d-flex align-items-center" style="background-color: #e8f4f8; border: 1px solid #b8dbe5; color: #5a6c7d; font-size: 0.85rem;">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <small>Các trường có dấu <span style="color: #e07a7a;">*</span> là bắt buộc</small>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="@Url.Action("Index")" class="btn btn-sm" style="background-color: #e8ecef; color: #5a6c7d; border: none; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-sm" style="background-color: #7c9ab5; color: white; border: none; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
+                                        <i class="fas fa-save"></i> Lưu thú cưng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <style>
+        .form-label {
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #7c9ab5;
+            box-shadow: 0 0 0 0.15rem rgba(124, 154, 181, 0.15);
+        }
+
+        .image-upload-container {
+            padding: 1rem;
+            border: 1.5px dashed #d4dce5;
+            border-radius: 8px;
+            background-color: #f8fafb;
+            transition: all 0.3s ease;
+        }
+
+            .image-upload-container:hover {
+                border-color: #7c9ab5;
+                background-color: #f0f5f8;
+            }
+
+        .btn {
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            }
+
+        .input-validation-error {
+            border-color: #e07a7a !important;
+        }
+
+        .field-validation-error {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .image-preview {
+            text-align: center;
+        }
+
+        .img-thumbnail {
+            border: 2px solid #d4dce5;
+            border-radius: 8px;
+        }
+
+        @@media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .d-flex.gap-2 {
+                flex-direction: column-reverse;
+            }
+        }
+    </style>
+
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước file không được vượt quá 5MB!');
+                    this.value = '';
+                    return;
+                }
+
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Chỉ chấp nhận file ảnh có định dạng: JPG, JPEG, PNG, GIF!');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removeImage() {
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('previewImg').src = '';
+        }
+
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                let isValid = true;
+                const petName = $('#PetName').val().trim();
+                const species = $('#Species').val();
+
+                if (!petName) {
+                    isValid = false;
+                    $('#PetName').addClass('input-validation-error');
+                } else {
+                    $('#PetName').removeClass('input-validation-error');
+                }
+
+                if (!species) {
+                    isValid = false;
+                    $('#Species').addClass('input-validation-error');
+                } else {
+                    $('#Species').removeClass('input-validation-error');
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                    return false;
+                }
+
+                const submitBtn = $(this).find('button[type="submit"]');
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...').prop('disabled', true);
+            });
+
+            $('.form-control, .form-select').on('input change', function () {
+                $(this).removeClass('input-validation-error');
+            });
+        });
+    </script>
+}

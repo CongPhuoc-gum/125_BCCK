@@ -1,0 +1,407 @@
+﻿@model _125_BCCK.Models.ViewModels.PetDetailsViewModel
+@{
+    ViewBag.Title = "Chi tiết - " + Model.Pet.PetName;
+}
+
+<div class="container mt-4 mb-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-paw text-primary"></i>
+                    Chi tiết thú cưng: <strong>@Model.Pet.PetName</strong>
+                </h2>
+                <div>
+                    @Html.ActionLink("Chỉnh sửa", "Edit", new { id = Model.Pet.PetId }, new { @class = "btn btn-warning" })
+                    @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-secondary" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- CỘT TRÁI: THÔNG TIN CƠ BẢN VÀ THỐNG KÊ -->
+        <div class="col-md-4">
+            <!-- Ảnh thú cưng -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-body text-center p-0">
+                    @if (!string.IsNullOrEmpty(Model.Pet.ImageUrl))
+                    {
+                        <img src="@Url.Content(Model.Pet.ImageUrl)"
+                             alt="@Model.Pet.PetName"
+                             class="img-fluid rounded"
+                             style="width: 100%; height: 300px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="fas fa-paw fa-5x text-muted"></i>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Thông tin cơ bản -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Thông tin cơ bản</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th width="40%">Loài:</th>
+                                <td><strong>@Model.Pet.Species</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Giống:</th>
+                                <td>@(Model.Pet.Breed ?? "Chưa rõ")</td>
+                            </tr>
+                            <tr>
+                                <th>Tuổi:</th>
+                                <td>@(Model.Pet.Age.HasValue ? Model.Pet.Age + " tuổi" : "Chưa rõ")</td>
+                            </tr>
+                            <tr>
+                                <th>Cân nặng:</th>
+                                <td>@(Model.Pet.Weight.HasValue ? Model.Pet.Weight + " kg" : "Chưa rõ")</td>
+                            </tr>
+                            <tr>
+                                <th>Giới tính:</th>
+                                <td>@(Model.Pet.Gender ?? "Chưa rõ")</td>
+                            </tr>
+                            <tr>
+                                <th>Màu lông:</th>
+                                <td>@(Model.Pet.Color ?? "Chưa rõ")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    @if (!string.IsNullOrEmpty(Model.Pet.SpecialNotes))
+                    {
+                        <hr />
+                        <h6><i class="fas fa-sticky-note text-warning"></i> Ghi chú đặc biệt:</h6>
+                        <p class="text-muted small mb-0">@Model.Pet.SpecialNotes</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Thống kê -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Thống kê tổng quan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-box">
+                                <i class="fas fa-syringe fa-2x text-danger mb-2"></i>
+                                <h4 class="mb-0">@Model.Statistics.TotalVaccinations</h4>
+                                <small class="text-muted">Lần tiêm phòng</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-box">
+                                <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
+                                <h4 class="mb-0">@Model.Statistics.TotalAppointments</h4>
+                                <small class="text-muted">Lịch hẹn</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                <h5 class="mb-0">@Model.Statistics.TotalSpent.ToString("N0")đ</h5>
+                                <small class="text-muted">Tổng chi tiêu</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                                <h6 class="mb-0">
+                                    @if (Model.Statistics.LastVisit.HasValue)
+                                    {
+                                        @Model.Statistics.LastVisit.Value.ToString("dd/MM/yyyy")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa có</span>
+                                    }
+                                </h6>
+                                <small class="text-muted">Lần ghé cuối</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: LỊCH SỬ TIÊM PHÒNG VÀ DỊCH VỤ -->
+        <div class="col-md-8">
+            <!-- Lịch sử tiêm phòng -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-syringe"></i>
+                        Lịch sử tiêm phòng
+                        <span class="badge badge-light ml-2">@Model.VaccinationHistory.Count</span>
+
+                        @if (Model.Statistics.UpcomingVaccinations > 0)
+                        {
+                            <span class="badge badge-warning ml-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                @Model.Statistics.UpcomingVaccinations sắp đến hạn
+                            </span>
+                        }
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.VaccinationHistory != null && Model.VaccinationHistory.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Tên vaccine</th>
+                                        <th>Ngày tiêm</th>
+                                        <th>Ngày tiêm lại</th>
+                                        <th>Người tiêm</th>
+                                        <th>Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var record in Model.VaccinationHistory)
+                                    {
+                                        <tr>
+                                            <td><strong>@record.VaccineName</strong></td>
+                                            <td>@record.VaccinationDate.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                @if (record.NextDueDate.HasValue)
+                                                {
+                                                    <span class="@(record.IsOverdue ? "text-danger font-weight-bold" : record.DaysUntilNextDue <= 30 ? "text-warning font-weight-bold" : "")">
+                                                        @record.NextDueDate.Value.ToString("dd/MM/yyyy")
+
+                                                        @if (record.IsOverdue)
+                                                        {
+                                                            <br /><small><i class="fas fa-exclamation-circle"></i> Quá hạn</small>
+                                                        }
+                                                        else if (record.DaysUntilNextDue.HasValue && record.DaysUntilNextDue <= 30)
+                                                        {
+                                                            <br /><small><i class="fas fa-bell"></i> Còn @record.DaysUntilNextDue ngày</small>
+                                                        }
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Chưa có</span>
+                                                }
+                                            </td>
+                                            <td>@record.VaccinatedBy</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(record.Notes))
+                                                {
+                                                    <small class="text-muted">@record.Notes</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Chưa có lịch sử tiêm phòng. Hãy đặt lịch khám để tiêm phòng cho thú cưng của bạn!
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Lịch sử sử dụng dịch vụ -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i>
+                        Lịch sử sử dụng dịch vụ
+                        <span class="badge badge-light ml-2">@Model.ServiceHistory.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ServiceHistory != null && Model.ServiceHistory.Any())
+                    {
+                        <div class="timeline">
+                            @foreach (var item in Model.ServiceHistory)
+                            {
+                                <div class="timeline-item mb-3">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar"></i>
+                                                @item.AppointmentDate.ToString("dd/MM/yyyy")
+                                                <br />
+                                                <i class="fas fa-clock"></i> @item.TimeSlot
+                                            </small>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="card border-left-@item.StatusColor mb-0">
+                                                <div class="card-body p-3">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="mb-2">
+                                                                <span class="badge badge-@item.StatusColor">@item.StatusDisplay</span>
+                                                            </h6>
+                                                            <p class="mb-1"><strong>Dịch vụ:</strong> @item.Services</p>
+                                                            @if (!string.IsNullOrEmpty(item.StaffName))
+                                                            {
+                                                                <p class="mb-0"><small class="text-muted"><strong>Nhân viên:</strong> @item.StaffName</small></p>
+                                                            }
+                                                        </div>
+                                                        <div class="text-right ml-3">
+                                                            <strong class="text-primary d-block">@item.TotalPrice.ToString("N0")đ</strong>
+                                                            @if (item.FullyPaid)
+                                                            {
+                                                                <small class="text-success">
+                                                                    <i class="fas fa-check-circle"></i> Đã thanh toán
+                                                                </small>
+                                                            }
+                                                            else
+                                                            {
+                                                                <small class="text-warning">
+                                                                    <i class="fas fa-exclamation-circle"></i> Chưa thanh toán hết
+                                                                </small>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            Chưa có lịch sử sử dụng dịch vụ. Hãy đặt lịch để trải nghiệm dịch vụ của chúng tôi!
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section styles {
+    <style>
+        /* Stat Box */
+        .stat-box {
+            padding: 15px 10px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            border: none;
+        }
+
+        /* Border Left Colors */
+        .border-left-primary {
+            border-left: 5px solid #007bff !important;
+        }
+
+        .border-left-success {
+            border-left: 5px solid #28a745 !important;
+        }
+
+        .border-left-warning {
+            border-left: 5px solid #ffc107 !important;
+        }
+
+        .border-left-info {
+            border-left: 5px solid #17a2b8 !important;
+        }
+
+        .border-left-danger {
+            border-left: 5px solid #dc3545 !important;
+        }
+
+        .border-left-secondary {
+            border-left: 5px solid #6c757d !important;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child) {
+            padding-bottom: 20px;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 60px;
+            top: 50px;
+            width: 2px;
+            height: calc(100% - 30px);
+            background: #dee2e6;
+        }
+
+        /* Table Hover Effect */
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        /* Badge Styling */
+        .badge {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        /* Alert Styling */
+        .alert {
+            border-radius: 8px;
+        }
+
+        /* Shadow Effects */
+        .shadow-sm {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .timeline-item::after {
+                display: none;
+            }
+
+            .stat-box h4, .stat-box h5 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+}

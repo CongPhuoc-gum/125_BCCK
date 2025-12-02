@@ -76,10 +76,22 @@
                 foreach (var service in Model)
                 {
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-img-top bg-primary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-paw fa-5x opacity-50"></i>
-                            </div>
+                        <div class="card h-100 shadow-sm service-card">
+                            @* Hiển thị ảnh từ database hoặc ảnh mặc định *@
+                            @if (!string.IsNullOrEmpty(service.ImageUrl))
+                            {
+                                <img src="@Url.Content(service.ImageUrl)"
+                                     class="card-img-top"
+                                     alt="@service.ServiceName"
+                                     style="height: 200px; object-fit: cover;"
+                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'card-img-top bg-primary text-white d-flex align-items-center justify-content-center\' style=\'height: 200px;\'><i class=\'fas fa-paw fa-5x opacity-50\'></i></div>';" />
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-primary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-paw fa-5x opacity-50"></i>
+                                </div>
+                            }
                             <div class="card-body">
                                 <span class="badge bg-info text-dark mb-2">@service.Category</span>
                                 <h5 class="card-title">@service.ServiceName</h5>
@@ -128,6 +140,25 @@
     </div>
 </section>
 
-**@section scripts {
+@section scripts {
+    <style>
+        /* Hover effect cho service card */
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
 
-}**
+            .service-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+
+            .service-card img {
+                transition: transform 0.3s ease;
+            }
+
+            .service-card:hover img {
+                transform: scale(1.1);
+            }
+    </style>
+}
