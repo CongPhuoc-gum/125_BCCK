@@ -1,0 +1,225 @@
+﻿@model _125_BCCK.Models.Pet
+
+@{
+    ViewBag.Title = "Chỉnh sửa thông tin thú cưng";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="mb-2" style="color: #5a6c7d; font-weight: 600;">
+                    <i class="fas fa-edit" style="color: #c9a77a;"></i> Chỉnh sửa thông tin
+                </h2>
+                <p class="text-muted" style="font-size: 0.95rem;">Cập nhật thông tin của <strong>@Model.PetName</strong></p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm" style="border: none; border-radius: 12px;">
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Edit", "Pets", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.PetId)
+                        @Html.HiddenFor(model => model.OwnerId)
+                        @Html.HiddenFor(model => model.ImageUrl)
+                        @Html.HiddenFor(model => model.IsActive)
+                        @Html.HiddenFor(model => model.CreatedAt)
+
+                        <div class="row g-3">
+                            <!-- Ảnh hiện tại -->
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="col-12">
+                                    <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                        <i class="fas fa-image" style="color: #a8c5dd; font-size: 0.85rem;"></i> Ảnh hiện tại
+                                    </label>
+                                    <div class="current-image mb-3">
+                                        <img src="@Url.Content(Model.ImageUrl)" alt="@Model.PetName" class="img-thumbnail" style="max-width: 180px; max-height: 180px; border: 2px solid #d4dce5; border-radius: 8px;">
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Tên thú cưng -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-paw" style="color: #8fb3d1; font-size: 0.85rem;"></i> Tên thú cưng
+                                    <span style="color: #e07a7a;">*</span>
+                                </label>
+                                @Html.TextBoxFor(model => model.PetName, new { @class = "form-control form-control-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.PetName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Loài -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-tag" style="color: #98c9a3; font-size: 0.85rem;"></i> Loài
+                                    <span style="color: #e07a7a;">*</span>
+                                </label>
+                                @Html.DropDownListFor(model => model.Species,
+                                    new SelectList(new[] { "Chó", "Mèo", "Chim", "Thỏ", "Hamster", "Khác" }, Model.Species),
+                                    "-- Chọn loài --",
+                                    new { @class = "form-select form-select-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Species, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Giống -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-dna" style="color: #a8c5dd; font-size: 0.85rem;"></i> Giống
+                                </label>
+                                @Html.TextBoxFor(model => model.Breed, new { @class = "form-control form-control-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Breed, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Giới tính -->
+                            <div class="col-md-6">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-venus-mars" style="color: #d4a5c7; font-size: 0.85rem;"></i> Giới tính
+                                </label>
+                                @Html.DropDownListFor(model => model.Gender,
+                                    new SelectList(new[] { "Đực", "Cái" }, Model.Gender),
+                                    "-- Chọn giới tính --",
+                                    new { @class = "form-select form-select-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                            </div>
+
+                            <!-- Tuổi -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-birthday-cake" style="color: #f4b4a8; font-size: 0.85rem;"></i> Tuổi
+                                </label>
+                                @Html.TextBoxFor(model => model.Age, new { @class = "form-control form-control-sm", type = "number", min = "0", max = "50", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Age, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Cân nặng -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-weight" style="color: #8fb3d1; font-size: 0.85rem;"></i> Cân nặng (kg)
+                                </label>
+                                @Html.TextBoxFor(model => model.Weight, new { @class = "form-control form-control-sm", type = "number", step = "0.1", min = "0.1", max = "200", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                                @Html.ValidationMessageFor(model => model.Weight, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Màu lông -->
+                            <div class="col-md-4">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-palette" style="color: #c9b8d4; font-size: 0.85rem;"></i> Màu lông
+                                </label>
+                                @Html.TextBoxFor(model => model.Color, new { @class = "form-control form-control-sm", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                            </div>
+
+                            <!-- Upload ảnh mới -->
+                            <div class="col-12">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-image" style="color: #a8c5dd; font-size: 0.85rem;"></i> Thay đổi ảnh (tùy chọn)
+                                </label>
+                                <div class="image-upload-container">
+                                    <input type="file" name="ImageFile" id="imageFile" accept="image/*" class="form-control form-control-sm" style="border-color: #d4dce5; font-size: 0.9rem;" />
+                                    <div class="image-preview mt-3" id="imagePreview" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 250px; border: 2px solid #d4dce5; border-radius: 8px;">
+                                        <button type="button" class="btn btn-sm mt-2" onclick="removeImage()" style="background-color: #e8a19f; color: white; border: none; font-size: 0.85rem;">
+                                            <i class="fas fa-times"></i> Xóa ảnh mới
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2" style="font-size: 0.85rem;">
+                                        <i class="fas fa-info-circle"></i> Để trống nếu không muốn thay đổi ảnh
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Ghi chú đặc biệt -->
+                            <div class="col-12">
+                                <label class="form-label" style="font-size: 0.9rem; color: #5a6c7d; font-weight: 500;">
+                                    <i class="fas fa-notes-medical" style="color: #f4c28f; font-size: 0.85rem;"></i> Ghi chú đặc biệt
+                                </label>
+                                @Html.TextAreaFor(model => model.SpecialNotes, new { @class = "form-control", rows = "4", style = "border-color: #d4dce5; font-size: 0.9rem;" })
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="col-12">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="@Url.Action("Index")" class="btn btn-sm" style="background-color: #e8ecef; color: #5a6c7d; border: none; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-sm" style="background-color: #c9a77a; color: white; border: none; padding: 0.5rem 1.5rem; font-size: 0.9rem;">
+                                        <i class="fas fa-save"></i> Cập nhật
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <style>
+        .image-upload-container {
+            padding: 1rem;
+            border: 1.5px dashed #d4dce5;
+            border-radius: 8px;
+            background-color: #f8fafb;
+        }
+
+        .btn {
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+            .btn:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #7c9ab5;
+            box-shadow: 0 0 0 0.15rem rgba(124, 154, 181, 0.15);
+        }
+
+        @@media (max-width: 768px) {
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+
+    <script>
+        document.getElementById('imageFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước file không được vượt quá 5MB!');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removeImage() {
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        $(document).ready(function () {
+            $('form').submit(function () {
+                const submitBtn = $(this).find('button[type="submit"]');
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Đang cập nhật...').prop('disabled', true);
+            });
+        });
+    </script>
+}

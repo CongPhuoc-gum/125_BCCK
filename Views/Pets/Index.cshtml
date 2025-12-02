@@ -1,0 +1,346 @@
+﻿@model IEnumerable<_125_BCCK.Models.Pet>
+
+@{
+    ViewBag.Title = "Thú cưng của tôi";
+}
+
+<div class="container my-5">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="text-primary">
+                <i class="fas fa-dog"></i> Thú cưng của tôi
+            </h2>
+            <p class="text-muted">Quản lý thông tin các thú cưng của bạn</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Create")" class="btn btn-success btn-lg">
+                <i class="fas fa-plus-circle"></i> Thêm thú cưng mới
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Pets Grid -->
+        <div class="row g-4">
+            @foreach (var pet in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm pet-card">
+                        <!-- Pet Image -->
+                        <div class="pet-image-container">
+                            @if (!string.IsNullOrEmpty(pet.ImageUrl))
+                            {
+                                <img src="@Url.Content(pet.ImageUrl)" class="card-img-top pet-image" alt="@pet.PetName">
+                            }
+                            else
+                            {
+                                <div class="pet-image-placeholder">
+                                    <i class="fas fa-paw fa-5x text-muted"></i>
+                                </div>
+                            }
+
+                            <!-- Gender Badge -->
+                            @if (!string.IsNullOrEmpty(pet.Gender))
+                            {
+                                <span class="badge position-absolute top-0 end-0 m-2 @(pet.Gender == "Đực" ? "bg-info" : "bg-danger")">
+                                    <i class="fas fa-@(pet.Gender == "Đực" ? "mars" : "venus")"></i> @pet.Gender
+                                </span>
+                            }
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Pet Name -->
+                            <h5 class="card-title text-primary mb-3">
+                                <i class="fas fa-paw"></i> @pet.PetName
+                            </h5>
+
+                            <!-- Pet Info -->
+                            <div class="pet-info mb-3">
+                                <p class="mb-2">
+                                    <i class="fas fa-tag text-muted"></i>
+                                    <strong>Loài:</strong> @pet.Species
+                                </p>
+
+                                @if (!string.IsNullOrEmpty(pet.Breed))
+                                {
+                                    <p class="mb-2">
+                                        <i class="fas fa-dna text-muted"></i>
+                                        <strong>Giống:</strong> @pet.Breed
+                                    </p>
+                                }
+
+                                @if (pet.Age.HasValue)
+                                {
+                                    <p class="mb-2">
+                                        <i class="fas fa-birthday-cake text-muted"></i>
+                                        <strong>Tuổi:</strong> @pet.Age tuổi
+                                    </p>
+                                }
+
+                                @if (pet.Weight.HasValue)
+                                {
+                                    <p class="mb-2">
+                                        <i class="fas fa-weight text-muted"></i>
+                                        <strong>Cân nặng:</strong> @pet.Weight kg
+                                    </p>
+                                }
+
+                                @if (!string.IsNullOrEmpty(pet.Color))
+                                {
+                                    <p class="mb-2">
+                                        <i class="fas fa-palette text-muted"></i>
+                                        <strong>Màu:</strong> @pet.Color
+                                    </p>
+                                }
+                            </div>
+
+                            <!-- Special Notes Preview -->
+                            @if (!string.IsNullOrEmpty(pet.SpecialNotes))
+                            {
+                                <div class="alert alert-info py-2 small mb-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    @(pet.SpecialNotes.Length > 50 ? pet.SpecialNotes.Substring(0, 50) + "..." : pet.SpecialNotes)
+                                </div>
+                            }
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 justify-content-between">
+                                <a href="@Url.Action("Details", new { id = pet.PetId })" class="btn btn-outline-primary btn-sm flex-fill">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = pet.PetId })" class="btn btn-outline-warning btn-sm flex-fill">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm flex-fill" onclick="confirmDelete(@pet.PetId, '@pet.PetName')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer with Date -->
+                        <div class="card-footer bg-light text-muted small">
+                            <i class="fas fa-clock"></i> Thêm ngày: @pet.CreatedAt.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-dog fa-5x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">Bạn chưa có thú cưng nào</h4>
+                <p class="text-muted mb-4">Hãy thêm thú cưng đầu tiên của bạn để bắt đầu sử dụng dịch vụ</p>
+                <a href="@Url.Action("Create")" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus-circle"></i> Thêm thú cưng đầu tiên
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa thú cưng <strong id="petNameToDelete"></strong> không?</p>
+                <p class="text-danger small mb-0">
+                    <i class="fas fa-info-circle"></i> Hành động này không thể hoàn tác!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Xác nhận xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <style>
+        /* Pet Card Styles */
+        .pet-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+            .pet-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+            }
+
+        .pet-image-container {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        .pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .pet-card:hover .pet-image {
+            transform: scale(1.1);
+        }
+
+        .pet-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0.3;
+        }
+
+        .pet-info p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .pet-info i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Empty State */
+        .empty-state {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        /* Button Hover Effects */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+            .btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .pet-image-container {
+                height: 200px;
+            }
+
+            .btn-lg {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+
+    <script>
+        let petIdToDelete = 0;
+
+        function confirmDelete(petId, petName) {
+            petIdToDelete = petId;
+            document.getElementById('petNameToDelete').textContent = petName;
+
+            // Show modal
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (petIdToDelete > 0) {
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+                this.disabled = true;
+
+                // Get anti-forgery token
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                if (!token) {
+                    // Create a hidden form to get the token
+                    var form = $('<form>', {
+                        action: '@Url.Action("Delete")',
+                        method: 'POST'
+                    }).appendTo('body');
+
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: '__RequestVerificationToken',
+                        value: $('@Html.AntiForgeryToken()').val()
+                    }).appendTo(form);
+
+                    token = form.find('input[name="__RequestVerificationToken"]').val();
+                    form.remove();
+                }
+
+                // Send delete request
+                $.ajax({
+                    url: '@Url.Action("Delete")',
+                    type: 'POST',
+                    data: {
+                        id: petIdToDelete,
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Close modal
+                            var deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                            deleteModal.hide();
+
+                            // Show success message
+                            var alertHtml = '<div class="alert alert-success alert-dismissible fade show m-3" role="alert">' +
+                                '<i class="fas fa-check-circle"></i> ' + response.message +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                                '</div>';
+                            $('main').prepend(alertHtml);
+
+                            // Reload page after 1 second
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                            // Reset button
+                            document.getElementById('confirmDeleteBtn').innerHTML = '<i class="fas fa-trash"></i> Xác nhận xóa';
+                            document.getElementById('confirmDeleteBtn').disabled = false;
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi xóa thú cưng!');
+                        // Reset button
+                        document.getElementById('confirmDeleteBtn').innerHTML = '<i class="fas fa-trash"></i> Xác nhận xóa';
+                        document.getElementById('confirmDeleteBtn').disabled = false;
+                    }
+                });
+            }
+        });
+
+        // Reset modal when closed
+        document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+            petIdToDelete = 0;
+            document.getElementById('confirmDeleteBtn').innerHTML = '<i class="fas fa-trash"></i> Xác nhận xóa';
+            document.getElementById('confirmDeleteBtn').disabled = false;
+        });
+    </script>
+}

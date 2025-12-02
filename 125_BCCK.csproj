@@ -130,14 +130,21 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\PetsController.cs" />
+    <Compile Include="Controllers\ServicesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\SessionHelper.cs" />
+    <Compile Include="Models\Appointment.cs" />
+    <Compile Include="Models\Pet.cs" />
     <Compile Include="Models\PetCareContext.cs" />
     <Compile Include="Models\Service.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\VaccinationRecord.cs" />
+    <Compile Include="Models\AppointmentService.cs" />
     <Compile Include="Models\ViewModels\LoginViewModel.cs" />
+    <Compile Include="Models\ViewModels\PetDetailsViewModel.cs" />
     <Compile Include="Models\ViewModels\RegisterViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -159,6 +166,27 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\css\style.css" />
+    <Content Include="Content\Images\banner.jpg" />
+    <Content Include="Content\Images\imagetitle.jpg" />
+    <Content Include="Content\Images\logo.png" />
+    <Content Include="Content\Images\pets\710d1281-d353-4d00-a4e6-1e5435b77a82.jpg" />
+    <Content Include="Content\Images\services\cat-mong.jpg" />
+    <Content Include="Content\Images\services\cat-show.jpg" />
+    <Content Include="Content\Images\services\cat-tia-co-ban.jpg" />
+    <Content Include="Content\Images\services\cat-tia-tao-kieu.jpg" />
+    <Content Include="Content\Images\services\kham-tong-quat.jpg" />
+    <Content Include="Content\Images\services\massage.jpg" />
+    <Content Include="Content\Images\services\nhuom-long.jpg" />
+    <Content Include="Content\Images\services\spa-vip.jpg" />
+    <Content Include="Content\Images\services\tam-cao-cap.jpg" />
+    <Content Include="Content\Images\services\tam-co-ban.jpg" />
+    <Content Include="Content\Images\services\tam-tri-lieu.jpg" />
+    <Content Include="Content\Images\services\tay-giun.jpg" />
+    <Content Include="Content\Images\services\tiem-5-benh.jpg" />
+    <Content Include="Content\Images\services\tiem-7-benh.jpg" />
+    <Content Include="Content\Images\services\tiem-dai.jpg" />
+    <Content Include="Content\Images\services\tri-ve-ran.jpg" />
+    <Content Include="Content\Images\services\ve-sinh-rang.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -195,10 +223,15 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Services\Details.cshtml" />
+    <Content Include="Views\Services\Index.cshtml" />
+    <Content Include="Views\Pets\Index.cshtml" />
+    <Content Include="Views\Pets\Create.cshtml" />
+    <Content Include="Views\Pets\Details.cshtml" />
+    <Content Include="Views\Pets\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

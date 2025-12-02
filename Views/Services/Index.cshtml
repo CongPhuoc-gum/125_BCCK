@@ -1,0 +1,129 @@
+﻿@model List<_125_BCCK.Models.Service>
+@{
+    ViewBag.Title = "Danh sách dịch vụ";
+}
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">
+            <i class="fas fa-list text-primary"></i> Dịch Vụ Của Chúng Tôi
+        </h1>
+        <p class="lead text-muted">Chăm sóc thú cưng toàn diện với đội ngũ chuyên nghiệp</p>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="@Url.Action("Index")"
+                   class="btn @(string.IsNullOrEmpty(ViewBag.SelectedCategory) ? "btn-primary" : "btn-outline-primary")">
+                    <i class="fas fa-th"></i> Tất cả
+                </a>
+                @if (ViewBag.Categories != null)
+                {
+                    foreach (var category in ViewBag.Categories)
+                    {
+                        <a href="@Url.Action("Index", new { category = category })"
+                           class="btn @(ViewBag.SelectedCategory == category ? "btn-primary" : "btn-outline-primary")">
+                            @category
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Grid -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var service in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <!-- Image from Database -->
+                        @if (!string.IsNullOrEmpty(service.ImageUrl))
+                        {
+                            <img src="@Url.Content(service.ImageUrl)"
+                                 class="card-img-top"
+                                 alt="@service.ServiceName"
+                                 style="height: 200px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='~/Content/Images/no-image.jpg';" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center"
+                                 style="height: 200px;">
+                                <i class="fas fa-image fa-3x opacity-50"></i>
+                            </div>
+                        }
+
+                        <!-- Body -->
+                        <div class="card-body">
+                            <span class="badge bg-info text-dark mb-2">@service.Category</span>
+                            <h5 class="card-title">@service.ServiceName</h5>
+                            <p class="card-text text-muted small">
+                                @(service.Description != null && service.Description.Length > 100
+                                    ? service.Description.Substring(0, 100) + "..."
+                                    : service.Description)
+                            </p>
+
+                            <!-- Price & Duration -->
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <div class="text-primary fw-bold fs-5">
+                                        @string.Format("{0:N0}", service.Price) đ
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> @service.Duration phút
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="card-footer bg-white border-0">
+                            <a href="@Url.Action("Details", new { id = service.ServiceId })"
+                               class="btn btn-primary w-100">
+                                <i class="fas fa-info-circle"></i> Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-3"></i>
+            <p class="lead mb-0">Không có dịch vụ nào trong danh mục này.</p>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <style>
+        .hover-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .hover-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            }
+
+        .card-img-top {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+
+        .card {
+            overflow: hidden;
+        }
+    </style>
+}

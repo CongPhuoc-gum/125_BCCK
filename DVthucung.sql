@@ -1,8 +1,23 @@
-﻿IF DB_ID('PetCareDB') IS NOT NULL
+﻿-- =============================================
+-- PETCARE DATABASE - COMPLETE VERSION
+-- Hệ thống quản lý chăm sóc thú cưng
+-- Tính năng: Đặt lịch, Thanh toán cọc, Gửi email
+-- =============================================
+
+-- Đảm bảo không còn kết nối nào đến database
+USE master;
+GO
+
+-- Đóng tất cả kết nối đến PetCareDB
+IF DB_ID('PetCareDB') IS NOT NULL
 BEGIN
     ALTER DATABASE PetCareDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE PetCareDB;
-    PRINT N'Đã xóa database cũ thành công.';
+    PRINT N'✓ Đã xóa database cũ thành công.';
+END
+ELSE
+BEGIN
+    PRINT N'✓ Database chưa tồn tại, sẽ tạo mới.';
 END
 GO
 
@@ -13,6 +28,22 @@ GO
 USE PetCareDB;
 GO
 
+PRINT N'=== BẮT ĐẦU TẠO CẤU TRÚC DATABASE ===';
+GO
+
+-- Tạo database mới
+CREATE DATABASE PetCareDB;
+GO
+
+USE PetCareDB;
+GO
+
+PRINT N'=== BẮT ĐẦU TẠO CẤU TRÚC DATABASE ===';
+GO
+
+-- =============================================
+-- BẢNG USERS (Admin, Staff, Customer)
+-- =============================================
 CREATE TABLE Users (
     UserId INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -29,18 +60,21 @@ CREATE TABLE Users (
 );
 GO
 
+-- =============================================
+-- BẢNG PETS (Thú cưng)
+-- =============================================
 CREATE TABLE Pets (
     PetId INT PRIMARY KEY IDENTITY(1,1),
     OwnerId INT NOT NULL,
     PetName NVARCHAR(100) NOT NULL,
-    Species NVARCHAR(50) NOT NULL,              -- Loài: Chó, Mèo, Hamster...
-    Breed NVARCHAR(100) NULL,                   -- Giống: Golden, Poodle...
-    Age INT NULL,                               -- Tuổi (năm)
-    Weight DECIMAL(5,2) NULL,                   -- Cân nặng (kg)
-    Gender NVARCHAR(10) NULL,                   -- Giới tính
-    Color NVARCHAR(50) NULL,                    -- Màu lông
-    ImageUrl NVARCHAR(255) NULL,                -- Đường dẫn hình ảnh
-    SpecialNotes NVARCHAR(MAX) NULL,            -- Ghi chú đặc biệt (dị ứng, tiền sử...)
+    Species NVARCHAR(50) NOT NULL,
+    Breed NVARCHAR(100) NULL,
+    Age INT NULL,
+    Weight DECIMAL(5,2) NULL,
+    Gender NVARCHAR(10) NULL,
+    Color NVARCHAR(50) NULL,
+    ImageUrl NVARCHAR(255) NULL,
+    SpecialNotes NVARCHAR(MAX) NULL,
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     
@@ -49,13 +83,16 @@ CREATE TABLE Pets (
 );
 GO
 
+-- =============================================
+-- BẢNG SERVICES (Dịch vụ)
+-- =============================================
 CREATE TABLE Services (
     ServiceId INT PRIMARY KEY IDENTITY(1,1),
     ServiceName NVARCHAR(100) NOT NULL,
     Description NVARCHAR(MAX) NULL,
-    Category NVARCHAR(50) NOT NULL,             -- Danh mục: Tắm rửa, Cắt tỉa, Y tế, Spa...
-    Duration INT NOT NULL,                      -- Thời lượng (phút)
-    Price DECIMAL(10,2) NOT NULL,               -- Giá tiền (VND)
+    Category NVARCHAR(50) NOT NULL,
+    Duration INT NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
     ImageUrl NVARCHAR(255) NULL,
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
@@ -64,18 +101,33 @@ CREATE TABLE Services (
 );
 GO
 
+-- =============================================
+-- BẢNG APPOINTMENTS (Lịch hẹn với thanh toán)
+-- =============================================
 CREATE TABLE Appointments (
     AppointmentId INT PRIMARY KEY IDENTITY(1,1),
     CustomerId INT NOT NULL,
     PetId INT NOT NULL,
-    StaffId INT NULL,                           -- Nhân viên phụ trách (có thể NULL khi chưa phân công)
+    StaffId INT NULL,
     AppointmentDate DATE NOT NULL,
-    TimeSlot NVARCHAR(20) NOT NULL,             -- VD: "08:00-08:30"
+    TimeSlot NVARCHAR(20) NOT NULL,
     Status NVARCHAR(20) NOT NULL DEFAULT 'Pending',
-    CustomerNotes NVARCHAR(MAX) NULL,           -- Ghi chú từ khách hàng
-    StaffNotes NVARCHAR(MAX) NULL,              -- Ghi chú từ nhân viên (sau khi hoàn thành)
-    CancelReason NVARCHAR(MAX) NULL,            -- Lý do hủy (nếu có)
+    CustomerNotes NVARCHAR(MAX) NULL,
+    StaffNotes NVARCHAR(MAX) NULL,
+    CancelReason NVARCHAR(MAX) NULL,
+    
+    -- THANH TOÁN
     TotalPrice DECIMAL(10,2) NOT NULL,
+    DepositAmount DECIMAL(10,2) NULL DEFAULT 0,
+    DepositPaid BIT NOT NULL DEFAULT 0,
+    RemainingAmount DECIMAL(10,2) NULL,
+    FullyPaid BIT NOT NULL DEFAULT 0,
+    PaymentMethod NVARCHAR(50) NULL, -- 'Cash', 'BankTransfer', 'Card', 'Momo', 'ZaloPay'
+    
+    -- EMAIL
+    EmailSent BIT NOT NULL DEFAULT 0,
+    EmailSentDate DATETIME NULL,
+    
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME NULL,
     
@@ -86,26 +138,70 @@ CREATE TABLE Appointments (
 );
 GO
 
+-- =============================================
+-- BẢNG APPOINTMENTSERVICES (Chi tiết dịch vụ trong lịch hẹn)
+-- =============================================
 CREATE TABLE AppointmentServices (
     AppointmentServiceId INT PRIMARY KEY IDENTITY(1,1),
     AppointmentId INT NOT NULL,
     ServiceId INT NOT NULL,
-    ServicePrice DECIMAL(10,2) NOT NULL,        -- Lưu giá tại thời điểm đặt (tránh thay đổi sau)
+    ServicePrice DECIMAL(10,2) NOT NULL,
     
     CONSTRAINT FK_AppointmentServices_Appointments FOREIGN KEY (AppointmentId) REFERENCES Appointments(AppointmentId) ON DELETE CASCADE,
     CONSTRAINT FK_AppointmentServices_Services FOREIGN KEY (ServiceId) REFERENCES Services(ServiceId)
 );
 GO
 
+-- =============================================
+-- BẢNG PAYMENTTRANSACTIONS (Lịch sử thanh toán)
+-- =============================================
+CREATE TABLE PaymentTransactions (
+    TransactionId INT PRIMARY KEY IDENTITY(1,1),
+    AppointmentId INT NOT NULL,
+    TransactionType NVARCHAR(20) NOT NULL, -- 'Deposit' hoặc 'Final'
+    Amount DECIMAL(10,2) NOT NULL,
+    PaymentMethod NVARCHAR(50) NULL,
+    PaymentDate DATETIME NOT NULL DEFAULT GETDATE(),
+    ProcessedBy INT NULL, -- StaffId xử lý thanh toán
+    Notes NVARCHAR(MAX) NULL,
+    
+    CONSTRAINT FK_PaymentTransactions_Appointments FOREIGN KEY (AppointmentId) REFERENCES Appointments(AppointmentId),
+    CONSTRAINT FK_PaymentTransactions_ProcessedBy FOREIGN KEY (ProcessedBy) REFERENCES Users(UserId),
+    CONSTRAINT CK_PaymentTransactions_Type CHECK (TransactionType IN ('Deposit', 'Final'))
+);
+GO
+
+-- =============================================
+-- BẢNG EMAILLOGS (Tracking email đã gửi)
+-- =============================================
+CREATE TABLE EmailLogs (
+    EmailLogId INT PRIMARY KEY IDENTITY(1,1),
+    AppointmentId INT NOT NULL,
+    RecipientEmail NVARCHAR(100) NOT NULL,
+    EmailType NVARCHAR(50) NOT NULL, -- 'BookingConfirmation', 'StatusUpdate', 'PaymentReminder'
+    Subject NVARCHAR(255) NOT NULL,
+    Body NVARCHAR(MAX) NOT NULL,
+    SentDate DATETIME NOT NULL DEFAULT GETDATE(),
+    IsSuccess BIT NOT NULL DEFAULT 1,
+    ErrorMessage NVARCHAR(MAX) NULL,
+    
+    CONSTRAINT FK_EmailLogs_Appointments FOREIGN KEY (AppointmentId) REFERENCES Appointments(AppointmentId),
+    CONSTRAINT CK_EmailLogs_Type CHECK (EmailType IN ('BookingConfirmation', 'StatusUpdate', 'PaymentReminder', 'Cancelled'))
+);
+GO
+
+-- =============================================
+-- BẢNG VACCINATIONRECORDS (Hồ sơ tiêm phòng)
+-- =============================================
 CREATE TABLE VaccinationRecords (
     RecordId INT PRIMARY KEY IDENTITY(1,1),
     PetId INT NOT NULL,
     AppointmentId INT NOT NULL,
-    VaccineName NVARCHAR(200) NOT NULL,         -- Tên vaccine (VD: Vaccine 5 bệnh)
+    VaccineName NVARCHAR(200) NOT NULL,
     VaccinationDate DATE NOT NULL,
-    NextDueDate DATE NULL,                      -- Ngày hẹn tiêm nhắc lại
-    Notes NVARCHAR(MAX) NULL,                   -- Ghi chú (phản ứng, tình trạng...)
-    StaffId INT NOT NULL,                       -- Nhân viên thực hiện
+    NextDueDate DATE NULL,
+    Notes NVARCHAR(MAX) NULL,
+    StaffId INT NOT NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     
     CONSTRAINT FK_VaccinationRecords_Pets FOREIGN KEY (PetId) REFERENCES Pets(PetId),
@@ -114,6 +210,9 @@ CREATE TABLE VaccinationRecords (
 );
 GO
 
+-- =============================================
+-- BẢNG WORKSCHEDULES (Giờ làm việc)
+-- =============================================
 CREATE TABLE WorkSchedules (
     ScheduleId INT PRIMARY KEY IDENTITY(1,1),
     DayOfWeek NVARCHAR(20) NOT NULL UNIQUE,
@@ -125,6 +224,9 @@ CREATE TABLE WorkSchedules (
 );
 GO
 
+-- =============================================
+-- TẠO INDEX ĐỂ TỐI ƯU HIỆU SUẤT
+-- =============================================
 CREATE INDEX IX_Pets_OwnerId ON Pets(OwnerId);
 CREATE INDEX IX_Appointments_CustomerId ON Appointments(CustomerId);
 CREATE INDEX IX_Appointments_PetId ON Appointments(PetId);
@@ -133,12 +235,21 @@ CREATE INDEX IX_Appointments_Date ON Appointments(AppointmentDate);
 CREATE INDEX IX_Appointments_Status ON Appointments(Status);
 CREATE INDEX IX_AppointmentServices_AppointmentId ON AppointmentServices(AppointmentId);
 CREATE INDEX IX_VaccinationRecords_PetId ON VaccinationRecords(PetId);
+CREATE INDEX IX_PaymentTransactions_AppointmentId ON PaymentTransactions(AppointmentId);
+CREATE INDEX IX_EmailLogs_AppointmentId ON EmailLogs(AppointmentId);
 GO
+
+PRINT N'✓ Đã tạo xong cấu trúc bảng và index';
+GO
+
+-- =============================================
+-- NHẬP DỮ LIỆU MẪU
+-- =============================================
 
 PRINT N'=== BẮT ĐẦU NHẬP DỮ LIỆU MẪU ===';
 GO
 
--- 1. Users - 1 Admin, 2 Staff, 3 Customers
+-- 1. USERS
 INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, Role, IsActive)
 VALUES 
 -- Admin (password: admin123)
@@ -157,28 +268,41 @@ GO
 PRINT N'✓ Đã thêm 6 Users (1 Admin, 2 Staff, 3 Customers)';
 GO
 
--- 2. Services - Dịch vụ
+-- 2. SERVICES
 INSERT INTO Services (ServiceName, Description, Category, Duration, Price, ImageUrl, IsActive)
 VALUES 
-(N'Tắm vệ sinh cơ bản', N'Dịch vụ tắm rửa vệ sinh cơ bản cho thú cưng: Dầu gội chuyên dụng, sấy khô, vệ sinh tai, cắt móng', N'Tắm rửa', 60, 150000, '/Content/images/services/tam-co-ban.jpg', 1),
-(N'Tắm vệ sinh cao cấp', N'Tắm rửa với sản phẩm cao cấp, massage thư giãn, vệ sinh tai, cắt móng, dưỡng lông', N'Tắm rửa', 90, 250000, '/Content/images/services/tam-cao-cap.jpg', 1),
+-- TẮM RỬA
+(N'Tắm vệ sinh cơ bản', N'Dịch vụ tắm rửa vệ sinh cơ bản cho thú cưng: Dầu gội chuyên dụng, sấy khô, vệ sinh tai, cắt móng', N'Tắm rửa', 60, 150000, '/Content/Images/services/tam-co-ban.jpg', 1),
+(N'Tắm vệ sinh cao cấp', N'Tắm rửa với sản phẩm cao cấp, massage thư giãn, vệ sinh tai, cắt móng, dưỡng lông', N'Tắm rửa', 90, 250000, '/Content/Images/services/tam-cao-cap.jpg', 1),
+(N'Tắm trị liệu da nhạy cảm', N'Tắm với dầu gội trị liệu đặc biệt cho thú cưng bị ngứa, viêm da, dị ứng', N'Tắm rửa', 75, 300000, '/Content/Images/services/tam-tri-lieu.jpg', 1),
 
-(N'Cắt tỉa lông cơ bản', N'Cắt tỉa lông gọn gàng, vệ sinh móng', N'Cắt tỉa', 60, 200000, '/Content/images/services/cat-tia-co-ban.jpg', 1),
-(N'Cắt tỉa lông tạo kiểu', N'Cắt tỉa lông theo kiểu dáng chuyên nghiệp, tạo hình theo yêu cầu', N'Cắt tỉa', 90, 350000, '/Content/images/services/cat-tia-tao-kieu.jpg', 1),
+-- CẮT TỈA
+(N'Cắt tỉa lông cơ bản', N'Cắt tỉa lông gọn gàng, vệ sinh móng', N'Cắt tỉa', 60, 200000, '/Content/Images/services/cat-tia-co-ban.jpg', 1),
+(N'Cắt tỉa lông tạo kiểu', N'Cắt tỉa lông theo kiểu dáng chuyên nghiệp, tạo hình theo yêu cầu', N'Cắt tỉa', 90, 350000, '/Content/Images/services/cat-tia-tao-kieu.jpg', 1),
+(N'Cắt tỉa theo tiêu chuẩn show', N'Cắt tỉa theo tiêu chuẩn triển lãm quốc tế', N'Cắt tỉa', 120, 500000, '/Content/Images/services/cat-show.jpg', 1),
 
-(N'Khám sức khỏe tổng quát', N'Khám sức khỏe định kỳ, kiểm tra các chỉ số cơ bản, tư vấn dinh dưỡng', N'Y tế', 45, 300000, '/Content/images/services/kham-tong-quat.jpg', 1),
-(N'Tiêm phòng 5 bệnh', N'Tiêm phòng vaccine 5 bệnh (Care, Parvo, Hepatitis, Leptospirosis, Parainfluenza)', N'Y tế', 30, 200000, '/Content/images/services/tiem-5-benh.jpg', 1),
-(N'Tiêm phòng dại', N'Tiêm phòng bệnh dại (Rabies) - bắt buộc cho chó mèo', N'Y tế', 20, 150000, '/Content/images/services/tiem-dai.jpg', 1),
-(N'Tẩy giun, ve rận', N'Tẩy giun sán định kỳ, trị ve rận cho thú cưng', N'Y tế', 15, 100000, '/Content/images/services/tay-giun.jpg', 1),
+-- Y TẾ
+(N'Khám sức khỏe tổng quát', N'Khám sức khỏe định kỳ, kiểm tra các chỉ số cơ bản, tư vấn dinh dưỡng', N'Y tế', 45, 300000, '/Content/Images/services/kham-tong-quat.jpg', 1),
+(N'Tiêm phòng 5 bệnh', N'Tiêm phòng vaccine 5 bệnh (Care, Parvo, Hepatitis, Leptospirosis, Parainfluenza)', N'Y tế', 30, 200000, '/Content/Images/services/tiem-5-benh.jpg', 1),
+(N'Tiêm phòng 7 bệnh', N'Tiêm phòng vaccine 7 bệnh - bảo vệ toàn diện hơn', N'Y tế', 30, 250000, '/Content/Images/services/tiem-7-benh.jpg', 1),
+(N'Tiêm phòng dại', N'Tiêm phòng bệnh dại (Rabies) - bắt buộc cho chó mèo', N'Y tế', 20, 150000, '/Content/Images/services/tiem-dai.jpg', 1),
+(N'Tẩy giun sán định kỳ', N'Tẩy giun sán đường ruột 3-6 tháng/lần', N'Y tế', 15, 100000, '/Content/Images/services/tay-giun.jpg', 1),
+(N'Trị ve, bọ chét, rận', N'Xịt thuốc diệt ve rận bọ chét an toàn', N'Y tế', 20, 120000, '/Content/Images/services/tri-ve-ran.jpg', 1),
+(N'Vệ sinh răng miệng', N'Đánh bóng răng, loại bỏ cao răng, khử mùi hôi miệng', N'Y tế', 40, 250000, '/Content/Images/services/ve-sinh-rang.jpg', 1),
 
-(N'Spa thú cưng', N'Dịch vụ spa thư giãn toàn thân, massage, xông hơi, dưỡng lông chuyên sâu', N'Spa', 120, 500000, '/Content/images/services/spa.jpg', 1),
-(N'Nhuộm lông an toàn', N'Nhuộm lông với thuốc nhuộm an toàn, không gây kích ứng', N'Khác', 90, 350000, '/Content/images/services/nhuom-long.jpg', 1);
+-- SPA
+(N'Spa thú cưng VIP', N'Dịch vụ spa thư giãn toàn thân: massage, xông hơi thảo mộc, dưỡng lông phục hồi', N'Spa', 120, 500000, '/Content/Images/services/spa-vip.jpg', 1),
+(N'Massage thư giãn', N'Massage giúp thú cưng thư giãn, giảm stress, cải thiện tuần hoàn máu', N'Spa', 60, 300000, '/Content/Images/services/massage.jpg', 1),
+
+-- KHÁC
+(N'Nhuộm lông an toàn', N'Nhuộm lông với thuốc nhuộm an toàn, không gây kích ứng', N'Khác', 90, 350000, '/Content/Images/services/nhuom-long.jpg', 1),
+(N'Cắt móng chuyên nghiệp', N'Cắt, dũa móng an toàn, không chảy máu', N'Khác', 20, 80000, '/Content/Images/services/cat-mong.jpg', 1);
 GO
 
-PRINT N'✓ Đã thêm 10 Services';
+PRINT N'✓ Đã thêm 17 Services';
 GO
 
--- 3. Pets - Thú cưng mẫu
+-- 3. PETS
 INSERT INTO Pets (OwnerId, PetName, Species, Breed, Age, Weight, Gender, Color, SpecialNotes, IsActive)
 VALUES 
 -- Thú cưng của User 4 (Phạm Minh Tuấn)
@@ -197,7 +321,7 @@ GO
 PRINT N'✓ Đã thêm 6 Pets';
 GO
 
--- 4. WorkSchedules - Giờ làm việc
+-- 4. WORKSCHEDULES
 INSERT INTO WorkSchedules (DayOfWeek, OpenTime, CloseTime, IsClosed)
 VALUES 
 ('Monday', '08:00', '20:00', 0),
@@ -212,58 +336,142 @@ GO
 PRINT N'✓ Đã thêm WorkSchedules';
 GO
 
--- 5. Appointments - Lịch hẹn mẫu (các trạng thái khác nhau)
-INSERT INTO Appointments (CustomerId, PetId, StaffId, AppointmentDate, TimeSlot, Status, CustomerNotes, TotalPrice, CreatedAt)
+-- 5. APPOINTMENTS (Với thanh toán)
+INSERT INTO Appointments (CustomerId, PetId, StaffId, AppointmentDate, TimeSlot, Status, CustomerNotes, TotalPrice, DepositAmount, DepositPaid, RemainingAmount, FullyPaid, PaymentMethod, EmailSent, CreatedAt)
 VALUES 
--- Lịch hẹn đã hoàn thành (tháng trước)
-(4, 1, 2, '2024-11-15', '09:00-10:00', 'Completed', N'Lucky đi chơi bẩn nhiều, cần tắm kỹ', 150000, '2024-11-10 14:30:00'),
-(5, 3, 3, '2024-11-18', '14:00-15:30', 'Completed', N'Cắt tỉa + tắm', 550000, '2024-11-12 10:20:00'),
+-- Lịch hẹn đã hoàn thành + Đã thanh toán đầy đủ
+(4, 1, 2, '2024-11-15', '09:00-10:00', 'Completed', N'Lucky đi chơi bẩn nhiều, cần tắm kỹ', 150000, 45000, 1, 105000, 1, 'Cash', 1, '2024-11-10 14:30:00'),
+(5, 3, 3, '2024-11-18', '14:00-15:30', 'Completed', N'Cắt tỉa + tắm', 600000, 180000, 1, 420000, 1, 'BankTransfer', 1, '2024-11-12 10:20:00'),
 
--- Lịch hẹn đã xác nhận (sắp tới)
-(4, 2, 2, '2024-12-20', '10:00-11:30', 'Confirmed', N'Lần đầu đến, mong anh chị nhẹ nhàng với Miu', 250000, GETDATE()),
-(6, 5, 3, '2024-12-22', '14:00-15:00', 'Confirmed', N'Max rụng lông nhiều, cần chải kỹ', 200000, GETDATE()),
+-- Lịch hẹn đã xác nhận + Đã đặt cọc (chưa thanh toán hết)
+(4, 2, 2, '2024-12-20', '10:00-11:30', 'Confirmed', N'Lần đầu đến, mong anh chị nhẹ nhàng với Miu', 250000, 75000, 1, 175000, 0, 'Momo', 1, GETDATE()),
+(6, 5, 3, '2024-12-22', '14:00-15:00', 'Confirmed', N'Max rụng lông nhiều, cần chải kỹ', 200000, 60000, 1, 140000, 0, 'ZaloPay', 1, GETDATE()),
 
--- Lịch hẹn chờ xử lý
-(5, 4, NULL, '2024-12-23', '09:00-09:45', 'Pending', N'Luna cần khám định kỳ và tư vấn dinh dưỡng', 300000, GETDATE()),
-(6, 6, NULL, '2024-12-24', '15:00-16:00', 'Pending', NULL, 200000, GETDATE()),
+-- Lịch hẹn chờ xử lý (KHÔNG đặt cọc)
+(5, 4, NULL, '2024-12-23', '09:00-09:45', 'Pending', N'Luna cần khám định kỳ và tư vấn dinh dưỡng', 300000, 0, 0, 300000, 0, NULL, 1, GETDATE()),
+(6, 6, NULL, '2024-12-24', '15:00-16:00', 'Pending', NULL, 200000, 0, 0, 200000, 0, NULL, 1, GETDATE()),
 
 -- Lịch hẹn đã hủy
-(4, 1, NULL, '2024-11-20', '08:00-09:00', 'Cancelled', N'Gia đình có việc đột xuất', 150000, '2024-11-15 09:00:00');
+(4, 1, NULL, '2024-11-20', '08:00-09:00', 'Cancelled', N'Gia đình có việc đột xuất', 150000, 0, 0, 150000, 0, NULL, 1, '2024-11-15 09:00:00');
 GO
 
 PRINT N'✓ Đã thêm 7 Appointments';
 GO
 
--- 6. AppointmentServices - Chi tiết dịch vụ trong từng lịch hẹn
+-- 6. APPOINTMENTSERVICES
 INSERT INTO AppointmentServices (AppointmentId, ServiceId, ServicePrice)
 VALUES 
--- Appointment 1: Tắm cơ bản (ID=1)
+-- Appointment 1: Tắm cơ bản
 (1, 1, 150000),
 
--- Appointment 2: Cắt tỉa tạo kiểu (4) + Tắm cao cấp (2)
-(2, 4, 350000),
+-- Appointment 2: Cắt tỉa tạo kiểu + Tắm cao cấp
+(2, 5, 350000),
 (2, 2, 250000),
 
--- Appointment 3: Tắm cao cấp (2)
+-- Appointment 3: Tắm cao cấp
 (3, 2, 250000),
 
--- Appointment 4: Cắt tỉa cơ bản (3)
-(4, 3, 200000),
+-- Appointment 4: Cắt tỉa cơ bản
+(4, 4, 200000),
 
--- Appointment 5: Khám sức khỏe (5)
-(5, 5, 300000),
+-- Appointment 5: Khám sức khỏe
+(5, 7, 300000),
 
--- Appointment 6: Cắt tỉa cơ bản (3)
-(6, 3, 200000),
+-- Appointment 6: Cắt tỉa cơ bản
+(6, 4, 200000),
 
--- Appointment 7: Tắm cơ bản (1) - Đã hủy
+-- Appointment 7: Tắm cơ bản
 (7, 1, 150000);
 GO
 
 PRINT N'✓ Đã thêm AppointmentServices';
 GO
 
--- 7. VaccinationRecords - Hồ sơ tiêm phòng (cho lịch hẹn đã hoàn thành)
+-- 7. PAYMENTTRANSACTIONS
+INSERT INTO PaymentTransactions (AppointmentId, TransactionType, Amount, PaymentMethod, ProcessedBy, PaymentDate)
+VALUES 
+-- Appointment 1: Đã thanh toán đầy đủ
+(1, 'Deposit', 45000, 'Cash', NULL, '2024-11-10 14:30:00'),
+(1, 'Final', 105000, 'Cash', 2, '2024-11-15 10:30:00'),
+
+-- Appointment 2: Đã thanh toán đầy đủ
+(2, 'Deposit', 180000, 'BankTransfer', NULL, '2024-11-12 10:20:00'),
+(2, 'Final', 420000, 'BankTransfer', 3, '2024-11-18 16:00:00'),
+
+-- Appointment 3: Chỉ đặt cọc
+(3, 'Deposit', 75000, 'Momo', NULL, GETDATE()),
+
+-- Appointment 4: Chỉ đặt cọc
+(4, 'Deposit', 60000, 'ZaloPay', NULL, GETDATE());
+GO
+
+PRINT N'✓ Đã thêm PaymentTransactions';
+GO
+
+-- 8. EMAILLOGS
+INSERT INTO EmailLogs (AppointmentId, RecipientEmail, EmailType, Subject, Body, SentDate, IsSuccess)
+VALUES 
+(1, 'tuan.customer@gmail.com', 'BookingConfirmation', 
+ N'[PetCare] Xác nhận đặt lịch #1', 
+ N'Kính chào Phạm Minh Tuấn,
+
+Lịch hẹn của bạn đã được xác nhận:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Ngày: 15/11/2024
+🕐 Giờ: 09:00-10:00
+🐕 Thú cưng: Lucky (Golden Retriever)
+💼 Dịch vụ: Tắm vệ sinh cơ bản
+💰 Tổng tiền: 150,000 VNĐ
+✅ Đã đặt cọc: 45,000 VNĐ (30%)
+💵 Còn lại: 105,000 VNĐ
+
+Vui lòng đến đúng giờ. Cảm ơn bạn đã tin tùng PetCare!
+
+Hotline: 1900-xxxx', 
+ '2024-11-10 14:35:00', 1),
+
+(3, 'tuan.customer@gmail.com', 'BookingConfirmation',
+ N'[PetCare] Xác nhận đặt lịch #3',
+ N'Kính chào Phạm Minh Tuấn,
+
+Lịch hẹn của bạn đã được xác nhận:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Ngày: 20/12/2024
+🕐 Giờ: 10:00-11:30
+🐱 Thú cưng: Miu Miu (Mèo Ba Tư)
+💼 Dịch vụ: Tắm vệ sinh cao cấp
+💰 Tổng tiền: 250,000 VNĐ
+✅ Đã đặt cọc: 75,000 VNĐ (30%)
+💵 Còn lại: 175,000 VNĐ
+
+Vui lòng đến đúng giờ. Cảm ơn bạn đã tin tùng PetCare!
+
+Hotline: 1900-xxxx',
+ GETDATE(), 1),
+
+(5, 'lan.customer@gmail.com', 'BookingConfirmation',
+ N'[PetCare] Xác nhận đặt lịch #5',
+ N'Kính chào Ngô Thị Lan,
+
+Lịch hẹn của bạn đã được xác nhận:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Ngày: 23/12/2024
+🕐 Giờ: 09:00-09:45
+🐱 Thú cưng: Luna (Mèo Anh lông ngắn)
+💼 Dịch vụ: Khám sức khỏe tổng quát
+💰 Tổng tiền: 300,000 VNĐ
+⚠️ Chưa đặt cọc - Vui lòng thanh toán tại quầy
+
+Vui lòng đến đúng giờ. Cảm ơn bạn đã tin tùng PetCare!
+
+Hotline: 1900-xxxx',
+ GETDATE(), 1);
+GO
+
+PRINT N'✓ Đã thêm EmailLogs';
+GO
+
+-- 9. VACCINATIONRECORDS
 INSERT INTO VaccinationRecords (PetId, AppointmentId, VaccineName, VaccinationDate, NextDueDate, Notes, StaffId)
 VALUES 
 (1, 1, N'Vaccine 5 bệnh', '2024-11-15', '2025-11-15', N'Tiêm mũi nhắc lại hàng năm. Lucky phản ứng tốt, không có tác dụng phụ.', 2);
@@ -272,17 +480,171 @@ GO
 PRINT N'✓ Đã thêm VaccinationRecords';
 GO
 
--- Cập nhật StaffNotes cho lịch hẹn đã hoàn thành
+-- Cập nhật StaffNotes cho các lịch hẹn đã hoàn thành
 UPDATE Appointments 
-SET StaffNotes = N'Đã tắm xong, thú cưng rất ngoan. Lông sạch sẽ, không có ve rận.'
+SET StaffNotes = N'Đã tắm xong, thú cưng rất ngoan. Lông sạch sẽ, không có ve rận. Khách đã thanh toán đầy đủ.'
 WHERE AppointmentId = 1;
 
 UPDATE Appointments 
-SET StaffNotes = N'Đã cắt tỉa và tắm xong. Khách hàng rất hài lòng với kiểu tóc mới của Buddy.'
+SET StaffNotes = N'Đã cắt tỉa và tắm xong. Khách hàng rất hài lòng với kiểu tóc mới của Buddy. Đã thu đủ tiền.'
 WHERE AppointmentId = 2;
 GO
 
--- Procedure: Lấy danh sách lịch hẹn của khách hàng
+PRINT N'✓ Đã cập nhật StaffNotes';
+GO
+
+-- =============================================
+-- STORED PROCEDURES
+-- =============================================
+
+PRINT N'=== TẠO STORED PROCEDURES ===';
+GO
+
+-- Procedure 1: Đặt lịch hẹn (Khách hàng)
+CREATE PROCEDURE sp_CreateAppointment
+    @CustomerId INT,
+    @PetId INT,
+    @AppointmentDate DATE,
+    @TimeSlot NVARCHAR(20),
+    @ServiceIds NVARCHAR(MAX), -- Danh sách ServiceId cách nhau bởi dấu phẩy: "1,2,3"
+    @CustomerNotes NVARCHAR(MAX) = NULL,
+    @IsDepositPaid BIT = 0, -- Có đặt cọc hay không
+    @PaymentMethod NVARCHAR(50) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @TotalPrice DECIMAL(10,2) = 0;
+        DECLARE @DepositAmount DECIMAL(10,2) = 0;
+        DECLARE @RemainingAmount DECIMAL(10,2) = 0;
+        DECLARE @NewAppointmentId INT;
+        
+        -- Tính tổng tiền từ các dịch vụ
+        SELECT @TotalPrice = SUM(Price)
+        FROM Services
+        WHERE ServiceId IN (SELECT value FROM STRING_SPLIT(@ServiceIds, ','));
+        
+        -- Nếu có đặt cọc thì tính 30%
+        IF @IsDepositPaid = 1
+        BEGIN
+            SET @DepositAmount = @TotalPrice * 0.3;
+            SET @RemainingAmount = @TotalPrice - @DepositAmount;
+        END
+        ELSE
+        BEGIN
+            SET @DepositAmount = 0;
+            SET @RemainingAmount = @TotalPrice;
+        END
+        
+        -- Tạo lịch hẹn
+        INSERT INTO Appointments (CustomerId, PetId, AppointmentDate, TimeSlot, Status, CustomerNotes, 
+                                  TotalPrice, DepositAmount, DepositPaid, RemainingAmount, FullyPaid, PaymentMethod)
+        VALUES (@CustomerId, @PetId, @AppointmentDate, @TimeSlot, 'Pending', @CustomerNotes,
+                @TotalPrice, @DepositAmount, @IsDepositPaid, @RemainingAmount, 0, @PaymentMethod);
+        
+        SET @NewAppointmentId = SCOPE_IDENTITY();
+        
+        -- Thêm chi tiết dịch vụ
+        INSERT INTO AppointmentServices (AppointmentId, ServiceId, ServicePrice)
+        SELECT @NewAppointmentId, ServiceId, Price
+        FROM Services
+        WHERE ServiceId IN (SELECT value FROM STRING_SPLIT(@ServiceIds, ','));
+        
+        -- Nếu có đặt cọc thì tạo giao dịch
+        IF @IsDepositPaid = 1
+        BEGIN
+            INSERT INTO PaymentTransactions (AppointmentId, TransactionType, Amount, PaymentMethod)
+            VALUES (@NewAppointmentId, 'Deposit', @DepositAmount, @PaymentMethod);
+        END
+        
+        COMMIT TRANSACTION;
+        
+        -- Trả về thông tin lịch hẹn
+        SELECT 
+            @NewAppointmentId AS AppointmentId,
+            @TotalPrice AS TotalPrice,
+            @DepositAmount AS DepositAmount,
+            @RemainingAmount AS RemainingAmount,
+            @IsDepositPaid AS DepositPaid,
+            'Success' AS Status;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+-- Procedure 2: Thanh toán phần còn lại (Staff xử lý)
+CREATE PROCEDURE sp_ProcessFinalPayment
+    @AppointmentId INT,
+    @PaymentMethod NVARCHAR(50),
+    @StaffId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @RemainingAmount DECIMAL(10,2);
+        DECLARE @CurrentStatus NVARCHAR(20);
+        
+        -- Lấy thông tin thanh toán
+        SELECT 
+            @RemainingAmount = RemainingAmount,
+            @CurrentStatus = Status
+        FROM Appointments 
+        WHERE AppointmentId = @AppointmentId;
+        
+        -- Kiểm tra
+        IF @RemainingAmount IS NULL
+        BEGIN
+            RAISERROR(N'Không tìm thấy lịch hẹn', 16, 1);
+            RETURN;
+        END
+        
+        IF @RemainingAmount <= 0
+        BEGIN
+            RAISERROR(N'Lịch hẹn này đã thanh toán đầy đủ', 16, 1);
+            RETURN;
+        END
+        
+        -- Cập nhật trạng thái thanh toán
+        UPDATE Appointments
+        SET 
+            FullyPaid = 1,
+            RemainingAmount = 0,
+            Status = CASE WHEN Status = 'InProgress' THEN 'Completed' ELSE Status END,
+            UpdatedAt = GETDATE()
+        WHERE AppointmentId = @AppointmentId;
+        
+        -- Thêm giao dịch thanh toán
+        INSERT INTO PaymentTransactions (AppointmentId, TransactionType, Amount, PaymentMethod, ProcessedBy)
+        VALUES (@AppointmentId, 'Final', @RemainingAmount, @PaymentMethod, @StaffId);
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 
+            @AppointmentId AS AppointmentId,
+            @RemainingAmount AS PaidAmount,
+            'Success' AS Status;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+-- Procedure 3: Lấy danh sách lịch hẹn của khách hàng
 CREATE PROCEDURE sp_GetCustomerAppointments
     @CustomerId INT,
     @Status NVARCHAR(20) = NULL
@@ -296,10 +658,17 @@ BEGIN
         a.TimeSlot,
         a.Status,
         a.TotalPrice,
+        a.DepositAmount,
+        a.DepositPaid,
+        a.RemainingAmount,
+        a.FullyPaid,
+        a.PaymentMethod,
         a.CustomerNotes,
         a.StaffNotes,
+        p.PetId,
         p.PetName,
         p.Species,
+        u.UserId AS StaffId,
         u.FullName AS StaffName,
         STRING_AGG(s.ServiceName, ', ') AS Services
     FROM Appointments a
@@ -311,13 +680,77 @@ BEGIN
         AND (@Status IS NULL OR a.Status = @Status)
     GROUP BY 
         a.AppointmentId, a.AppointmentDate, a.TimeSlot, a.Status,
-        a.TotalPrice, a.CustomerNotes, a.StaffNotes,
-        p.PetName, p.Species, u.FullName
+        a.TotalPrice, a.DepositAmount, a.DepositPaid, a.RemainingAmount, a.FullyPaid,
+        a.PaymentMethod, a.CustomerNotes, a.StaffNotes,
+        p.PetId, p.PetName, p.Species, u.UserId, u.FullName
     ORDER BY a.AppointmentDate DESC, a.TimeSlot DESC;
 END;
 GO
 
--- Procedure: Lấy khung giờ đã đặt trong ngày
+-- Procedure 4: Lấy chi tiết lịch hẹn (để gửi email)
+CREATE PROCEDURE sp_GetAppointmentDetails
+    @AppointmentId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Thông tin chính
+    SELECT 
+        a.AppointmentId,
+        a.AppointmentDate,
+        a.TimeSlot,
+        a.Status,
+        a.TotalPrice,
+        a.DepositAmount,
+        a.DepositPaid,
+        a.RemainingAmount,
+        a.FullyPaid,
+        a.PaymentMethod,
+        a.CustomerNotes,
+        a.StaffNotes,
+        c.UserId AS CustomerId,
+        c.FullName AS CustomerName,
+        c.Email AS CustomerEmail,
+        c.Phone AS CustomerPhone,
+        p.PetId,
+        p.PetName,
+        p.Species,
+        p.Breed,
+        s.UserId AS StaffId,
+        s.FullName AS StaffName,
+        s.Phone AS StaffPhone
+    FROM Appointments a
+    INNER JOIN Users c ON a.CustomerId = c.UserId
+    INNER JOIN Pets p ON a.PetId = p.PetId
+    LEFT JOIN Users s ON a.StaffId = s.UserId
+    WHERE a.AppointmentId = @AppointmentId;
+    
+    -- Danh sách dịch vụ
+    SELECT 
+        s.ServiceId,
+        s.ServiceName,
+        s.Category,
+        aps.ServicePrice
+    FROM AppointmentServices aps
+    INNER JOIN Services s ON aps.ServiceId = s.ServiceId
+    WHERE aps.AppointmentId = @AppointmentId;
+    
+    -- Lịch sử thanh toán
+    SELECT 
+        pt.TransactionId,
+        pt.TransactionType,
+        pt.Amount,
+        pt.PaymentMethod,
+        pt.PaymentDate,
+        u.FullName AS ProcessedByName
+    FROM PaymentTransactions pt
+    LEFT JOIN Users u ON pt.ProcessedBy = u.UserId
+    WHERE pt.AppointmentId = @AppointmentId
+    ORDER BY pt.PaymentDate;
+END;
+GO
+
+-- Procedure 5: Lấy khung giờ đã đặt trong ngày
 CREATE PROCEDURE sp_GetBookedTimeSlots
     @Date DATE
 AS
@@ -332,7 +765,57 @@ BEGIN
 END;
 GO
 
--- Procedure: Thống kê doanh thu theo khoảng thời gian
+-- Procedure 6: Cập nhật trạng thái lịch hẹn (Staff)
+CREATE PROCEDURE sp_UpdateAppointmentStatus
+    @AppointmentId INT,
+    @Status NVARCHAR(20),
+    @StaffId INT = NULL,
+    @StaffNotes NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    UPDATE Appointments
+    SET 
+        Status = @Status,
+        StaffId = COALESCE(@StaffId, StaffId),
+        StaffNotes = COALESCE(@StaffNotes, StaffNotes),
+        UpdatedAt = GETDATE()
+    WHERE AppointmentId = @AppointmentId;
+    
+    SELECT 'Success' AS Status;
+END;
+GO
+
+-- Procedure 7: Ghi log email
+CREATE PROCEDURE sp_LogEmail
+    @AppointmentId INT,
+    @RecipientEmail NVARCHAR(100),
+    @EmailType NVARCHAR(50),
+    @Subject NVARCHAR(255),
+    @Body NVARCHAR(MAX),
+    @IsSuccess BIT = 1,
+    @ErrorMessage NVARCHAR(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    INSERT INTO EmailLogs (AppointmentId, RecipientEmail, EmailType, Subject, Body, IsSuccess, ErrorMessage)
+    VALUES (@AppointmentId, @RecipientEmail, @EmailType, @Subject, @Body, @IsSuccess, @ErrorMessage);
+    
+    -- Cập nhật trạng thái email trong Appointments
+    IF @IsSuccess = 1
+    BEGIN
+        UPDATE Appointments
+        SET EmailSent = 1, EmailSentDate = GETDATE()
+        WHERE AppointmentId = @AppointmentId;
+    END
+    
+    SELECT SCOPE_IDENTITY() AS EmailLogId;
+END;
+GO
+
+-- Procedure 8: Thống kê doanh thu
 CREATE PROCEDURE sp_GetRevenueReport
     @FromDate DATE,
     @ToDate DATE
@@ -340,20 +823,32 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
+    -- Tổng quan
     SELECT 
-        CAST(a.AppointmentDate AS DATE) AS ReportDate,
-        COUNT(*) AS TotalAppointments,
+        COUNT(DISTINCT a.AppointmentId) AS TotalAppointments,
         SUM(a.TotalPrice) AS TotalRevenue,
-        AVG(a.TotalPrice) AS AvgRevenue
+        SUM(CASE WHEN a.DepositPaid = 1 THEN a.DepositAmount ELSE 0 END) AS TotalDeposits,
+        SUM(CASE WHEN a.FullyPaid = 1 THEN a.TotalPrice ELSE 0 END) AS FullyPaidRevenue,
+        COUNT(CASE WHEN a.FullyPaid = 0 THEN 1 END) AS UnpaidCount,
+        COUNT(CASE WHEN a.FullyPaid = 1 THEN 1 END) AS PaidCount
     FROM Appointments a
-    WHERE a.Status = 'Completed'
-        AND a.AppointmentDate BETWEEN @FromDate AND @ToDate
-    GROUP BY CAST(a.AppointmentDate AS DATE)
-    ORDER BY ReportDate;
+    WHERE a.AppointmentDate BETWEEN @FromDate AND @ToDate
+        AND a.Status != 'Cancelled';
+    
+    -- Theo phương thức thanh toán
+    SELECT 
+        pt.PaymentMethod,
+        COUNT(*) AS TransactionCount,
+        SUM(pt.Amount) AS TotalAmount
+    FROM PaymentTransactions pt
+    INNER JOIN Appointments a ON pt.AppointmentId = a.AppointmentId
+    WHERE a.AppointmentDate BETWEEN @FromDate AND @ToDate
+    GROUP BY pt.PaymentMethod
+    ORDER BY TotalAmount DESC;
 END;
 GO
 
--- Procedure: Thống kê dịch vụ phổ biến
+-- Procedure 9: Top dịch vụ phổ biến
 CREATE PROCEDURE sp_GetTopServices
     @TopN INT = 5
 AS
@@ -361,30 +856,47 @@ BEGIN
     SET NOCOUNT ON;
     
     SELECT TOP (@TopN)
+        s.ServiceId,
         s.ServiceName,
         s.Category,
+        s.Price,
         COUNT(aps.ServiceId) AS BookingCount,
         SUM(aps.ServicePrice) AS TotalRevenue
     FROM AppointmentServices aps
     INNER JOIN Services s ON aps.ServiceId = s.ServiceId
     INNER JOIN Appointments a ON aps.AppointmentId = a.AppointmentId
     WHERE a.Status IN ('Completed', 'Confirmed')
-    GROUP BY s.ServiceName, s.Category
+    GROUP BY s.ServiceId, s.ServiceName, s.Category, s.Price
     ORDER BY BookingCount DESC;
 END;
 GO
 
--- View: Chi tiết lịch hẹn đầy đủ
-CREATE VIEW vw_AppointmentDetails AS
+PRINT N'✓ Đã tạo 9 Stored Procedures';
+GO
+
+-- =============================================
+-- VIEWS
+-- =============================================
+
+PRINT N'=== TẠO VIEWS ===';
+GO
+
+-- View 1: Chi tiết lịch hẹn đầy đủ
+CREATE VIEW vw_AppointmentFullDetails AS
 SELECT 
     a.AppointmentId,
     a.AppointmentDate,
     a.TimeSlot,
     a.Status,
     a.TotalPrice,
+    a.DepositAmount,
+    a.DepositPaid,
+    a.RemainingAmount,
+    a.FullyPaid,
+    a.PaymentMethod,
     a.CustomerNotes,
     a.StaffNotes,
-    a.CancelReason,
+    a.EmailSent,
     a.CreatedAt,
     c.UserId AS CustomerId,
     c.FullName AS CustomerName,
@@ -394,8 +906,6 @@ SELECT
     p.PetName,
     p.Species,
     p.Breed,
-    p.Age,
-    p.Weight,
     s.UserId AS StaffId,
     s.FullName AS StaffName,
     s.Phone AS StaffPhone
@@ -405,8 +915,8 @@ INNER JOIN Pets p ON a.PetId = p.PetId
 LEFT JOIN Users s ON a.StaffId = s.UserId;
 GO
 
--- View: Thống kê thú cưng theo chủ
-CREATE VIEW vw_CustomerPetsSummary AS
+-- View 2: Thống kê khách hàng
+CREATE VIEW vw_CustomerSummary AS
 SELECT 
     u.UserId,
     u.FullName,
@@ -414,7 +924,8 @@ SELECT
     u.Phone,
     COUNT(DISTINCT p.PetId) AS TotalPets,
     COUNT(DISTINCT a.AppointmentId) AS TotalAppointments,
-    SUM(CASE WHEN a.Status = 'Completed' THEN a.TotalPrice ELSE 0 END) AS TotalSpent
+    SUM(CASE WHEN a.FullyPaid = 1 THEN a.TotalPrice ELSE 0 END) AS TotalSpent,
+    MAX(a.AppointmentDate) AS LastVisit
 FROM Users u
 LEFT JOIN Pets p ON u.UserId = p.OwnerId AND p.IsActive = 1
 LEFT JOIN Appointments a ON u.UserId = a.CustomerId
@@ -422,55 +933,77 @@ WHERE u.Role = 'Customer'
 GROUP BY u.UserId, u.FullName, u.Email, u.Phone;
 GO
 
-PRINT N'✓ Đã tạo Views';
+PRINT N'✓ Đã tạo 2 Views';
 GO
 
--- Trigger: Tự động cập nhật UpdatedAt khi sửa Appointments
-CREATE TRIGGER trg_Appointments_UpdateTimestamp
-ON Appointments
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    UPDATE Appointments
-    SET UpdatedAt = GETDATE()
-    WHERE AppointmentId IN (SELECT AppointmentId FROM inserted);
-END;
+-- =============================================
+-- HOÀN TẤT
+-- =============================================
+
+PRINT N'';
+PRINT N'╔═══════════════════════════════════════════════════════════╗';
+PRINT N'║     HOÀN TẤT TẠO DATABASE - PETCARE SYSTEM               ║';
+PRINT N'╚═══════════════════════════════════════════════════════════╝';
+PRINT N'';
+PRINT N'📊 TỔNG KẾT:';
+PRINT N'├─ Bảng dữ liệu: 10 bảng';
+PRINT N'│  ├─ Users: 6 (1 Admin, 2 Staff, 3 Customer)';
+PRINT N'│  ├─ Services: 17 dịch vụ';
+PRINT N'│  ├─ Pets: 6 thú cưng';
+PRINT N'│  ├─ Appointments: 7 lịch hẹn';
+PRINT N'│  ├─ PaymentTransactions: 6 giao dịch';
+PRINT N'│  ├─ EmailLogs: 3 email';
+PRINT N'│  └─ WorkSchedules: 7 ngày';
+PRINT N'├─ Stored Procedures: 9';
+PRINT N'└─ Views: 2';
+PRINT N'';
+PRINT N'🔐 THÔNG TIN ĐĂNG NHẬP:';
+PRINT N'┌────────────────────────────────────────────────────┐';
+PRINT N'│ Admin:    admin@petcare.com / admin123            │';
+PRINT N'│ Staff 1:  huong.staff@petcare.com / staff123      │';
+PRINT N'│ Staff 2:  cuong.staff@petcare.com / staff123      │';
+PRINT N'│ Customer: tuan.customer@gmail.com / customer123   │';
+PRINT N'└────────────────────────────────────────────────────┘';
+PRINT N'';
+PRINT N'💡 QUERY DEMO - COPY VÀ CHẠY THỬ:';
+PRINT N'';
+PRINT N'-- 1. Xem tất cả lịch hẹn với thanh toán';
+PRINT N'SELECT * FROM vw_AppointmentFullDetails ORDER BY AppointmentDate DESC;';
+PRINT N'';
+PRINT N'-- 2. Lấy lịch hẹn của khách hàng';
+PRINT N'EXEC sp_GetCustomerAppointments @CustomerId = 4;';
+PRINT N'';
+PRINT N'-- 3. Đặt lịch MỚI (có đặt cọc)';
+PRINT N'EXEC sp_CreateAppointment 
+    @CustomerId = 4, 
+    @PetId = 1, 
+    @AppointmentDate = ''2024-12-25'', 
+    @TimeSlot = ''10:00-11:00'',
+    @ServiceIds = ''1,4'', 
+    @CustomerNotes = N''Test đặt lịch'',
+    @IsDepositPaid = 1, 
+    @PaymentMethod = ''Momo'';';
+PRINT N'';
+PRINT N'-- 4. Staff thanh toán phần còn lại';
+PRINT N'EXEC sp_ProcessFinalPayment 
+    @AppointmentId = 3, 
+    @PaymentMethod = ''Cash'', 
+    @StaffId = 2;';
+PRINT N'';
+PRINT N'-- 5. Báo cáo doanh thu';
+PRINT N'EXEC sp_GetRevenueReport 
+    @FromDate = ''2024-11-01'', 
+    @ToDate = ''2024-12-31'';';
+PRINT N'';
+PRINT N'-- 6. Top dịch vụ phổ biến';
+PRINT N'EXEC sp_GetTopServices @TopN = 5;';
+PRINT N'';
+PRINT N'-- 7. Chi tiết lịch hẹn (để gửi email)';
+PRINT N'EXEC sp_GetAppointmentDetails @AppointmentId = 3;';
+PRINT N'';
+PRINT N'═══════════════════════════════════════════════════════════';
 GO
 
--- Trigger: Tự động cập nhật UpdatedAt khi sửa Users
-CREATE TRIGGER trg_Users_UpdateTimestamp
-ON Users
-AFTER UPDATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    UPDATE Users
-    SET UpdatedAt = GETDATE()
-    WHERE UserId IN (SELECT UserId FROM inserted);
-END;
-GO
 
-PRINT N'=== MỘT SỐ QUERY MẪU ===';
-PRINT N'';
-PRINT N'1. Xem danh sách khách hàng:';
-PRINT N'   SELECT * FROM Users WHERE Role = ''Customer'';';
-PRINT N'';
-PRINT N'2. Xem danh sách dịch vụ:';
-PRINT N'   SELECT * FROM Services WHERE IsActive = 1;';
-PRINT N'';
-PRINT N'3. Xem lịch hẹn của khách hàng (UserId = 4):';
-PRINT N'   EXEC sp_GetCustomerAppointments @CustomerId = 4;';
-PRINT N'';
-PRINT N'4. Xem các khung giờ đã đặt ngày 2024-12-20:';
-PRINT N'   EXEC sp_GetBookedTimeSlots @Date = ''2024-12-20'';';
-PRINT N'';
-PRINT N'5. Báo cáo doanh thu tháng 11/2024:';
-PRINT N'   EXEC sp_GetRevenueReport @FromDate = ''2024-11-01'', @ToDate = ''2024-11-30'';';
-PRINT N'';
-PRINT N'6. Xem top 5 dịch vụ phổ biến:';
-PRINT N'   EXEC sp_GetTopServices @TopN = 5;';
-GO
-
+SELECT COUNT(*) AS TotalServices FROM Services WHERE IsActive = 1;
+SELECT TOP 6 * FROM Services WHERE IsActive = 1 ORDER BY CreatedAt DESC;

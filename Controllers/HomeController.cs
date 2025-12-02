@@ -13,14 +13,24 @@ namespace _125_BCCK.Controllers
         // GET: Home/Index
         public ActionResult Index()
         {
-            // Lấy 6 dịch vụ nổi bật
-            var featuredServices = db.Services
-                .Where(s => s.IsActive)
-                .OrderByDescending(s => s.CreatedAt)
-                .Take(6)
-                .ToList();
+            try
+            {
+                // Lấy 6 dịch vụ nổi bật 
+                var featuredServices = db.Services
+                    .Where(s => s.IsActive == true) 
+                    .OrderByDescending(s => s.CreatedAt)
+                    .Take(6)
+                    .ToList();
 
-            return View(featuredServices);
+                return View(featuredServices ?? new List<Service>());
+            }
+            catch (Exception ex)
+            {
+                
+                System.Diagnostics.Debug.WriteLine($"Error in Home/Index: {ex.Message}");
+
+                return View(new List<Service>());
+            }
         }
 
         // GET: Home/About
