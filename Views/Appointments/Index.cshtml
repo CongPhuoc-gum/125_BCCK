@@ -1,0 +1,390 @@
+﻿@model List<_125_BCCK.Models.ViewModels.AppointmentViewModel>
+@{
+    ViewBag.Title = "Lịch hẹn của tôi";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "";
+}
+
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">
+                <i class="fas fa-calendar-alt"></i> Lịch hẹn của tôi
+            </h2>
+            
+            <!-- Tabs lọc theo trạng thái -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link @(string.IsNullOrEmpty(currentStatus) ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments")">
+                        <i class="fas fa-list"></i> Tất cả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Pending" ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments", new { status = "Pending" })">
+                        <i class="fas fa-clock"></i> Chờ xử lý
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Confirmed" ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments", new { status = "Confirmed" })">
+                        <i class="fas fa-check-circle"></i> Đã xác nhận
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "InProgress" ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments", new { status = "InProgress" })">
+                        <i class="fas fa-spinner"></i> Đang thực hiện
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Completed" ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments", new { status = "Completed" })">
+                        <i class="fas fa-check-double"></i> Hoàn thành
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Cancelled" ? "active" : "")" 
+                       href="@Url.Action("Index", "Appointments", new { status = "Cancelled" })">
+                        <i class="fas fa-times-circle"></i> Đã hủy
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-2x mb-2"></i>
+            <h5>
+                @if (string.IsNullOrEmpty(currentStatus))
+                {
+                    <text>Bạn chưa có lịch hẹn nào</text>
+                }
+                else
+                {
+                    <text>Không có lịch hẹn nào ở trạng thái này</text>
+                }
+            </h5>
+            @if (string.IsNullOrEmpty(currentStatus))
+            {
+                <p class="mb-0">
+                    <a href="@Url.Action("Index", "Services")" class="btn btn-primary mt-2">
+                        <i class="fas fa-plus"></i> Đặt lịch ngay
+                    </a>
+                </p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var appointment in Model)
+            {
+                var statusClass = "";
+                var statusIcon = "";
+                var statusText = "";
+                
+                switch (appointment.Status)
+                {
+                    case "Pending":
+                        statusClass = "warning";
+                        statusIcon = "clock";
+                        statusText = "Chờ xử lý";
+                        break;
+                    case "Confirmed":
+                        statusClass = "info";
+                        statusIcon = "check-circle";
+                        statusText = "Đã xác nhận";
+                        break;
+                    case "InProgress":
+                        statusClass = "primary";
+                        statusIcon = "spinner";
+                        statusText = "Đang thực hiện";
+                        break;
+                    case "Completed":
+                        statusClass = "success";
+                        statusIcon = "check-double";
+                        statusText = "Hoàn thành";
+                        break;
+                    case "Cancelled":
+                        statusClass = "danger";
+                        statusIcon = "times-circle";
+                        statusText = "Đã hủy";
+                        break;
+                }
+                
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm appointment-card">
+                        <div class="card-header bg-@statusClass text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-@statusIcon"></i> @statusText
+                                </h5>
+                                <span class="badge bg-light text-dark">#@appointment.AppointmentId</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>
+                                        <small class="text-muted d-block">Ngày hẹn</small>
+                                        <strong><i class="fas fa-calendar text-primary"></i> @appointment.AppointmentDate.ToString("dd/MM/yyyy")</strong>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted d-block">Giờ hẹn</small>
+                                        <strong><i class="fas fa-clock text-primary"></i> @appointment.TimeSlot</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr />
+                            
+                            <div class="mb-2">
+                                <small class="text-muted"><i class="fas fa-paw"></i> Thú cưng</small>
+                                <div><strong>@appointment.PetName</strong> <span class="text-muted">(@appointment.Species)</span></div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <small class="text-muted"><i class="fas fa-concierge-bell"></i> Dịch vụ</small>
+                                <div class="small">@appointment.Services</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted"><i class="fas fa-user-md"></i> Nhân viên</small>
+                                <div><strong>@appointment.StaffName</strong></div>
+                            </div>
+                            
+                            <hr />
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <small class="text-muted">Tổng tiền</small>
+                                    <div class="h5 text-primary mb-0">@appointment.TotalPrice.ToString("N0") đ</div>
+                                </div>
+                                <div class="text-end">
+                                    @if (appointment.FullyPaid)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Đã thanh toán
+                                        </span>
+                                    }
+                                    else if (appointment.DepositPaid)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-coins"></i> Đã cọc
+                                        </span>
+                                        <div class="small mt-1">@appointment.DepositAmount.ToString("N0")đ</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times"></i> Chưa thanh toán
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                            
+                            @if (!appointment.FullyPaid && appointment.Status != "Cancelled")
+                            {
+                                <div class="alert alert-warning py-2 mb-0 small">
+                                    <i class="fas fa-exclamation-triangle"></i> 
+                                    Còn lại: <strong>@appointment.RemainingAmount.ToString("N0") đ</strong>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a href="@Url.Action("Details", "Appointments", new { id = appointment.AppointmentId })" 
+                                   class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </a>
+                                
+                                @if (appointment.Status == "Pending" || appointment.Status == "Confirmed")
+                                {
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger flex-fill btn-cancel" 
+                                            data-id="@appointment.AppointmentId"
+                                            data-pet="@appointment.PetName">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal hủy lịch hẹn -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Xác nhận hủy lịch hẹn
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy lịch hẹn <strong id="cancelAppointmentInfo"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i> 
+                    Lưu ý: Hành động này không thể hoàn tác!
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lý do hủy (không bắt buộc)</label>
+                    <textarea class="form-control" id="cancelReason" rows="3" 
+                              placeholder="Ví dụ: Tôi có việc đột xuất, không thể đến được..."></textarea>
+                </div>
+                <input type="hidden" id="cancelAppointmentId" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-danger" id="btnConfirmCancel">
+                    <i class="fas fa-check"></i> Xác nhận hủy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+<script>
+$(document).ready(function() {
+    // Hiển thị modal hủy lịch
+    $('.btn-cancel').click(function() {
+        var appointmentId = $(this).data('id');
+        var petName = $(this).data('pet');
+        
+        $('#cancelAppointmentId').val(appointmentId);
+        $('#cancelAppointmentInfo').text('#' + appointmentId + ' - ' + petName);
+        $('#cancelReason').val('');
+        
+        $('#cancelModal').modal('show');
+    });
+
+    // Xác nhận hủy
+    $('#btnConfirmCancel').click(function() {
+        var appointmentId = $('#cancelAppointmentId').val();
+        var cancelReason = $('#cancelReason').val();
+        
+        // Disable button để tránh click nhiều lần
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+        
+        $.ajax({
+            url: '@Url.Action("Cancel", "Appointments")',
+            type: 'POST',
+            data: {
+                id: appointmentId,
+                cancelReason: cancelReason
+            },
+            success: function(response) {
+                $('#cancelModal').modal('hide');
+                
+                if (response.success) {
+                    // Hiển thị thông báo thành công
+                    alert('✓ ' + response.message);
+                    // Reload trang để cập nhật danh sách
+                    location.reload();
+                } else {
+                    // Hiển thị lỗi
+                    alert('✗ ' + response.message);
+                    $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+                }
+            },
+            error: function() {
+                alert('✗ Có lỗi xảy ra. Vui lòng thử lại!');
+                $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+            }
+        });
+    });
+    
+    // Reset button khi đóng modal
+    $('#cancelModal').on('hidden.bs.modal', function () {
+        $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+    });
+});
+</script>
+}
+
+@section styles {
+<style>
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .nav-tabs .nav-link {
+        color: #495057;
+        border: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        border-bottom-color: #0d6efd;
+        color: #0d6efd;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        border-bottom-color: #0d6efd;
+        background-color: transparent;
+    }
+    
+    .appointment-card {
+        border: none;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .appointment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    
+    .appointment-card .card-header {
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+    }
+    
+    .appointment-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .appointment-card .card-footer {
+        border-top: 1px solid #dee2e6;
+        padding: 0.75rem 1.25rem;
+    }
+    
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
+        font-weight: 500;
+    }
+    
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffecb5;
+        color: #856404;
+    }
+    
+    hr {
+        margin: 0.75rem 0;
+        opacity: 0.1;
+    }
+</style>
+}

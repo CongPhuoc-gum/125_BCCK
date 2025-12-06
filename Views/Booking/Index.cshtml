@@ -1,0 +1,843 @@
+﻿@model _125_BCCK.Models.ViewModels.BookingViewModel
+@{
+    ViewBag.Title = "Đặt lịch dịch vụ";
+}
+
+<div class="booking-page">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="display-5 fw-bold">
+                    <i class="fas fa-calendar-plus text-primary"></i> Đặt lịch dịch vụ
+                </h1>
+                <p class="text-muted">Hoàn thành form bên dưới để đặt lịch chăm sóc thú cưng</p>
+            </div>
+        </div>
+
+        @if (Model.NeedAddPet)
+        {
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Bạn chưa có thú cưng!</strong>
+                <br>
+                <a href="@Url.Action("Create", "Pets", new { returnUrl = Url.Action("Index", "Booking") })" class="btn btn-warning mt-2">
+                    <i class="fas fa-plus"></i> Thêm thú cưng ngay
+                </a>
+            </div>
+        }
+        else
+        {
+            <form id="bookingForm" method="post" action="@Url.Action("CompleteBooking")">
+                <div class="row">
+                    <!-- LEFT COLUMN: Form -->
+                    <div class="col-lg-8">
+                        <!-- BƯỚC 1: CHỌN DỊCH VỤ -->
+                        <div class="booking-section">
+                            <div class="section-header">
+                                <div class="step-number">1</div>
+                                <h3>Chọn dịch vụ</h3>
+                            </div>
+                            <div class="section-body">
+                                <div class="services-grid">
+                                    @foreach (var category in Model.Services.GroupBy(s => s.Category))
+                                    {
+                                        <div class="category-group">
+                                            <h5 class="category-title">
+                                                <i class="fas fa-tag"></i> @category.Key
+                                            </h5>
+                                            <div class="row">
+                                                @foreach (var service in category)
+                                                {
+                                                    <div class="col-md-6 mb-3">
+                                                        <div class="service-checkbox-card @(Model.PreSelectedServiceId == service.ServiceId ? "selected" : "")"
+                                                             data-service-id="@service.ServiceId"
+                                                             data-price="@service.Price"
+                                                             data-duration="@service.Duration">
+                                                            <input type="checkbox"
+                                                                   class="service-check"
+                                                                   name="services[]"
+                                                                   value="@service.ServiceId"
+                                                                   id="service_@service.ServiceId"
+                                                                   @(Model.PreSelectedServiceId == service.ServiceId ? "checked" : "")>
+                                                            <label for="service_@service.ServiceId">
+                                                                <div class="service-content">
+                                                                    <div class="service-icon">
+                                                                        <i class="fas fa-paw"></i>
+                                                                    </div>
+                                                                    <div class="service-info">
+                                                                        <div class="service-name">@service.ServiceName</div>
+                                                                        <div class="service-meta">
+                                                                            <span class="duration">
+                                                                                <i class="fas fa-clock"></i> @service.Duration phút
+                                                                            </span>
+                                                                            <span class="price">@service.Price.ToString("N0")đ</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="check-mark">
+                                                                        <i class="fas fa-check-circle"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BƯỚC 2: CHỌN THÚ CƯNG -->
+                        <div class="booking-section">
+                            <div class="section-header">
+                                <div class="step-number">2</div>
+                                <h3>Chọn thú cưng</h3>
+                            </div>
+                            <div class="section-body">
+                                <div class="row">
+                                    @foreach (var pet in Model.Pets)
+                                    {
+                                        <div class="col-md-4 mb-3">
+                                            <div class="pet-radio-card" data-pet-id="@pet.PetId">
+                                                <input type="radio"
+                                                       class="pet-radio"
+                                                       name="petId"
+                                                       value="@pet.PetId"
+                                                       id="pet_@pet.PetId"
+                                                       required>
+                                                <label for="pet_@pet.PetId">
+                                                    <div class="pet-avatar-img">
+                                                        @if (!string.IsNullOrEmpty(pet.ImageUrl))
+                                                        {
+                                                            <img src="@Url.Content(pet.ImageUrl)" alt="@pet.PetName">
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="pet-placeholder">
+                                                                <i class="fas fa-paw fa-3x"></i>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="pet-info-card">
+                                                        <div class="pet-name-label">@pet.PetName</div>
+                                                        <div class="pet-species">@pet.Species @(pet.Breed != null ? "- " + pet.Breed : "")</div>
+                                                        @if (pet.Age.HasValue)
+                                                        {
+                                                            <div class="pet-age">
+                                                                <i class="fas fa-birthday-cake"></i> @pet.Age tuổi
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div class="selected-badge">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-center mt-3">
+                                    <a href="@Url.Action("Create", "Pets", new { returnUrl = Url.Action("Index", "Booking") })" class="btn btn-outline-primary">
+                                        <i class="fas fa-plus"></i> Thêm thú cưng mới
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BƯỚC 3: CHỌN NGÀY GIỜ -->
+                        <div class="booking-section">
+                            <div class="section-header">
+                                <div class="step-number">3</div>
+                                <h3>Chọn ngày và giờ</h3>
+                            </div>
+                            <div class="section-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-calendar"></i> Chọn ngày
+                                        </label>
+                                        <input type="date"
+                                               class="form-control form-control-lg"
+                                               id="appointmentDate"
+                                               name="appointmentDate"
+                                               min="@DateTime.Now.AddHours(2).ToString("yyyy-MM-dd")"
+                                               required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-clock"></i> Chọn giờ
+                                        </label>
+                                        <select class="form-select form-select-lg"
+                                                id="timeSlot"
+                                                name="timeSlot"
+                                                required>
+                                            <option value="">-- Chọn khung giờ --</option>
+                                            @foreach (var slot in Model.TimeSlots)
+                                            {
+                                                <option value="@slot">@slot</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-comment"></i> Ghi chú (không bắt buộc)
+                                        </label>
+                                        <textarea class="form-control"
+                                                  name="customerNotes"
+                                                  rows="3"
+                                                  placeholder="Ví dụ: Thú cưng sợ tiếng ồn, cần xử lý nhẹ nhàng..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BƯỚC 4: THANH TOÁN -->
+                        <div class="booking-section">
+                            <div class="section-header">
+                                <div class="step-number">4</div>
+                                <h3>Thanh toán</h3>
+                            </div>
+                            <div class="section-body">
+                                <div class="payment-options">
+                                    <div class="payment-option-card">
+                                        <input type="radio"
+                                               name="paymentOption"
+                                               value="deposit"
+                                               id="payDeposit"
+                                               checked>
+                                        <label for="payDeposit">
+                                            <div class="option-icon">
+                                                <i class="fas fa-coins"></i>
+                                            </div>
+                                            <div class="option-content">
+                                                <div class="option-title">Đặt cọc 30%</div>
+                                                <div class="option-desc">Thanh toán trước <span id="depositAmountText">0đ</span></div>
+                                                <div class="option-note">Phần còn lại thanh toán sau khi hoàn thành dịch vụ</div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <div class="payment-option-card">
+                                        <input type="radio"
+                                               name="paymentOption"
+                                               value="none"
+                                               id="payLater">
+                                        <label for="payLater">
+                                            <div class="option-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div class="option-content">
+                                                <div class="option-title">Thanh toán sau</div>
+                                                <div class="option-desc">Thanh toán khi đến sử dụng dịch vụ</div>
+                                                <div class="option-note">Tổng tiền: <span id="totalPriceText">0đ</span></div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="paymentMethodSection" class="mt-4">
+                                    <label class="form-label fw-bold">
+                                        <i class="fas fa-credit-card"></i> Phương thức thanh toán
+                                    </label>
+                                    <select class="form-select" name="paymentMethod" id="paymentMethod">
+                                        <option value="">-- Chọn phương thức --</option>
+                                        <option value="Cash">Tiền mặt</option>
+                                        <option value="BankTransfer">Chuyển khoản</option>
+                                        <option value="Momo">Ví Momo</option>
+                                        <option value="ZaloPay">ZaloPay</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="serviceIds" id="serviceIdsInput">
+                    </div>
+
+                    <!-- RIGHT COLUMN: Summary -->
+                    <div class="col-lg-4">
+                        <div class="summary-card sticky-top">
+                            <div class="summary-header">
+                                <h4><i class="fas fa-file-invoice"></i> Thông tin đặt lịch</h4>
+                            </div>
+                            <div class="summary-body">
+                                <div class="summary-section">
+                                    <div class="summary-label">Dịch vụ đã chọn:</div>
+                                    <div id="selectedServicesList" class="selected-items">
+                                        <div class="empty-state">Chưa chọn dịch vụ nào</div>
+                                    </div>
+                                </div>
+
+                                <div class="summary-section">
+                                    <div class="summary-label">Tổng thời gian:</div>
+                                    <div class="summary-value" id="totalDuration">0 phút</div>
+                                </div>
+
+                                <div class="summary-divider"></div>
+
+                                <div class="summary-total">
+                                    <div class="total-label">Tổng tiền:</div>
+                                    <div class="total-value" id="totalPrice">0 đ</div>
+                                </div>
+
+                                <div id="depositInfo" class="summary-info">
+                                    <div class="info-row">
+                                        <span>Đặt cọc (30%):</span>
+                                        <span id="depositAmount">0 đ</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span>Còn lại:</span>
+                                        <span id="remainingAmount">0 đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="summary-footer">
+                                <button type="submit" class="btn btn-primary btn-lg w-100" id="btnSubmit">
+                                    <i class="fas fa-check-circle"></i> Xác nhận đặt lịch
+                                </button>
+                                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary w-100 mt-2">
+                                    <i class="fas fa-times"></i> Hủy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <style>
+        .booking-page {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .booking-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .step-number {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Service Cards */
+        .category-group {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .service-checkbox-card {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-checkbox-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .service-checkbox-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .service-check {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .service-checkbox-card label {
+            margin: 0;
+            cursor: pointer;
+            padding: 15px;
+            display: block;
+        }
+
+        .service-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .service-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .service-info {
+            flex: 1;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .service-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .service-meta .price {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .check-mark {
+            color: #667eea;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .service-checkbox-card.selected .check-mark {
+            opacity: 1;
+        }
+
+        /* Pet Cards */
+        .pet-radio-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pet-radio-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .pet-radio-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .pet-radio {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pet-radio-card label {
+            margin: 0;
+            cursor: pointer;
+            display: block;
+        }
+
+        .pet-avatar-img {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pet-avatar-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pet-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .pet-info-card {
+            padding: 15px;
+        }
+
+        .pet-name-label {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .pet-species {
+            color: #6c757d;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .pet-age {
+            color: #667eea;
+            font-size: 12px;
+        }
+
+        .selected-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.4);
+        }
+
+        .pet-radio-card.selected .selected-badge {
+            display: flex;
+        }
+
+        /* Payment Options */
+        .payment-options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .payment-option-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .payment-option-card:hover {
+            border-color: #667eea;
+        }
+
+        .payment-option-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .payment-option-card input[type="radio"]:checked + label {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .payment-option-card label {
+            margin: 0;
+            cursor: pointer;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .option-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .option-desc {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .option-note {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            top: 100px;
+        }
+
+        .summary-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .summary-header h4 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .summary-body {
+            padding: 20px;
+        }
+
+        .summary-section {
+            margin-bottom: 20px;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .summary-value {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .selected-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #adb5bd;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 20px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .total-value {
+            color: #28a745;
+        }
+
+        .summary-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-footer {
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @@media (max-width: 992px) {
+            .summary-card {
+                position: static !important;
+                margin-top: 30px;
+            }
+        }
+    </style>
+    <script>
+    $(document).ready(function() {
+        let selectedServices = [];
+        let totalPrice = 0;
+        let totalDuration = 0;
+
+        // Xử lý chọn dịch vụ
+        $('.service-checkbox-card').click(function() {
+            const checkbox = $(this).find('.service-check');
+            checkbox.prop('checked', !checkbox.prop('checked'));
+            $(this).toggleClass('selected');
+            updateSummary();
+        });
+
+        // Xử lý chọn thú cưng
+        $('.pet-radio-card').click(function() {
+            $('.pet-radio-card').removeClass('selected');
+            $(this).addClass('selected');
+            $(this).find('.pet-radio').prop('checked', true);
+        });
+
+        // Xử lý chọn phương thức thanh toán
+        $('input[name="paymentOption"]').change(function() {
+            if ($(this).val() === 'deposit') {
+                $('#paymentMethodSection').show();
+                $('#paymentMethod').prop('required', true);
+                $('#depositInfo').show();
+            } else {
+                $('#paymentMethodSection').hide();
+                $('#paymentMethod').prop('required', false);
+                $('#depositInfo').hide();
+            }
+        });
+
+        // Kiểm tra khung giờ khi chọn ngày
+        $('#appointmentDate').change(function() {
+            const date = $(this).val();
+            if (date) {
+                $.post('@Url.Action("CheckAvailability")', { date: date }, function(response) {
+                    if (response.success) {
+                        $('#timeSlot option').prop('disabled', false);
+                        response.bookedSlots.forEach(function(slot) {
+                            $('#timeSlot option[value="' + slot + '"]').prop('disabled', true);
+                        });
+                    }
+                });
+            }
+        });
+
+        // Cập nhật summary
+        function updateSummary() {
+            selectedServices = [];
+            totalPrice = 0;
+            totalDuration = 0;
+
+            $('.service-check:checked').each(function() {
+                const card = $(this).closest('.service-checkbox-card');
+                const serviceId = card.data('service-id');
+                const serviceName = card.find('.service-name').text();
+                const price = parseFloat(card.data('price'));
+                const duration = parseInt(card.data('duration'));
+
+                selectedServices.push({
+                    id: serviceId,
+                    name: serviceName,
+                    price: price
+                });
+                totalPrice += price;
+                totalDuration += duration;
+            });
+
+            // Hiển thị danh sách
+            if (selectedServices.length > 0) {
+                let html = '';
+                selectedServices.forEach(function(service) {
+                    html += '<div class="selected-item">';
+                    html += '<span>' + service.name + '</span>';
+                    html += '<span>' + service.price.toLocaleString('vi-VN') + 'đ</span>';
+                    html += '</div>';
+                });
+                $('#selectedServicesList').html(html);
+            } else {
+                $('#selectedServicesList').html('<div class="empty-state">Chưa chọn dịch vụ nào</div>');
+            }
+
+            // Cập nhật tổng tiền
+            const depositAmount = totalPrice * 0.3;
+            const remainingAmount = totalPrice - depositAmount;
+
+            $('#totalDuration').text(totalDuration + ' phút');
+            $('#totalPrice').text(totalPrice.toLocaleString('vi-VN') + ' đ');
+            $('#depositAmount').text(depositAmount.toLocaleString('vi-VN') + ' đ');
+            $('#remainingAmount').text(remainingAmount.toLocaleString('vi-VN') + ' đ');
+            $('#depositAmountText').text(depositAmount.toLocaleString('vi-VN') + 'đ');
+            $('#totalPriceText').text(totalPrice.toLocaleString('vi-VN') + 'đ');
+
+            // Cập nhật hidden input
+            const serviceIds = selectedServices.map(s => s.id).join(',');
+            $('#serviceIdsInput').val(serviceIds);
+        }
+
+        // Submit form: Kiểm tra phải có ít nhất 1 dịch vụ được chọn
+        $('#bookingForm').submit(function(e) {
+            if (selectedServices.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất 1 dịch vụ');
+                return false;
+            }
+        });
+
+        // Khởi tạo
+        updateSummary();
+    });
+    </script>
+}
