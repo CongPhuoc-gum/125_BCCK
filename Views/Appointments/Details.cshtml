@@ -1,0 +1,554 @@
+﻿@model _125_BCCK.Models.ViewModels.AppointmentDetailViewModel
+@{
+    ViewBag.Title = "Chi tiết lịch hẹn #" + Model.AppointmentId;
+
+    var statusClass = "";
+    var statusIcon = "";
+    var statusText = "";
+
+    switch (Model.Status)
+    {
+        case "Pending":
+            statusClass = "warning";
+            statusIcon = "clock";
+            statusText = "Chờ xử lý";
+            break;
+        case "Confirmed":
+            statusClass = "info";
+            statusIcon = "check-circle";
+            statusText = "Đã xác nhận";
+            break;
+        case "InProgress":
+            statusClass = "primary";
+            statusIcon = "spinner";
+            statusText = "Đang thực hiện";
+            break;
+        case "Completed":
+            statusClass = "success";
+            statusIcon = "check-double";
+            statusText = "Hoàn thành";
+            break;
+        case "Cancelled":
+            statusClass = "danger";
+            statusIcon = "times-circle";
+            statusText = "Đã hủy";
+            break;
+    }
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="@Url.Action("Index", "Appointments")" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h2 class="mb-0">
+                    <i class="fas fa-calendar-alt"></i> Lịch hẹn #@Model.AppointmentId
+                </h2>
+                <span class="badge bg-@statusClass fs-5">
+                    <i class="fas fa-@statusIcon"></i> @statusText
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Cột trái: Thông tin chính -->
+        <div class="col-lg-8 mb-4">
+            <!-- Thông tin lịch hẹn -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Thông tin lịch hẹn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted mb-1">Ngày hẹn</label>
+                            <div class="h5 mb-0">
+                                <i class="fas fa-calendar text-primary"></i>
+                                @Model.AppointmentDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted mb-1">Giờ hẹn</label>
+                            <div class="h5 mb-0">
+                                <i class="fas fa-clock text-primary"></i>
+                                @Model.TimeSlot
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted mb-1">Thú cưng</label>
+                            <div class="h5 mb-0">
+                                <i class="fas fa-paw text-primary"></i>
+                                @Model.PetName
+                            </div>
+                            <small class="text-muted">
+                                @Model.Species @(!string.IsNullOrEmpty(Model.Breed) ? " - " + Model.Breed : "")
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted mb-1">Nhân viên phụ trách</label>
+                            <div class="h5 mb-0">
+                                <i class="fas fa-user-md text-primary"></i>
+                                @Model.StaffName
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.StaffPhone))
+                            {
+                                <small class="text-muted">
+                                    <i class="fas fa-phone"></i> @Model.StaffPhone
+                                </small>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.CustomerNotes))
+                    {
+                        <div class="alert alert-info mb-3">
+                            <strong><i class="fas fa-comment"></i> Ghi chú của bạn:</strong><br />
+                            <div class="mt-2">@Model.CustomerNotes</div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.StaffNotes))
+                    {
+                        <div class="alert alert-success mb-3">
+                            <strong><i class="fas fa-clipboard-check"></i> Ghi chú từ nhân viên:</strong><br />
+                            <div class="mt-2">@Model.StaffNotes</div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.CancelReason) && Model.Status == "Cancelled")
+                    {
+                        <div class="alert alert-danger mb-0">
+                            <strong><i class="fas fa-ban"></i> Lý do hủy:</strong><br />
+                            <div class="mt-2">@Model.CancelReason</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Danh sách dịch vụ -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-concierge-bell"></i> Dịch vụ đã chọn</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tên dịch vụ</th>
+                                    <th>Loại</th>
+                                    <th class="text-end">Giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var service in Model.Services)
+                                {
+                                    <tr>
+                                        <td><strong>@service.ServiceName</strong></td>
+                                        <td>
+                                            <span class="badge bg-secondary">@service.Category</span>
+                                        </td>
+                                        <td class="text-end"><strong>@service.Price.ToString("N0") đ</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="2" class="text-end">Tổng cộng:</th>
+                                    <th class="text-end text-primary">
+                                        <span class="h5 mb-0">@Model.TotalPrice.ToString("N0") đ</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lịch sử thanh toán -->
+            @if (Model.PaymentHistory != null && Model.PaymentHistory.Any())
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-history"></i> Lịch sử thanh toán</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Loại</th>
+                                        <th>Phương thức</th>
+                                        <th class="text-end">Số tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var transaction in Model.PaymentHistory)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-calendar-day text-muted"></i>
+                                                @transaction.PaymentDate.ToString("dd/MM/yyyy HH:mm")
+                                            </td>
+                                            <td>
+                                                @if (transaction.TransactionType == "Deposit")
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-coins"></i> Đặt cọc
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle"></i> Thanh toán
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @switch (transaction.PaymentMethod)
+                                                {
+                                                    case "Cash":
+                                                        <i class="fas fa-money-bill-wave"></i><text> Tiền mặt</text>
+                                                        break;
+                                                    case "BankTransfer":
+                                                        <i class="fas fa-university"></i><text> Chuyển khoản</text>
+                                                        break;
+                                                    case "Card":
+                                                        <i class="fas fa-credit-card"></i><text> Thẻ</text>
+                                                        break;
+                                                    case "Momo":
+                                                        <i class="fas fa-wallet"></i><text> Momo</text>
+                                                        break;
+                                                    case "ZaloPay":
+                                                        <i class="fas fa-mobile-alt"></i><text> ZaloPay</text>
+                                                        break;
+                                                    default:
+                                                        @transaction.PaymentMethod
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <strong class="text-success">@transaction.Amount.ToString("N0") đ</strong>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Cột phải: Thông tin thanh toán & Hành động -->
+        <div class="col-lg-4">
+            <!-- Tình trạng thanh toán -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave"></i> Thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="text-muted mb-1">Tổng tiền</label>
+                        <div class="h3 text-primary mb-0">@Model.TotalPrice.ToString("N0") đ</div>
+                    </div>
+
+                    @if (Model.DepositPaid)
+                    {
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="text-muted mb-1">Đã đặt cọc</label>
+                            <div class="h5 text-warning mb-0">@Model.DepositAmount.ToString("N0") đ</div>
+                        </div>
+                    }
+
+                    @if (!Model.FullyPaid)
+                    {
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="text-muted mb-1">Còn lại</label>
+                            <div class="h4 text-danger mb-0">@Model.RemainingAmount.ToString("N0") đ</div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.PaymentMethod))
+                    {
+                        <div class="mb-3 pb-3 border-bottom">
+                            <label class="text-muted mb-1">Phương thức thanh toán</label>
+                            <div>
+                                @switch (Model.PaymentMethod)
+                                {
+                                    case "Cash":
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-money-bill-wave"></i> Tiền mặt
+                                        </span>
+                                        break;
+                                    case "BankTransfer":
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-university"></i> Chuyển khoản
+                                        </span>
+                                        break;
+                                    case "Card":
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-credit-card"></i> Thẻ
+                                        </span>
+                                        break;
+                                    case "Momo":
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-wallet"></i> Momo
+                                        </span>
+                                        break;
+                                    case "ZaloPay":
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-mobile-alt"></i> ZaloPay
+                                        </span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@Model.PaymentMethod</span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.FullyPaid)
+                    {
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle"></i> <strong>Đã thanh toán đầy đủ</strong>
+                        </div>
+                    }
+                    else if (Model.DepositPaid)
+                    {
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-info-circle"></i> <strong>Đã đặt cọc</strong><br />
+                            <small>Vui lòng thanh toán phần còn lại khi đến</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Chưa thanh toán</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Thông tin liên hệ -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-address-card"></i> Thông tin liên hệ</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Khách hàng</small>
+                        <div><i class="fas fa-user"></i> <strong>@Model.CustomerName</strong></div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted d-block">Email</small>
+                        <div><i class="fas fa-envelope"></i> @Model.CustomerEmail</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                    {
+                        <div class="mb-0">
+                            <small class="text-muted d-block">Số điện thoại</small>
+                            <div><i class="fas fa-phone"></i> @Model.CustomerPhone</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Hành động -->
+            @if (Model.Status == "Pending" || Model.Status == "Confirmed")
+            {
+                <div class="card shadow-sm border-danger">
+                    <div class="card-body text-center">
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-info-circle"></i> Bạn có thể hủy lịch hẹn này
+                        </p>
+                        <button type="button" class="btn btn-danger w-100" id="btnCancelAppointment">
+                            <i class="fas fa-times-circle"></i> Hủy lịch hẹn
+                        </button>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Status == "Completed")
+            {
+                <div class="card shadow-sm border-success">
+                    <div class="card-body text-center">
+                        <div class="text-success mb-3">
+                            <i class="fas fa-check-circle fa-4x"></i>
+                        </div>
+                        <h5 class="text-success mb-2">Hoàn thành</h5>
+                        <p class="text-muted mb-0">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Status == "Cancelled")
+            {
+                <div class="card shadow-sm border-danger">
+                    <div class="card-body text-center">
+                        <div class="text-danger mb-3">
+                            <i class="fas fa-times-circle fa-4x"></i>
+                        </div>
+                        <h5 class="text-danger mb-2">Đã hủy</h5>
+                        <p class="text-muted mb-0">Lịch hẹn này đã bị hủy</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal hủy lịch -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> Xác nhận hủy lịch hẹn
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn hủy lịch hẹn <strong>#@Model.AppointmentId</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Lưu ý:</strong> Hành động này không thể hoàn tác!
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Lý do hủy (không bắt buộc)</label>
+                    <textarea class="form-control" id="cancelReason" rows="3"
+                              placeholder="Ví dụ: Tôi có việc đột xuất, không thể đến được..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-danger" id="btnConfirmCancel">
+                    <i class="fas fa-check"></i> Xác nhận hủy
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+$(document).ready(function() {
+    $('#btnCancelAppointment').click(function() {
+        $('#cancelModal').modal('show');
+    });
+
+    $('#btnConfirmCancel').click(function() {
+        var cancelReason = $('#cancelReason').val();
+
+        // Disable button
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+
+        $.ajax({
+            url: '@Url.Action("Cancel", "Appointments")',
+            type: 'POST',
+            data: {
+                id: @Model.AppointmentId,
+                cancelReason: cancelReason
+            },
+            success: function(response) {
+                $('#cancelModal').modal('hide');
+
+                if (response.success) {
+                    alert('✓ ' + response.message);
+                    window.location.href = '@Url.Action("Index", "Appointments")';
+                } else {
+                    alert('✗ ' + response.message);
+                    $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+                }
+            },
+            error: function() {
+                alert('✗ Có lỗi xảy ra. Vui lòng thử lại!');
+                $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+            }
+        });
+    });
+
+    // Reset button khi đóng modal
+    $('#cancelModal').on('hidden.bs.modal', function () {
+        $('#btnConfirmCancel').prop('disabled', false).html('<i class="fas fa-check"></i> Xác nhận hủy');
+    });
+});
+    </script>
+}
+
+@section styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+            }
+
+        .card-header {
+            border-bottom: none;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem 1.25rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 0.4rem 0.7rem;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-left: 4px solid;
+            border-radius: 5px;
+        }
+
+        .alert-info {
+            border-left-color: #0dcaf0;
+            background-color: #cff4fc;
+        }
+
+        .alert-success {
+            border-left-color: #198754;
+            background-color: #d1e7dd;
+        }
+
+        .alert-warning {
+            border-left-color: #ffc107;
+            background-color: #fff3cd;
+        }
+
+        .alert-danger {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .border-bottom {
+            border-color: #dee2e6 !important;
+        }
+    </style>
+}

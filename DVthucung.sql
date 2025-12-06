@@ -1,14 +1,6 @@
-﻿-- =============================================
--- PETCARE DATABASE - COMPLETE VERSION
--- Hệ thống quản lý chăm sóc thú cưng
--- Tính năng: Đặt lịch, Thanh toán cọc, Gửi email
--- =============================================
-
--- Đảm bảo không còn kết nối nào đến database
-USE master;
+﻿USE master;
 GO
 
--- Đóng tất cả kết nối đến PetCareDB
 IF DB_ID('PetCareDB') IS NOT NULL
 BEGIN
     ALTER DATABASE PetCareDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
@@ -28,9 +20,6 @@ GO
 USE PetCareDB;
 GO
 
-PRINT N'=== BẮT ĐẦU TẠO CẤU TRÚC DATABASE ===';
-GO
-
 -- Tạo database mới
 CREATE DATABASE PetCareDB;
 GO
@@ -38,12 +27,6 @@ GO
 USE PetCareDB;
 GO
 
-PRINT N'=== BẮT ĐẦU TẠO CẤU TRÚC DATABASE ===';
-GO
-
--- =============================================
--- BẢNG USERS (Admin, Staff, Customer)
--- =============================================
 CREATE TABLE Users (
     UserId INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -60,9 +43,6 @@ CREATE TABLE Users (
 );
 GO
 
--- =============================================
--- BẢNG PETS (Thú cưng)
--- =============================================
 CREATE TABLE Pets (
     PetId INT PRIMARY KEY IDENTITY(1,1),
     OwnerId INT NOT NULL,
@@ -83,9 +63,6 @@ CREATE TABLE Pets (
 );
 GO
 
--- =============================================
--- BẢNG SERVICES (Dịch vụ)
--- =============================================
 CREATE TABLE Services (
     ServiceId INT PRIMARY KEY IDENTITY(1,1),
     ServiceName NVARCHAR(100) NOT NULL,
@@ -101,9 +78,6 @@ CREATE TABLE Services (
 );
 GO
 
--- =============================================
--- BẢNG APPOINTMENTS (Lịch hẹn với thanh toán)
--- =============================================
 CREATE TABLE Appointments (
     AppointmentId INT PRIMARY KEY IDENTITY(1,1),
     CustomerId INT NOT NULL,
@@ -138,9 +112,6 @@ CREATE TABLE Appointments (
 );
 GO
 
--- =============================================
--- BẢNG APPOINTMENTSERVICES (Chi tiết dịch vụ trong lịch hẹn)
--- =============================================
 CREATE TABLE AppointmentServices (
     AppointmentServiceId INT PRIMARY KEY IDENTITY(1,1),
     AppointmentId INT NOT NULL,
@@ -152,9 +123,6 @@ CREATE TABLE AppointmentServices (
 );
 GO
 
--- =============================================
--- BẢNG PAYMENTTRANSACTIONS (Lịch sử thanh toán)
--- =============================================
 CREATE TABLE PaymentTransactions (
     TransactionId INT PRIMARY KEY IDENTITY(1,1),
     AppointmentId INT NOT NULL,
@@ -171,9 +139,6 @@ CREATE TABLE PaymentTransactions (
 );
 GO
 
--- =============================================
--- BẢNG EMAILLOGS (Tracking email đã gửi)
--- =============================================
 CREATE TABLE EmailLogs (
     EmailLogId INT PRIMARY KEY IDENTITY(1,1),
     AppointmentId INT NOT NULL,
@@ -190,9 +155,6 @@ CREATE TABLE EmailLogs (
 );
 GO
 
--- =============================================
--- BẢNG VACCINATIONRECORDS (Hồ sơ tiêm phòng)
--- =============================================
 CREATE TABLE VaccinationRecords (
     RecordId INT PRIMARY KEY IDENTITY(1,1),
     PetId INT NOT NULL,
@@ -210,9 +172,6 @@ CREATE TABLE VaccinationRecords (
 );
 GO
 
--- =============================================
--- BẢNG WORKSCHEDULES (Giờ làm việc)
--- =============================================
 CREATE TABLE WorkSchedules (
     ScheduleId INT PRIMARY KEY IDENTITY(1,1),
     DayOfWeek NVARCHAR(20) NOT NULL UNIQUE,
@@ -224,9 +183,6 @@ CREATE TABLE WorkSchedules (
 );
 GO
 
--- =============================================
--- TẠO INDEX ĐỂ TỐI ƯU HIỆU SUẤT
--- =============================================
 CREATE INDEX IX_Pets_OwnerId ON Pets(OwnerId);
 CREATE INDEX IX_Appointments_CustomerId ON Appointments(CustomerId);
 CREATE INDEX IX_Appointments_PetId ON Appointments(PetId);
@@ -240,13 +196,6 @@ CREATE INDEX IX_EmailLogs_AppointmentId ON EmailLogs(AppointmentId);
 GO
 
 PRINT N'✓ Đã tạo xong cấu trúc bảng và index';
-GO
-
--- =============================================
--- NHẬP DỮ LIỆU MẪU
--- =============================================
-
-PRINT N'=== BẮT ĐẦU NHẬP DỮ LIỆU MẪU ===';
 GO
 
 -- 1. USERS
@@ -263,9 +212,6 @@ VALUES
 (N'Phạm Minh Tuấn', 'tuan.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0934567890', N'111 Cách Mạng Tháng 8, Q10, TP.HCM', 'Customer', 1),
 (N'Ngô Thị Lan', 'lan.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0945678901', N'222 Hùng Vương, Tân Bình, TP.HCM', 'Customer', 1),
 (N'Hoàng Văn Nam', 'nam.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0956789012', N'333 Hoàng Diệu, Q4, TP.HCM', 'Customer', 1);
-GO
-
-PRINT N'✓ Đã thêm 6 Users (1 Admin, 2 Staff, 3 Customers)';
 GO
 
 -- 2. SERVICES
@@ -299,9 +245,6 @@ VALUES
 (N'Cắt móng chuyên nghiệp', N'Cắt, dũa móng an toàn, không chảy máu', N'Khác', 20, 80000, '/Content/Images/services/cat-mong.jpg', 1);
 GO
 
-PRINT N'✓ Đã thêm 17 Services';
-GO
-
 -- 3. PETS
 INSERT INTO Pets (OwnerId, PetName, Species, Breed, Age, Weight, Gender, Color, SpecialNotes, IsActive)
 VALUES 
@@ -318,9 +261,6 @@ VALUES
 (6, N'Bella', N'Chó', N'Corgi', 3, 11.5, N'Cái', N'Vàng nâu', N'Hiền lành, thích đùa. Đã triệt sản.', 1);
 GO
 
-PRINT N'✓ Đã thêm 6 Pets';
-GO
-
 -- 4. WORKSCHEDULES
 INSERT INTO WorkSchedules (DayOfWeek, OpenTime, CloseTime, IsClosed)
 VALUES 
@@ -331,9 +271,6 @@ VALUES
 ('Friday', '08:00', '20:00', 0),
 ('Saturday', '08:00', '20:00', 0),
 ('Sunday', '08:00', '17:00', 0);
-GO
-
-PRINT N'✓ Đã thêm WorkSchedules';
 GO
 
 -- 5. APPOINTMENTS (Với thanh toán)
@@ -353,9 +290,6 @@ VALUES
 
 -- Lịch hẹn đã hủy
 (4, 1, NULL, '2024-11-20', '08:00-09:00', 'Cancelled', N'Gia đình có việc đột xuất', 150000, 0, 0, 150000, 0, NULL, 1, '2024-11-15 09:00:00');
-GO
-
-PRINT N'✓ Đã thêm 7 Appointments';
 GO
 
 -- 6. APPOINTMENTSERVICES
@@ -384,9 +318,6 @@ VALUES
 (7, 1, 150000);
 GO
 
-PRINT N'✓ Đã thêm AppointmentServices';
-GO
-
 -- 7. PAYMENTTRANSACTIONS
 INSERT INTO PaymentTransactions (AppointmentId, TransactionType, Amount, PaymentMethod, ProcessedBy, PaymentDate)
 VALUES 
@@ -403,9 +334,6 @@ VALUES
 
 -- Appointment 4: Chỉ đặt cọc
 (4, 'Deposit', 60000, 'ZaloPay', NULL, GETDATE());
-GO
-
-PRINT N'✓ Đã thêm PaymentTransactions';
 GO
 
 -- 8. EMAILLOGS
@@ -488,16 +416,6 @@ WHERE AppointmentId = 1;
 UPDATE Appointments 
 SET StaffNotes = N'Đã cắt tỉa và tắm xong. Khách hàng rất hài lòng với kiểu tóc mới của Buddy. Đã thu đủ tiền.'
 WHERE AppointmentId = 2;
-GO
-
-PRINT N'✓ Đã cập nhật StaffNotes';
-GO
-
--- =============================================
--- STORED PROCEDURES
--- =============================================
-
-PRINT N'=== TẠO STORED PROCEDURES ===';
 GO
 
 -- Procedure 1: Đặt lịch hẹn (Khách hàng)
@@ -871,13 +789,6 @@ BEGIN
 END;
 GO
 
-PRINT N'✓ Đã tạo 9 Stored Procedures';
-GO
-
--- =============================================
--- VIEWS
--- =============================================
-
 PRINT N'=== TẠO VIEWS ===';
 GO
 
@@ -933,77 +844,4 @@ WHERE u.Role = 'Customer'
 GROUP BY u.UserId, u.FullName, u.Email, u.Phone;
 GO
 
-PRINT N'✓ Đã tạo 2 Views';
-GO
 
--- =============================================
--- HOÀN TẤT
--- =============================================
-
-PRINT N'';
-PRINT N'╔═══════════════════════════════════════════════════════════╗';
-PRINT N'║     HOÀN TẤT TẠO DATABASE - PETCARE SYSTEM               ║';
-PRINT N'╚═══════════════════════════════════════════════════════════╝';
-PRINT N'';
-PRINT N'📊 TỔNG KẾT:';
-PRINT N'├─ Bảng dữ liệu: 10 bảng';
-PRINT N'│  ├─ Users: 6 (1 Admin, 2 Staff, 3 Customer)';
-PRINT N'│  ├─ Services: 17 dịch vụ';
-PRINT N'│  ├─ Pets: 6 thú cưng';
-PRINT N'│  ├─ Appointments: 7 lịch hẹn';
-PRINT N'│  ├─ PaymentTransactions: 6 giao dịch';
-PRINT N'│  ├─ EmailLogs: 3 email';
-PRINT N'│  └─ WorkSchedules: 7 ngày';
-PRINT N'├─ Stored Procedures: 9';
-PRINT N'└─ Views: 2';
-PRINT N'';
-PRINT N'🔐 THÔNG TIN ĐĂNG NHẬP:';
-PRINT N'┌────────────────────────────────────────────────────┐';
-PRINT N'│ Admin:    admin@petcare.com / admin123            │';
-PRINT N'│ Staff 1:  huong.staff@petcare.com / staff123      │';
-PRINT N'│ Staff 2:  cuong.staff@petcare.com / staff123      │';
-PRINT N'│ Customer: tuan.customer@gmail.com / customer123   │';
-PRINT N'└────────────────────────────────────────────────────┘';
-PRINT N'';
-PRINT N'💡 QUERY DEMO - COPY VÀ CHẠY THỬ:';
-PRINT N'';
-PRINT N'-- 1. Xem tất cả lịch hẹn với thanh toán';
-PRINT N'SELECT * FROM vw_AppointmentFullDetails ORDER BY AppointmentDate DESC;';
-PRINT N'';
-PRINT N'-- 2. Lấy lịch hẹn của khách hàng';
-PRINT N'EXEC sp_GetCustomerAppointments @CustomerId = 4;';
-PRINT N'';
-PRINT N'-- 3. Đặt lịch MỚI (có đặt cọc)';
-PRINT N'EXEC sp_CreateAppointment 
-    @CustomerId = 4, 
-    @PetId = 1, 
-    @AppointmentDate = ''2024-12-25'', 
-    @TimeSlot = ''10:00-11:00'',
-    @ServiceIds = ''1,4'', 
-    @CustomerNotes = N''Test đặt lịch'',
-    @IsDepositPaid = 1, 
-    @PaymentMethod = ''Momo'';';
-PRINT N'';
-PRINT N'-- 4. Staff thanh toán phần còn lại';
-PRINT N'EXEC sp_ProcessFinalPayment 
-    @AppointmentId = 3, 
-    @PaymentMethod = ''Cash'', 
-    @StaffId = 2;';
-PRINT N'';
-PRINT N'-- 5. Báo cáo doanh thu';
-PRINT N'EXEC sp_GetRevenueReport 
-    @FromDate = ''2024-11-01'', 
-    @ToDate = ''2024-12-31'';';
-PRINT N'';
-PRINT N'-- 6. Top dịch vụ phổ biến';
-PRINT N'EXEC sp_GetTopServices @TopN = 5;';
-PRINT N'';
-PRINT N'-- 7. Chi tiết lịch hẹn (để gửi email)';
-PRINT N'EXEC sp_GetAppointmentDetails @AppointmentId = 3;';
-PRINT N'';
-PRINT N'═══════════════════════════════════════════════════════════';
-GO
-
-
-SELECT COUNT(*) AS TotalServices FROM Services WHERE IsActive = 1;
-SELECT TOP 6 * FROM Services WHERE IsActive = 1 ORDER BY CreatedAt DESC;

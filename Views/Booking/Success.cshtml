@@ -1,0 +1,334 @@
+﻿@model _125_BCCK.Models.ViewModels.BookingSuccessViewModel
+@{
+    ViewBag.Title = "Đặt lịch thành công";
+}
+
+<div class="success-page">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <div class="icon-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <h1 class="success-title">Đặt lịch thành công!</h1>
+                    <p class="success-subtitle">Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của PetCare</p>
+
+                    <div class="booking-info-card">
+                        <div class="info-header">
+                            <h3><i class="fas fa-file-invoice"></i> Thông tin đặt lịch</h3>
+                        </div>
+                        <div class="info-body">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-hashtag"></i> Mã lịch hẹn:
+                                </div>
+                                <div class="info-value">
+                                    <strong class="text-primary">#@Model.AppointmentId</strong>
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar"></i> Ngày hẹn:
+                                </div>
+                                <div class="info-value">
+                                    @Model.AppointmentDate.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-clock"></i> Giờ hẹn:
+                                </div>
+                                <div class="info-value">
+                                    @Model.TimeSlot
+                                </div>
+                            </div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-paw"></i> Thú cưng:
+                                </div>
+                                <div class="info-value">
+                                    @Model.PetName (@Model.Species)
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-money-bill-wave"></i> Tổng tiền:
+                                </div>
+                                <div class="info-value">
+                                    <strong class="text-success">@Model.TotalPrice.ToString("N0") đ</strong>
+                                </div>
+                            </div>
+
+                            @if (Model.DepositPaid)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-check-circle text-success"></i> Đã đặt cọc:
+                                    </div>
+                                    <div class="info-value">
+                                        @Model.DepositAmount.ToString("N0") đ
+                                    </div>
+                                </div>
+
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-coins"></i> Còn lại:
+                                    </div>
+                                    <div class="info-value">
+                                        <strong class="text-warning">@Model.RemainingAmount.ToString("N0") đ</strong>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-info-circle"></i>
+                                    Vui lòng thanh toán <strong>@Model.TotalPrice.ToString("N0") đ</strong> khi đến sử dụng dịch vụ
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="notification-info">
+                        <div class="notification-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="notification-text">
+                            <strong>Email xác nhận đã được gửi</strong>
+                            <p>Vui lòng kiểm tra email <strong>@Model.CustomerEmail</strong> để xem chi tiết lịch hẹn</p>
+                        </div>
+                    </div>
+
+                    <div class="important-notes">
+                        <h5><i class="fas fa-exclamation-triangle text-warning"></i> Lưu ý quan trọng</h5>
+                        <ul>
+                            <li>Vui lòng đến <strong>đúng giờ</strong> theo lịch hẹn</li>
+                            <li>Nếu cần hủy/thay đổi lịch, vui lòng thông báo trước <strong>4 tiếng</strong></li>
+                            <li>Mang theo thú cưng của bạn và giấy tờ liên quan (nếu có)</li>
+                            <li>Hotline hỗ trợ: <strong class="text-primary">1900-xxxx</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="@Url.Action("Index", "Appointments")" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calendar-alt"></i> Xem lịch hẹn của tôi
+                        </a>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-home"></i> Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <style>
+        .success-page {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 50px 0;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .success-icon {
+            margin-bottom: 30px;
+        }
+
+        .icon-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 60px;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+            animation: scaleIn 0.5s ease-out;
+        }
+
+       @@keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .success-subtitle {
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 40px;
+        }
+
+        .booking-info-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        .info-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .info-body {
+            padding: 25px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #667eea, transparent);
+            margin: 15px 0;
+        }
+
+        .notification-info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .notification-icon {
+            font-size: 40px;
+            color: #2196F3;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-text strong {
+            display: block;
+            color: #2196F3;
+            margin-bottom: 5px;
+        }
+
+        .notification-text p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .important-notes {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .important-notes h5 {
+            margin-bottom: 15px;
+            color: #856404;
+        }
+
+        .important-notes ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .important-notes li {
+            margin-bottom: 8px;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            min-width: 200px;
+        }
+
+        @@media (max-width: 768px) {
+            .success-card {
+                padding: 30px 20px;
+            }
+
+            .success-title {
+                font-size: 28px;
+            }
+
+            .icon-circle {
+                width: 100px;
+                height: 100px;
+                font-size: 50px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
+}
