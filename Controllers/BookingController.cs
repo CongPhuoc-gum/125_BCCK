@@ -14,6 +14,8 @@ namespace _125_BCCK.Controllers
     {
         private PetCareContext db = new PetCareContext();
 
+        // ==================== PHẦN ĐẶT LỊCH CHÍNH ====================
+
         // GET: Trang đặt lịch duy nhất
         public ActionResult Index(int? serviceId = null)
         {
@@ -102,7 +104,9 @@ namespace _125_BCCK.Controllers
             }
         }
 
-        // POST: Hoàn tất đặt lịch
+        // ==================== LUỒNG 1: ĐẶT LỊCH TRỰC TIẾP (KHÔNG CỌC) ====================
+
+        // POST: Hoàn tất đặt lịch (thanh toán sau tại cửa hàng)
         [HttpPost]
         public ActionResult CompleteBooking(CreateBookingViewModel model)
         {
@@ -120,8 +124,14 @@ namespace _125_BCCK.Controllers
             try
             {
                 int customerId = (int)SessionHelper.GetUserId();
-                bool isDepositPaid = model.PaymentOption == "deposit";
 
+                // Nếu chọn thanh toán cọc -> chuyển sang trang Payment
+                if (model.PaymentOption == "deposit")
+                {
+                    return ProcessBooking(model);
+                }
+
+                // Nếu chọn thanh toán sau -> tạo lịch hẹn ngay (IsDepositPaid = false)
                 using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
                 {
                     conn.Open();
@@ -135,7 +145,7 @@ namespace _125_BCCK.Controllers
                         cmd.Parameters.AddWithValue("@TimeSlot", model.TimeSlot);
                         cmd.Parameters.AddWithValue("@ServiceIds", model.ServiceIds);
                         cmd.Parameters.AddWithValue("@CustomerNotes", (object)model.CustomerNotes ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@IsDepositPaid", isDepositPaid);
+                        cmd.Parameters.AddWithValue("@IsDepositPaid", false); // Chưa cọc
                         cmd.Parameters.AddWithValue("@PaymentMethod", (object)model.PaymentMethod ?? DBNull.Value);
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -144,7 +154,7 @@ namespace _125_BCCK.Controllers
                             {
                                 int appointmentId = Convert.ToInt32(reader["AppointmentId"]);
 
-                                TempData["Success"] = "Đặt lịch thành công! Mã lịch hẹn: #" + appointmentId;
+                                TempData["Success"] = "Đặt lịch thành công! Vui lòng thanh toán tại cửa hàng. Mã lịch hẹn: #" + appointmentId;
                                 return RedirectToAction("Success", new { id = appointmentId });
                             }
                         }
@@ -161,6 +171,135 @@ namespace _125_BCCK.Controllers
             }
         }
 
+        // ==================== LUỒNG 2: THANH TOÁN CỌC ====================
+
+        // POST: Xử lý khi chọn "Thanh toán cọc" -> Chuyển sang trang Payment
+        [HttpPost]
+        public ActionResult ProcessBooking(CreateBookingViewModel model)
+        {
+            if (!SessionHelper.IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (string.IsNullOrEmpty(model.ServiceIds))
+            {
+                TempData["Error"] = "Vui lòng chọn dịch vụ";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                // Tính toán số tiền
+                var ids = model.ServiceIds.Split(',').Select(int.Parse).ToList();
+                var services = GetServicesByIds(ids);
+
+                decimal totalPrice = services.Sum(s => s.Price);
+                decimal depositAmount = totalPrice * 0.3m;
+
+                // Tạo ViewModel để hiển thị trang thanh toán
+                var paymentModel = new PaymentViewModel
+                {
+                    PetId = model.PetId,
+                    AppointmentDate = model.AppointmentDate,
+                    TimeSlot = model.TimeSlot,
+                    ServiceIds = model.ServiceIds,
+                    CustomerNotes = model.CustomerNotes,
+                    PaymentMethod = model.PaymentMethod,
+                    TotalPrice = totalPrice,
+                    DepositAmount = depositAmount,
+                    RemainingAmount = totalPrice - depositAmount,
+                    Services = services.Select(s => new ServiceItemViewModel
+                    {
+                        ServiceId = s.ServiceId,
+                        ServiceName = s.ServiceName,
+                        Category = s.Category,
+                        Price = s.Price,
+                        Duration = s.Duration
+                    }).ToList()
+                };
+
+                return View("Payment", paymentModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        // GET: Trang thanh toán (hiển thị QR code, thông tin chuyển khoản)
+        public ActionResult Payment(PaymentViewModel model)
+        {
+            if (!SessionHelper.IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Kiểm tra nếu model rỗng (truy cập trực tiếp URL)
+            if (string.IsNullOrEmpty(model.ServiceIds))
+            {
+                TempData["Error"] = "Phiên làm việc hết hạn, vui lòng đặt lịch lại";
+                return RedirectToAction("Index");
+            }
+
+            return View(model);
+        }
+
+        // POST: Xác nhận đã thanh toán cọc -> Tạo lịch hẹn
+        [HttpPost]
+        public ActionResult ConfirmPayment(PaymentViewModel model)
+        {
+            if (!SessionHelper.IsLoggedIn())
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                int customerId = (int)SessionHelper.GetUserId();
+
+                using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_CreateAppointment", conn))
+                    {
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@CustomerId", customerId);
+                        cmd.Parameters.AddWithValue("@PetId", model.PetId);
+                        cmd.Parameters.AddWithValue("@AppointmentDate", model.AppointmentDate);
+                        cmd.Parameters.AddWithValue("@TimeSlot", model.TimeSlot);
+                        cmd.Parameters.AddWithValue("@ServiceIds", model.ServiceIds);
+                        cmd.Parameters.AddWithValue("@CustomerNotes", (object)model.CustomerNotes ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@IsDepositPaid", true); // Đã thanh toán cọc
+                        cmd.Parameters.AddWithValue("@PaymentMethod", model.PaymentMethod ?? "Banking");
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int appointmentId = Convert.ToInt32(reader["AppointmentId"]);
+
+                                TempData["Success"] = "Đặt lịch và thanh toán cọc thành công! Mã lịch hẹn: #" + appointmentId;
+                                return RedirectToAction("Success", new { id = appointmentId });
+                            }
+                        }
+                    }
+                }
+
+                TempData["Error"] = "Có lỗi xảy ra khi tạo lịch hẹn";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi: " + ex.Message;
+                return View("Payment", model);
+            }
+        }
+
+        // ==================== TRANG THÀNH CÔNG ====================
+
         // GET: Trang thành công
         public ActionResult Success(int id)
         {
@@ -174,7 +313,13 @@ namespace _125_BCCK.Controllers
             return View(appointment);
         }
 
-        // ===== HELPER METHODS =====
+        // Trang thành công đơn giản (dùng cho luồng thanh toán cọc)
+        public ActionResult BookingSuccess()
+        {
+            return View();
+        }
+
+        // ==================== HELPER METHODS ====================
 
         private List<Service> GetAllServices()
         {
@@ -202,7 +347,6 @@ namespace _125_BCCK.Controllers
             return services;
         }
 
-        // FIX 2: Fixed SQL injection vulnerability with parameterized query
         private List<Service> GetServicesByIds(List<int> ids)
         {
             var services = new List<Service>();
@@ -212,7 +356,7 @@ namespace _125_BCCK.Controllers
 
             using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
             {
-                // Create parameterized query
+                // Parameterized query để tránh SQL injection
                 var parameters = new List<string>();
                 var cmd = new SqlCommand();
                 cmd.Connection = conn;
@@ -351,7 +495,7 @@ namespace _125_BCCK.Controllers
                                         ServiceName = reader["ServiceName"].ToString(),
                                         Category = reader["Category"].ToString(),
                                         Price = (decimal)reader["ServicePrice"],
-                                        Duration = 0 // Stored procedure không trả về duration
+                                        Duration = 0
                                     });
                                 }
                             }
@@ -364,7 +508,6 @@ namespace _125_BCCK.Controllers
             return null;
         }
 
-        // FIX 3: Add proper disposal
         protected override void Dispose(bool disposing)
         {
             if (disposing)
