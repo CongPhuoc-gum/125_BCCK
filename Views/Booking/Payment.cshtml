@@ -1,0 +1,562 @@
+﻿@model _125_BCCK.Models.ViewModels.PaymentViewModel
+@{
+    ViewBag.Title = "Thanh toán cọc";
+}
+
+<div class="payment-page">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h1 class="display-5 fw-bold">
+                        <i class="fas fa-credit-card text-primary"></i> Thanh toán cọc
+                    </h1>
+                    <p class="text-muted">Hoàn tất thanh toán để xác nhận lịch hẹn</p>
+                </div>
+
+                <!-- Payment Card -->
+                <div class="payment-card">
+                    <div class="payment-header">
+                        <div class="step-indicator">
+                            <div class="step completed">
+                                <i class="fas fa-check"></i>
+                                <span>Chọn dịch vụ</span>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step active">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Thanh toán</span>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class="step">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Hoàn tất</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-body">
+                        <!-- Booking Info -->
+                        <div class="info-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-info-circle"></i> Thông tin đặt lịch
+                            </h4>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Ngày hẹn</div>
+                                        <div class="info-value">@Model.AppointmentDate.ToString("dd/MM/yyyy")</div>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <div class="info-label">Khung giờ</div>
+                                        <div class="info-value">@Model.TimeSlot</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.CustomerNotes))
+                            {
+                                <div class="notes-box">
+                                    <i class="fas fa-sticky-note"></i>
+                                    <strong>Ghi chú:</strong> @Model.CustomerNotes
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Services List -->
+                        <div class="info-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-list"></i> Dịch vụ đã chọn
+                            </h4>
+                            <div class="services-list">
+                                @foreach (var service in Model.Services)
+                                {
+                                    <div class="service-item">
+                                        <div class="service-icon-small">
+                                            <i class="fas fa-paw"></i>
+                                        </div>
+                                        <div class="service-details">
+                                            <div class="service-name">@service.ServiceName</div>
+                                            <div class="service-category">@service.Category</div>
+                                        </div>
+                                        <div class="service-price">@service.Price.ToString("N0")đ</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div class="price-summary">
+                            <div class="price-row subtotal">
+                                <span>Tổng tiền dịch vụ:</span>
+                                <span>@Model.TotalPrice.ToString("N0")đ</span>
+                            </div>
+                            <div class="price-divider"></div>
+                            <div class="price-row deposit">
+                                <span>
+                                    <i class="fas fa-hand-holding-usd"></i> Tiền cọc (30%):
+                                </span>
+                                <span class="deposit-amount">@Model.DepositAmount.ToString("N0")đ</span>
+                            </div>
+                            <div class="price-row remaining">
+                                <span>Còn lại khi sử dụng dịch vụ:</span>
+                                <span>@Model.RemainingAmount.ToString("N0")đ</span>
+                            </div>
+                        </div>
+
+                        <!-- QR Code Section -->
+                        <div class="qr-section">
+                            <h4 class="section-title text-center">
+                                <i class="fas fa-qrcode"></i> Quét mã QR để thanh toán
+                            </h4>
+                            <div class="qr-container">
+                                <div class="qr-code">
+                                    <img src="https://img.vietqr.io/image/MB-0000000000-compact2.png?amount=@Model.DepositAmount&addInfo=DATCOC PETCARE&accountName=PETCARE"
+                                         alt="QR Code" />
+                                </div>
+                                <div class="qr-info">
+                                    <div class="bank-info">
+                                        <div class="bank-logo">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <div class="bank-details">
+                                            <div class="bank-name">MB Bank</div>
+                                            <div class="bank-account">STK: 0000000000</div>
+                                            <div class="bank-owner">PETCARE</div>
+                                        </div>
+                                    </div>
+                                    <div class="transfer-amount">
+                                        <div class="amount-label">Số tiền cần chuyển:</div>
+                                        <div class="amount-value">@Model.DepositAmount.ToString("N0")đ</div>
+                                        <div class="amount-note">Nội dung: DATCOC PETCARE</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Hướng dẫn:</strong>
+                                <ol class="mb-0">
+                                    <li>Mở ứng dụng ngân hàng và quét mã QR</li>
+                                    <li>Kiểm tra số tiền và nội dung chuyển khoản</li>
+                                    <li>Xác nhận giao dịch</li>
+                                    <li>Bấm nút "Tôi đã thanh toán" bên dưới</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Form Submit -->
+                        @using (Html.BeginForm("ConfirmPayment", "Booking", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.PetId)
+                            @Html.HiddenFor(m => m.AppointmentDate)
+                            @Html.HiddenFor(m => m.TimeSlot)
+                            @Html.HiddenFor(m => m.ServiceIds)
+                            @Html.HiddenFor(m => m.CustomerNotes)
+                            @Html.HiddenFor(m => m.PaymentMethod)
+
+                            <div class="payment-actions">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-check-circle"></i> Tôi đã thanh toán
+                                </button>
+                                <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
+                                </a>
+                            </div>
+                        }
+
+                        <div class="payment-note">
+                            <i class="fas fa-shield-alt"></i>
+                            Thông tin thanh toán của bạn được bảo mật tuyệt đối.
+                            Sau khi xác nhận thanh toán, bạn sẽ nhận được email xác nhận lịch hẹn.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.payment-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.payment-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    color: white;
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.5;
+    transition: all 0.3s;
+}
+
+.step.completed,
+.step.active {
+    opacity: 1;
+}
+
+.step i {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.step.completed i,
+.step.active i {
+    background: white;
+    color: #667eea;
+}
+
+.step span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.step-line {
+    width: 80px;
+    height: 2px;
+    background: rgba(255,255,255,0.3);
+    margin: 0 10px;
+}
+
+.payment-body {
+    padding: 40px;
+}
+
+.info-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.info-label {
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.notes-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+}
+
+.services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.service-icon-small {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.service-details {
+    flex: 1;
+}
+
+.service-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 3px;
+}
+
+.service-category {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.service-price {
+    font-weight: 600;
+    color: #28a745;
+    font-size: 16px;
+}
+
+.price-summary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.price-row.subtotal {
+    color: #6c757d;
+}
+
+.price-row.deposit {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.deposit-amount {
+    color: #28a745;
+}
+
+.price-row.remaining {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.price-divider {
+    height: 1px;
+    background: #dee2e6;
+    margin: 15px 0;
+}
+
+.qr-section {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.qr-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 30px;
+    align-items: center;
+    margin: 30px 0;
+}
+
+.qr-code {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.qr-code img {
+    width: 250px;
+    height: 250px;
+    display: block;
+}
+
+.bank-info {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.bank-logo {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.bank-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.bank-account,
+.bank-owner {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+.transfer-amount {
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.amount-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.amount-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 8px;
+}
+
+.amount-note {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.payment-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.payment-actions .btn {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+.payment-note {
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert ol {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+@@media (max-width: 768px) {
+    .payment-body {
+        padding: 20px;
+    }
+
+    .qr-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .qr-code img {
+        width: 200px;
+        height: 200px;
+    }
+
+    .payment-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .step-indicator {
+        flex-direction: column;
+    }
+
+    .step-line {
+        width: 2px;
+        height: 30px;
+    }
+}
+</style>
