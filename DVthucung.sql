@@ -198,20 +198,23 @@ GO
 PRINT N'✓ Đã tạo xong cấu trúc bảng và index';
 GO
 
--- 1. USERS
+-- 1. USERS (với hash ĐÚNG từ SessionHelper.HashPassword)
 INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, Role, IsActive)
 VALUES 
 -- Admin (password: admin123)
-(N'Nguyễn Văn Admin', 'admin@petcare.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '0901234567', N'123 Nguyễn Huệ, Q1, TP.HCM', 'Admin', 1),
+-- Hash: 240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+(N'Nguyễn Văn Admin', 'admin@petcare.com', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', '0901234567', N'123 Nguyễn Huệ, Q1, TP.HCM', 'Admin', 1),
 
--- Staff (password: staff123)
-(N'Trần Thị Hương', 'huong.staff@petcare.com', 'ba3253876aed6bc22d4a6ff53d8406c6ad864195ed144ab5c87621b6c233b548', '0912345678', N'456 Lê Lợi, Q1, TP.HCM', 'Staff', 1),
-(N'Lê Văn Cường', 'cuong.staff@petcare.com', 'ba3253876aed6bc22d4a6ff53d8406c6ad864195ed144ab5c87621b6c233b548', '0923456789', N'789 Điện Biên Phủ, Q3, TP.HCM', 'Staff', 1),
+-- Staff (password: staff123)  
+-- Hash: 10176e7b7b24d317acfcf8d2064cfd2f24e154f7b5a96603077d5ef813d6a6b6
+(N'Trần Thị Hương', 'huong.staff@petcare.com', '10176e7b7b24d317acfcf8d2064cfd2f24e154f7b5a96603077d3ef813d6a6b6', '0912345678', N'456 Lê Lợi, Q1, TP.HCM', 'Staff', 1),
+(N'Lê Văn Cường', 'cuong.staff@petcare.com', '10176e7b7b24d317acfcf8d2064cfd2f24e154f7b5a96603077d3ef813d6a6b6', '0923456789', N'789 Điện Biên Phủ, Q3, TP.HCM', 'Staff', 1),
 
 -- Customers (password: customer123)
-(N'Phạm Minh Tuấn', 'tuan.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0934567890', N'111 Cách Mạng Tháng 8, Q10, TP.HCM', 'Customer', 1),
-(N'Ngô Thị Lan', 'lan.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0945678901', N'222 Hùng Vương, Tân Bình, TP.HCM', 'Customer', 1),
-(N'Hoàng Văn Nam', 'nam.customer@gmail.com', '0b14d501a594442a01c6859541bcb3e8164d183d32937b851835442f69d5c94e', '0956789012', N'333 Hoàng Diệu, Q4, TP.HCM', 'Customer', 1);
+-- Hash: b041c0aeb35bb0fa4aa668ca5a920b590196fdaf9a00eb852c9b7f4d123cc6d6
+(N'Phạm Minh Tuấn', 'tuan.customer@gmail.com', '5906ac361a137e2d286465cd6588ebb5ac3f5ae955001100bc41577c3d751764', '0934567890', N'111 Cách Mạng Tháng 8, Q10, TP.HCM', 'Customer', 1),
+(N'Ngô Thị Lan', 'lan.customer@gmail.com', '5906ac361a137e2d286465cd6588ebb5ac3f5ae955001100bc41577c3d751764', '0945678901', N'222 Hùng Vương, Tân Bình, TP.HCM', 'Customer', 1),
+(N'Hoàng Văn Nam', 'nam.customer@gmail.com', '5906ac361a137e2d286465cd6588ebb5ac3f5ae955001100bc41577c3d751764', '0956789012', N'333 Hoàng Diệu, Q4, TP.HCM', 'Customer', 1);
 GO
 
 -- 2. SERVICES
@@ -844,4 +847,10 @@ WHERE u.Role = 'Customer'
 GROUP BY u.UserId, u.FullName, u.Email, u.Phone;
 GO
 
+UPDATE Users 
+SET PasswordHash = 'b041c0aeb35bb0fa4aa668ca5a920b590196fdaf9a00eb852c9b7f4d123cc6d6'
+WHERE Email IN ('huong.staff@petcare.com', 'cuong.staff@petcare.com');
 
+UPDATE Users 
+SET PasswordHash = 'b041c0aeb35bb0fa4aa668ca5a920b590196fdaf9a00eb852c9b7f4d123cc6d6'
+WHERE Email IN ('tuan.customer@gmail.com');

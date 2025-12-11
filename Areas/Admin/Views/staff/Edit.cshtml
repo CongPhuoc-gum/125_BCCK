@@ -1,0 +1,105 @@
+﻿@model _125_BCCK.Models.User
+
+@{
+    ViewBag.Title = "Cập nhật nhân viên";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="h3 mb-4 text-gray-800">Cập nhật thông tin nhân viên</h1>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin chi tiết</h6>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    @* Giữ lại ID để biết đang sửa ai *@
+                    @Html.HiddenFor(model => model.UserId)
+
+                    @* Giữ lại các giá trị nhạy cảm (không hiển thị input sửa) *@
+                    @Html.HiddenFor(model => model.PasswordHash)
+                    @Html.HiddenFor(model => model.Role)
+                    @Html.HiddenFor(model => model.CreatedAt)
+
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Họ và Tên <span class="text-danger">*</span></label>
+                        @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Email</label>
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Số điện thoại</label>
+                            @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Địa chỉ</label>
+                        @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <hr />
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Vai trò hệ thống</label>
+                            <input type="text" class="form-control" value="@Model.Role" disabled readonly />
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold text-primary">Trạng thái hoạt động</label>
+                            <div class="custom-control custom-switch mt-2">
+                                @* CheckBoxFor tự động sinh ra input true/false *@
+                                @Html.CheckBoxFor(model => model.IsActive, new { @class = "custom-control-input", @id = "switchActive" })
+                                <label class="custom-control-label font-weight-bold" for="switchActive">Cho phép đăng nhập</label>
+                            </div>
+                            <small class="text-muted">Gạt sang phải (Xanh) là Active, sang trái là Khóa.</small>
+                            @Html.ValidationMessageFor(model => model.IsActive, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group d-flex justify-content-end">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary mr-2">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-warning text-white">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">Lưu ý</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Về trạng thái hoạt động:</strong></p>
+                <ul>
+                    <li>Nếu bạn tắt nút <strong>"Cho phép đăng nhập"</strong>, nhân viên này sẽ bị đá văng khỏi hệ thống nếu đang online và không thể đăng nhập lại.</li>
+                    <li>Chức năng này dùng khi nhân viên nghỉ việc hoặc bị kỷ luật.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

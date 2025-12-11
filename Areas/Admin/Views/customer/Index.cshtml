@@ -1,0 +1,134 @@
+﻿@model IEnumerable<_125_BCCK.Models.User>
+
+@{
+    ViewBag.Title = "Quản Lý Khách Hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@* --- KHU VỰC HIỂN THỊ THÔNG BÁO --- *@
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["Message"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> <strong>Thất bại!</strong> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<h1 class="h3 mb-2 text-gray-800">Quản Lý Khách Hàng</h1>
+<p class="mb-4">Danh sách khách hàng và lịch sử sử dụng dịch vụ.</p>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Dữ liệu khách hàng</h6>
+
+        @using (Html.BeginForm("Index", "Customer", FormMethod.Get, new { @class = "form-inline" }))
+        {
+            <div class="input-group">
+                <input type="text" name="searchString" class="form-control bg-light border-0 small"
+                       placeholder="Tìm tên, email, sđt..." aria-label="Search" value="@Request.QueryString["searchString"]">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search fa-sm"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Khách hàng</th>
+                        <th>Liên hệ</th>
+                        <th>Địa chỉ</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center" style="width: 120px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("Details", new { id = item.UserId })" class="font-weight-bold text-primary">
+                                    @Html.DisplayFor(modelItem => item.FullName)
+                                </a>
+                                <br />
+                                <small class="text-muted">ID: #@item.UserId</small>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <i class="fas fa-envelope fa-fw text-gray-400"></i> @item.Email<br />
+                                    <i class="fas fa-phone fa-fw text-gray-400"></i> @item.Phone
+                                </div>
+                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.Address)</td>
+
+                            <td class="text-center">
+                                @if (item.IsActive == true)
+                                {
+                                    <a href="@Url.Action("ToggleStatus", new { id = item.UserId })"
+                                       class="badge badge-success px-2 py-1"
+                                       title="Tài khoản đang hoạt động. Nhấn để KHÓA."
+                                       onclick="return confirm('Bạn có chắc muốn KHÓA tài khoản khách hàng này?');">
+                                        <i class="fas fa-check-circle"></i> Hoạt động
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("ToggleStatus", new { id = item.UserId })"
+                                       class="badge badge-danger px-2 py-1"
+                                       title="Tài khoản bị khóa. Nhấn để MỞ KHÓA."
+                                       onclick="return confirm('Mở khóa cho tài khoản này?');">
+                                        <i class="fas fa-lock"></i> Đã khóa
+                                    </a>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                <a href="@Url.Action("Details", new { id = item.UserId })"
+                                   class="btn btn-info btn-circle btn-sm"
+                                   title="Xem hồ sơ & Thú cưng">
+                                    <i class="fas fa-paw"></i>
+                                </a>
+
+                                <a href="@Url.Action("Edit", new { id = item.UserId })"
+                                   class="btn btn-warning btn-circle btn-sm"
+                                   title="Sửa thông tin">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <a href="@Url.Action("Delete", new { id = item.UserId })"
+                                   class="btn btn-danger btn-circle btn-sm"
+                                   title="Xóa khách hàng">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.Count() == 0)
+        {
+            <div class="text-center mt-3 text-muted font-italic">
+                Không tìm thấy khách hàng nào phù hợp.
+            </div>
+        }
+    </div>
+</div>

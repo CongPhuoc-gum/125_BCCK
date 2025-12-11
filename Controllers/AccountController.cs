@@ -37,30 +37,53 @@ namespace _125_BCCK.Controllers
 
             try
             {
-                // Hash password
-                string hashedPassword = SessionHelper.HashPassword(model.Password);
+                // Kiểm tra email có tồn tại không
+                var userByEmail = db.Users.FirstOrDefault(u => u.Email == model.Email);
 
-                // Tìm user
-                var user = db.Users.FirstOrDefault(u =>
-                    u.Email == model.Email &&
-                    u.PasswordHash == hashedPassword &&
-                    u.IsActive);
-
-                if (user == null)
+                if (userByEmail == null)
                 {
-                    ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
+                    ModelState.AddModelError("", "❌ Email không tồn tại trong hệ thống");
                     return View(model);
                 }
 
-                // Lưu thông tin vào Session
-                SessionHelper.SetUserSession(user.UserId, user.FullName, user.Email, user.Role);
+                // Kiểm tra IsActive
+                if (!userByEmail.IsActive)
+                {
+                    ModelState.AddModelError("", "❌ Tài khoản đã bị khóa");
+                    return View(model);
+                }
 
-                // Redirect theo Role
+                // Hash password và TRIM để loại bỏ khoảng trắng thừa
+                string hashedPassword = SessionHelper.HashPassword(model.Password).Trim();
+                string storedHash = (userByEmail.PasswordHash ?? "").Trim();
+
+                // DEBUG: In ra thông tin
+                System.Diagnostics.Debug.WriteLine("=== DEBUG LOGIN ===");
+                System.Diagnostics.Debug.WriteLine($"Email: {model.Email}");
+                System.Diagnostics.Debug.WriteLine($"Hash generated: {hashedPassword}");
+                System.Diagnostics.Debug.WriteLine($"Hash stored:    {storedHash}");
+                System.Diagnostics.Debug.WriteLine($"Length generated: {hashedPassword.Length}");
+                System.Diagnostics.Debug.WriteLine($"Length stored:    {storedHash.Length}");
+                System.Diagnostics.Debug.WriteLine($"Match: {string.Equals(hashedPassword, storedHash, StringComparison.Ordinal)}");
+
+                // Kiểm tra password - DÙNG STRING.EQUALS thay vì ==
+                if (!string.Equals(hashedPassword, storedHash, StringComparison.Ordinal))
+                {
+                    ModelState.AddModelError("", "❌ Mật khẩu không đúng");
+                    return View(model);
+                }
+
+                // Đăng nhập thành công
+                SessionHelper.SetUserSession(userByEmail.UserId, userByEmail.FullName, userByEmail.Email, userByEmail.Role);
+
+                TempData["Success"] = "✅ Đăng nhập thành công!";
                 return RedirectToHome();
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi: " + ex.Message);
+                ModelState.AddModelError("", "❌ LỖI: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 return View(model);
             }
         }
@@ -138,11 +161,10 @@ namespace _125_BCCK.Controllers
             string role = SessionHelper.GetRole();
 
             if (role == "Admin")
-                return RedirectToAction("Dashboard", "Admin");
+                return RedirectToAction("Index", "homeadmin", new { area = "Admin" });
             else if (role == "Staff")
-                return RedirectToAction("Dashboard", "Staff");
+                return RedirectToAction("Index", "Staff");
             else
-                // ĐÃ SỬA: Role Customer (hoặc các role khác) sẽ quay về trang chủ
                 return RedirectToAction("Index", "Home");
         }
 

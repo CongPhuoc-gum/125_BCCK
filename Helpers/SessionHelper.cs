@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 
 namespace _125_BCCK.Helpers
@@ -14,6 +16,7 @@ namespace _125_BCCK.Helpers
             HttpContext.Current.Session["Email"] = email;
             HttpContext.Current.Session["Role"] = role;
         }
+
         public static int? GetUserId()
         {
             return HttpContext.Current.Session["UserId"] as int?;
@@ -28,6 +31,7 @@ namespace _125_BCCK.Helpers
         {
             return HttpContext.Current.Session["FullName"]?.ToString();
         }
+
         public static bool IsLoggedIn()
         {
             return HttpContext.Current.Session["UserId"] != null;
@@ -41,10 +45,10 @@ namespace _125_BCCK.Helpers
 
         public static string HashPassword(string password)
         {
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            using (SHA256 sha256 = SHA256.Create())
             {
-                byte[] bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                System.Text.StringBuilder builder = new System.Text.StringBuilder();
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
                 foreach (byte b in bytes)
                 {
                     builder.Append(b.ToString("x2"));

@@ -12,6 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="~/Content/css/style.css" rel="stylesheet">
+
     @RenderSection("styles", required: false)
 </head>
 <body>
@@ -63,7 +64,12 @@
                                 else if (role == "Staff")
                                 {
                                     <li>
-                                        <a class="dropdown-item" href="@Url.Action("Dashboard", "Staff")">
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Staff")">
+                                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Appointments", "Staff")">
                                             <i class="fas fa-calendar-check"></i> Lịch hẹn
                                         </a>
                                     </li>

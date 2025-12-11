@@ -1,0 +1,77 @@
+﻿@model _125_BCCK.Models.User
+
+@{
+    ViewBag.Title = "Cập nhật khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="h3 mb-4 text-gray-800">Cập nhật thông tin khách hàng</h1>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin tài khoản</h6>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.UserId)
+                    @Html.HiddenFor(model => model.PasswordHash)
+                    @Html.HiddenFor(model => model.Role) @* Giữ nguyên Role Customer *@
+                    @Html.HiddenFor(model => model.CreatedAt)
+
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Họ và Tên <span class="text-danger">*</span></label>
+                        @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Email</label>
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="font-weight-bold">Số điện thoại</label>
+                            @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="font-weight-bold">Địa chỉ</label>
+                        @Html.TextAreaFor(model => model.Address, new { @class = "form-control", @rows = "2" })
+                        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group">
+                        <label class="font-weight-bold text-primary">Trạng thái tài khoản</label>
+                        <div class="custom-control custom-switch mt-2">
+                            @Html.CheckBoxFor(model => model.IsActive, new { @class = "custom-control-input", @id = "switchActive" })
+                            <label class="custom-control-label font-weight-bold" for="switchActive">Đang hoạt động (Active)</label>
+                        </div>
+                        <small class="text-muted">Nếu tắt, khách hàng sẽ không thể đăng nhập để đặt lịch.</small>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group d-flex justify-content-end">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary mr-2">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-warning text-white">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

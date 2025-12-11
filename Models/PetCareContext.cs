@@ -21,7 +21,7 @@ namespace _125_BCCK.Models
         public DbSet<Pet> Pets { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<AppointmentService> AppointmentServices { get; set; }
-        //public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; } // BỎ COMMENT
         public DbSet<VaccinationRecord> VaccinationRecords { get; set; }
 
         // ==================== Entity Configuration ====================
@@ -35,7 +35,7 @@ namespace _125_BCCK.Models
             modelBuilder.Entity<Pet>().ToTable("Pets");
             modelBuilder.Entity<Appointment>().ToTable("Appointments");
             modelBuilder.Entity<AppointmentService>().ToTable("AppointmentServices");
-            //modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions");
+            modelBuilder.Entity<PaymentTransaction>().ToTable("PaymentTransactions"); // BỎ COMMENT
             modelBuilder.Entity<VaccinationRecord>().ToTable("VaccinationRecords");
         }
 
@@ -64,7 +64,6 @@ namespace _125_BCCK.Models
 
             // Xử lý giá trị null cho notes
             var pNotes = new SqlParameter("@CustomerNotes", (object)notes ?? DBNull.Value);
-
             var pIsDeposit = new SqlParameter("@IsDepositPaid", isDepositPaid);
             var pMethod = new SqlParameter("@PaymentMethod", (object)paymentMethod ?? DBNull.Value);
 
@@ -85,7 +84,7 @@ namespace _125_BCCK.Models
         {
             return this.Appointments
                 .Include(a => a.Pet)
-                .Include(a => a.Pet.OwnerId)
+                .Include(a => a.Customer)
                 .FirstOrDefault(a => a.AppointmentId == appointmentId);
         }
     }
