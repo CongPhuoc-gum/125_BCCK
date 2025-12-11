@@ -1,0 +1,202 @@
+﻿@model _125_BCCK.Models.ViewModels.CompleteAppointmentViewModel
+@{
+    ViewBag.Title = "Hoàn thành lịch hẹn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-check-circle"></i> Hoàn thành lịch hẹn #@Model.AppointmentId</h2>
+            <a href="@Url.Action("Details", new { id = Model.AppointmentId })" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Thông tin hoàn thành</h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Complete", "Staff", new { id = Model.AppointmentId }, FormMethod.Post, new { @class = "needs-validation", enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.AppointmentId)
+                        @Html.HiddenFor(m => m.RemainingAmount)
+                        @Html.HiddenFor(m => m.NeedPayment)
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.PetCondition, new { @class = "form-label" })
+                            <span class="text-danger">*</span>
+                            @Html.TextAreaFor(m => m.PetCondition, new { @class = "form-control", rows = 3, placeholder = "VD: Thú cưng khỏe mạnh, không có vấn đề gì" })
+                            @Html.ValidationMessageFor(m => m.PetCondition, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Notes, new { @class = "form-label" })
+                            @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", rows = 4, placeholder = "Ghi chú thêm về quá trình thực hiện dịch vụ" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh (nếu có)</label>
+                            <input type="file" name="ImageFile" class="form-control" accept="image/*" id="imageInput" />
+                            <small class="text-muted">Chọn ảnh để tải lên (JPG, PNG, GIF - tối đa 5MB)</small>
+
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="previewImg" src="" alt="Preview" class="img-thumbnail" style="max-width: 300px; max-height: 300px;" />
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        @* Phần thanh toán *@
+                        @if (Model.NeedPayment && Model.RemainingAmount > 0)
+                        {
+                            <div class="alert alert-warning">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle"></i> Chưa thanh toán đầy đủ
+                                </h5>
+                                <p class="mb-0">Còn lại: <strong class="text-danger">@Model.RemainingAmount.ToString("N0") đ</strong> chưa thanh toán</p>
+                            </div>
+
+                            <div class="card mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-cash-register"></i> Thu tiền ngay?</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        @Html.CheckBoxFor(m => m.PayNow, new { @class = "form-check-input", id = "payNowSwitch" })
+                                        <label class="form-check-label" for="payNowSwitch">
+                                            <strong>Khách thanh toán ngay phần còn lại</strong>
+                                        </label>
+                                    </div>
+
+                                    <div id="paymentMethodSection" style="display: none;">
+                                        <label class="form-label">Phương thức thanh toán <span class="text-danger">*</span></label>
+                                        <div class="row">
+                                            <div class="col-md-3 col-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmCash" value="Cash">
+                                                    <label class="form-check-label" for="pmCash">
+                                                        <i class="fas fa-money-bill-wave text-success"></i> Tiền mặt
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmBank" value="BankTransfer">
+                                                    <label class="form-check-label" for="pmBank">
+                                                        <i class="fas fa-university text-primary"></i> Chuyển khoản
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmCard" value="Card">
+                                                    <label class="form-check-label" for="pmCard">
+                                                        <i class="fas fa-credit-card text-info"></i> Thẻ
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pmMomo" value="Momo">
+                                                    <label class="form-check-label" for="pmMomo">
+                                                        <i class="fas fa-mobile-alt text-danger"></i> Momo
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Lưu ý:</strong> Sau khi hoàn thành, trạng thái lịch hẹn sẽ được chuyển sang "Hoàn thành".
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Hoàn thành lịch hẹn
+                            </button>
+                            <a href="@Url.Action("Details", new { id = Model.AppointmentId })" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            // Preview ảnh trước khi upload
+            $('#imageInput').on('change', function (e) {
+                var file = e.target.files[0];
+                if (file) {
+                    // Kiểm tra kích thước file (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Kích thước ảnh quá lớn! Vui lòng chọn ảnh nhỏ hơn 5MB.');
+                        $(this).val('');
+                        $('#imagePreview').hide();
+                        return;
+                    }
+
+                    // Kiểm tra loại file
+                    if (!file.type.match('image.*')) {
+                        alert('Vui lòng chọn file ảnh!');
+                        $(this).val('');
+                        $('#imagePreview').hide();
+                        return;
+                    }
+
+                    // Hiển thị preview
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#previewImg').attr('src', e.target.result);
+                        $('#imagePreview').show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').hide();
+                }
+            });
+
+            // Toggle payment method section
+            $('#payNowSwitch').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#paymentMethodSection').slideDown();
+                    $('input[name="PaymentMethod"]').prop('required', true);
+                    $('#pmCash').prop('checked', true); // Default chọn tiền mặt
+                } else {
+                    $('#paymentMethodSection').slideUp();
+                    $('input[name="PaymentMethod"]').prop('required', false);
+                    $('input[name="PaymentMethod"]').prop('checked', false);
+                }
+            });
+
+            // Validation trước khi submit
+            $('form').submit(function (e) {
+                var payNow = $('#payNowSwitch').is(':checked');
+
+                if (payNow) {
+                    var paymentMethod = $('input[name="PaymentMethod"]:checked').val();
+                    if (!paymentMethod) {
+                        alert('Vui lòng chọn phương thức thanh toán!');
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+}

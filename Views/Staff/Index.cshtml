@@ -1,0 +1,266 @@
+﻿@model _125_BCCK.Models.ViewModels.StaffDashboardViewModel
+@{
+    ViewBag.Title = "Dashboard - Nhân viên";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Nhân viên</h2>
+            <p class="text-muted">Xin chào, @Session["FullName"]</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <strong>Lỗi:</strong> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-day fa-3x text-primary mb-3"></i>
+                    <h3 class="display-4">@Model.TodayAppointmentsCount</h3>
+                    <p class="text-muted mb-0">Lịch hôm nay</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-week fa-3x text-info mb-3"></i>
+                    <h3 class="display-4">@Model.WeekAppointmentsCount</h3>
+                    <p class="text-muted mb-0">Lịch tuần này</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h3 class="display-4">@Model.TotalCompletedCount</h3>
+                    <p class="text-muted mb-0">Đã hoàn thành</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                    <h3 class="display-4">@Model.UnpaidCompletedCount</h3>
+                    <p class="text-muted mb-0">Chưa thu đủ tiền</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lịch hẹn hôm nay -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Lịch hẹn hôm nay</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.TodayAppointments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Giờ</th>
+                                <th>Khách hàng</th>
+                                <th>Thú cưng</th>
+                                <th>Dịch vụ</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thanh toán</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.TodayAppointments)
+                            {
+                                <tr>
+                                    <td><strong>@item.TimeSlot</strong></td>
+                                    <td>@item.CustomerName</td>
+                                    <td>
+                                        @item.PetName
+                                        <small class="text-muted">(@item.Species)</small>
+                                    </td>
+                                    <td>
+                                        <small>@item.Services</small>
+                                    </td>
+                                    <td><strong>@item.TotalPrice.ToString("N0") đ</strong></td>
+                                    <td>
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                        }
+                                        else if (item.Status == "Confirmed")
+                                        {
+                                            <span class="badge bg-info">Đã xác nhận</span>
+                                        }
+                                        else if (item.Status == "Completed")
+                                        {
+                                            <span class="badge bg-success">Hoàn thành</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.FullyPaid)
+                                        {
+                                            <span class="badge bg-success">Đã đủ</span>
+                                        }
+                                        else if (item.DepositPaid)
+                                        {
+                                            <span class="badge bg-warning text-dark">Đã cọc</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Chưa cọc</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Details", new { id = item.AppointmentId })"
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> Chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle"></i> Không có lịch hẹn nào hôm nay
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a href="@Url.Action("Appointments")" class="btn btn-primary">
+                <i class="fas fa-calendar-alt"></i> Xem tất cả lịch hẹn
+            </a>
+        </div>
+    </div>
+
+    <!-- Lịch đã hoàn thành gần đây -->
+    <div class="card">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-check-circle"></i> Lịch đã hoàn thành (30 ngày gần nhất)</h5>
+            <a href="@Url.Action("Appointments", new { filter = "all", status = "Completed" })"
+               class="btn btn-sm btn-light">
+                <i class="fas fa-list"></i> Xem tất cả
+            </a>
+        </div>
+        <div class="card-body">
+            @if (Model.CompletedAppointments.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Giờ</th>
+                                <th>Khách hàng</th>
+                                <th>Thú cưng</th>
+                                <th>Dịch vụ</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái TT</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CompletedAppointments)
+                            {
+                                <tr class="@(item.FullyPaid ? "" : "table-warning")">
+                                    <td>@item.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.TimeSlot</td>
+                                    <td>@item.CustomerName</td>
+                                    <td>
+                                        @item.PetName
+                                        <small class="text-muted">(@item.Species)</small>
+                                    </td>
+                                    <td>
+                                        <small>@item.Services</small>
+                                    </td>
+                                    <td><strong>@item.TotalPrice.ToString("N0") đ</strong></td>
+                                    <td>
+                                        @if (item.FullyPaid)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Đã thu đủ
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                Còn @(item.RemainingAmount?.ToString("N0") ?? "0") đ
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="@Url.Action("Details", new { id = item.AppointmentId })"
+                                               class="btn btn-sm btn-info"
+                                               title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if (!item.FullyPaid && item.RemainingAmount > 0)
+                                            {
+                                                <a href="@Url.Action("ProcessPayment", new { id = item.AppointmentId })"
+                                                   class="btn btn-sm btn-success"
+                                                   title="Thu tiền còn lại">
+                                                    <i class="fas fa-cash-register"></i> Thu tiền
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Chú thích -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Lưu ý:</strong>
+                        Dòng có nền vàng là lịch đã hoàn thành nhưng chưa thu đủ tiền
+                    </small>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle"></i> Chưa có lịch nào hoàn thành trong 30 ngày qua
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+    </script>
+}

@@ -65,7 +65,7 @@ namespace _125_BCCK.Models.ViewModels
         public string Services { get; set; }
     }
 
-    // ViewModel cho chi tiết lịch hẹn (Details page)
+    // ViewModel cho chi tiết lịch hẹn (Details page) - THÊM ĐẦY ĐỦ PROPERTIES
     public class AppointmentDetailViewModel
     {
         public int AppointmentId { get; set; }
@@ -109,6 +109,9 @@ namespace _125_BCCK.Models.ViewModels
         [Display(Name = "Lý do hủy")]
         public string CancelReason { get; set; }
 
+        [Display(Name = "Ngày tạo")]
+        public DateTime CreatedAt { get; set; }
+
         // Thông tin khách hàng
         public int CustomerId { get; set; }
 
@@ -121,7 +124,10 @@ namespace _125_BCCK.Models.ViewModels
         [Display(Name = "Số điện thoại")]
         public string CustomerPhone { get; set; }
 
-        // Thông tin thú cưng
+        [Display(Name = "Địa chỉ")]
+        public string CustomerAddress { get; set; }
+
+        // Thông tin thú cưng - THÊM ĐẦY ĐỦ
         public int PetId { get; set; }
 
         [Display(Name = "Tên thú cưng")]
@@ -132,6 +138,21 @@ namespace _125_BCCK.Models.ViewModels
 
         [Display(Name = "Giống")]
         public string Breed { get; set; }
+
+        [Display(Name = "Tuổi")]
+        public int? Age { get; set; }
+
+        [Display(Name = "Cân nặng")]
+        public decimal? Weight { get; set; }
+
+        [Display(Name = "Giới tính")]
+        public string Gender { get; set; }
+
+        [Display(Name = "Màu lông")]
+        public string Color { get; set; }
+
+        [Display(Name = "Ghi chú đặc biệt")]
+        public string SpecialNotes { get; set; }
 
         // Thông tin nhân viên
         public int? StaffId { get; set; }
@@ -155,7 +176,7 @@ namespace _125_BCCK.Models.ViewModels
         }
     }
 
-    // ViewModel cho dịch vụ trong lịch hẹn (tránh trùng tên với ServiceItemViewModel có sẵn)
+    // ViewModel cho dịch vụ trong lịch hẹn - THÊM DURATION
     public class AppointmentServiceDetailViewModel
     {
         public int ServiceId { get; set; }
@@ -165,6 +186,9 @@ namespace _125_BCCK.Models.ViewModels
 
         [Display(Name = "Loại dịch vụ")]
         public string Category { get; set; }
+
+        [Display(Name = "Thời gian")]
+        public int Duration { get; set; }
 
         [Display(Name = "Giá")]
         [DisplayFormat(DataFormatString = "{0:N0}")]
