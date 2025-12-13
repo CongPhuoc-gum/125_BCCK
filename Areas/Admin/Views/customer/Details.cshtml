@@ -112,13 +112,13 @@
                             <div class="rounded-circle bg-gradient-primary shadow d-inline-flex align-items-center justify-content-center"
                                  style="width: 100px; height: 100px;">
                                 <i class="fas fa-paw fa-3x text-white"></i>
-                            </div>
+                        </div>
                         }
                         <div class="mt-2">
                             <span class="badge badge-@(pet.Gender == "Đực" ? "info" : "danger")">
                                 <i class="fas fa-@(pet.Gender == "Đực" ? "mars" : "venus")"></i> @pet.Gender
                             </span>
-                        </div>
+                    </div>
                     </div>
                     <ul class="list-group list-group-flush small">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -199,7 +199,7 @@
                                         <span class="badge badge-warning">Đã cọc @((appt.DepositAmount ?? 0).ToString("#,##0"))đ</span>
                                         <div class="small text-danger font-italic">Còn thiếu: @((appt.RemainingAmount ?? 0).ToString("#,##0"))đ</div>
                                     }
-                                    else
+                            else
                                     {
                                         <span class="badge badge-danger">Chưa thanh toán</span>
                                     }

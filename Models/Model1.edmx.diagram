@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="24e6fd5b5a564c33b015b97f6d2a403b" Name="Diagram1">
+        <EntityTypeShape EntityType="PetCareDBModel.Appointment" Width="1.5" PointX="5.25" PointY="7.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.AppointmentService" Width="1.5" PointX="7.5" PointY="8.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.Pet" Width="1.5" PointX="3" PointY="10.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.Service" Width="1.5" PointX="5.25" PointY="3.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.User" Width="1.5" PointX="0.75" PointY="5.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.VaccinationRecord" Width="1.5" PointX="10.5" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="PetCareDBModel.WorkSchedule" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="PetCareDBModel.FK_Appointments_Customers" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_Appointments_Pets" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_Appointments_Staff" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_AppointmentServices_Appointments" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_VaccinationRecords_Appointments" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_AppointmentServices_Services" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_Pets_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_VaccinationRecords_Pets" ManuallyRouted="false" />
+        <AssociationConnector Association="PetCareDBModel.FK_VaccinationRecords_Staff" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
