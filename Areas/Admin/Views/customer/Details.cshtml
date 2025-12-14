@@ -112,13 +112,13 @@
                             <div class="rounded-circle bg-gradient-primary shadow d-inline-flex align-items-center justify-content-center"
                                  style="width: 100px; height: 100px;">
                                 <i class="fas fa-paw fa-3x text-white"></i>
-                            </div>
+                        </div>
                         }
                         <div class="mt-2">
                             <span class="badge badge-@(pet.Gender == "Đực" ? "info" : "danger")">
                                 <i class="fas fa-@(pet.Gender == "Đực" ? "mars" : "venus")"></i> @pet.Gender
                             </span>
-                        </div>
+                    </div>
                     </div>
                     <ul class="list-group list-group-flush small">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -147,14 +147,15 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" width="100%" cellspacing="0">
-                <thead class="thead-light">
+                <thead>
                     <tr>
                         <th>Ngày hẹn</th>
                         <th>Khung giờ</th>
                         <th>Thú cưng</th>
                         <th>Nhân viên</th>
                         <th>Tổng tiền</th>
-                        <th class="text-center">Trạng thái</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,20 +171,48 @@
                             <td>@appt.TimeSlot</td>
                             <td>@appt.Pet.PetName</td>
                             <td>
-                                @if (appt.StaffId != null)
-                                {<span>@appt.Staff.FullName</span> }
-                            else
-                            { <span class="text-muted font-italic">Chưa phân công</span>}
+                                @(appt.Staff != null ? appt.Staff.FullName : "Chưa phân công")
                             </td>
-                            <td class="font-weight-bold text-primary">@appt.TotalPrice.ToString("#,##0") đ</td>
-                            <td class="text-center">
-                                @if (appt.Status == "Pending")
-                                {<span class="badge badge-warning">Chờ duyệt</span> }
+                            <td class="font-weight-bold text-primary">
+                                @appt.TotalPrice.ToString("#,##0") đ
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(appt.PaymentMethod))
+                                {
+                                    <div class="small text-gray-800">
+                                        <i class="fas fa-money-bill-wave"></i> @appt.PaymentMethod
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">-</span>
+                                }
+
+                                <div class="mt-1">
+                                    @if (appt.FullyPaid)
+                                    {
+                                        <span class="badge badge-success">Đã thanh toán đủ</span>
+                                    }
+                                    else if (appt.DepositPaid)
+                                    {
+                                        <span class="badge badge-warning">Đã cọc @((appt.DepositAmount ?? 0).ToString("#,##0"))đ</span>
+                                        <div class="small text-danger font-italic">Còn thiếu: @((appt.RemainingAmount ?? 0).ToString("#,##0"))đ</div>
+                                    }
+                            else
+                                    {
+                                        <span class="badge badge-danger">Chưa thanh toán</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                @if (appt.Status == "Completed")
+                                {<span class="badge badge-success">Hoàn thành</span> }
                                 else if (appt.Status == "Confirmed")
                                 { <span class="badge badge-info">Đã xác nhận</span> }
-                                else if (appt.Status == "Completed")
-                                { <span class="badge badge-success">Hoàn thành</span> }
-                                else if (appt.Status == "Cancelled")
+                                else if (appt.Status == "Pending")
+                                { <span class="badge badge-warning">Chờ duyệt</span> }
+                                else
                                 { <span class="badge badge-danger">Đã hủy</span>}
                             </td>
                         </tr>
