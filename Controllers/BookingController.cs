@@ -1,12 +1,13 @@
-﻿using System;
+﻿using _125_BCCK.Helpers;
+using _125_BCCK.Models;
+using _125_BCCK.Models.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
-using _125_BCCK.Helpers;
-using _125_BCCK.Models;
-using _125_BCCK.Models.ViewModels;
 
 namespace _125_BCCK.Controllers
 {
@@ -246,18 +247,35 @@ namespace _125_BCCK.Controllers
             return View(model);
         }
 
-        // POST: Xác nhận đã thanh toán cọc -> Tạo lịch hẹn
+        // POST: Xác nhận đã thanh toán cọc -> Tạo lịch hẹn 
         [HttpPost]
-        public ActionResult ConfirmPayment(PaymentViewModel model)
+        public ActionResult ConfirmPayment(PaymentViewModel model, HttpPostedFileBase paymentProofFile)
         {
             if (!SessionHelper.IsLoggedIn())
             {
-                return RedirectToAction("Login", "Account");
+                return Json(new { success = false, message = "Vui lòng đăng nhập" });
             }
 
             try
             {
+                // Kiểm tra phải có ảnh bill
+                if (paymentProofFile == null || paymentProofFile.ContentLength == 0)
+                {
+                    return Json(new { success = false, message = "Vui lòng tải lên ảnh bill chuyển khoản!" });
+                }
+
                 int customerId = (int)SessionHelper.GetUserId();
+                string paymentProofPath = null;
+
+                // Upload ảnh bill
+                try
+                {
+                    paymentProofPath = FileUploadHelper.UploadPaymentProof(paymentProofFile, 0); // appointmentId tạm = 0
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = "Lỗi upload ảnh: " + ex.Message });
+                }
 
                 using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
                 {
@@ -273,7 +291,7 @@ namespace _125_BCCK.Controllers
                         cmd.Parameters.AddWithValue("@ServiceIds", model.ServiceIds);
                         cmd.Parameters.AddWithValue("@CustomerNotes", (object)model.CustomerNotes ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("@IsDepositPaid", true); // Đã thanh toán cọc
-                        cmd.Parameters.AddWithValue("@PaymentMethod", model.PaymentMethod ?? "Banking");
+                        cmd.Parameters.AddWithValue("@PaymentMethod", model.PaymentMethod ?? "BankTransfer");
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -281,20 +299,90 @@ namespace _125_BCCK.Controllers
                             {
                                 int appointmentId = Convert.ToInt32(reader["AppointmentId"]);
 
-                                TempData["Success"] = "Đặt lịch và thanh toán cọc thành công! Mã lịch hẹn: #" + appointmentId;
-                                return RedirectToAction("Success", new { id = appointmentId });
+                                // Đổi tên file ảnh theo appointmentId thật
+                                if (!string.IsNullOrEmpty(paymentProofPath))
+                                {
+                                    string oldPath = Server.MapPath(paymentProofPath);
+                                    string extension = System.IO.Path.GetExtension(oldPath);
+                                    string newFileName = $"payment_{appointmentId}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+                                    string newPath = Server.MapPath($"~/Content/PaymentProofs/{newFileName}");
+
+                                    if (System.IO.File.Exists(oldPath))
+                                    {
+                                        System.IO.File.Move(oldPath, newPath);
+                                        paymentProofPath = $"/Content/PaymentProofs/{newFileName}";
+                                    }
+                                }
+
+                                // Cập nhật ảnh bill vào PaymentTransactions
+                                reader.Close();
+                                string updateQuery = @"UPDATE PaymentTransactions 
+                                              SET PaymentProofImage = @Image 
+                                              WHERE AppointmentId = @AppointmentId 
+                                              AND TransactionType = 'Deposit'";
+                                using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                                {
+                                    updateCmd.Parameters.AddWithValue("@Image", (object)paymentProofPath ?? DBNull.Value);
+                                    updateCmd.Parameters.AddWithValue("@AppointmentId", appointmentId);
+                                    updateCmd.ExecuteNonQuery();
+                                }
+
+                                // Gửi email xác nhận
+                                SendBookingConfirmationEmail(appointmentId);
+
+                                return Json(new
+                                {
+                                    success = true,
+                                    message = "Đặt lịch và thanh toán cọc thành công!",
+                                    redirectUrl = Url.Action("Success", new { id = appointmentId })
+                                });
                             }
                         }
                     }
                 }
 
-                TempData["Error"] = "Có lỗi xảy ra khi tạo lịch hẹn";
-                return RedirectToAction("Index");
+                return Json(new { success = false, message = "Có lỗi xảy ra khi tạo lịch hẹn" });
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Lỗi: " + ex.Message;
-                return View("Payment", model);
+                return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+
+        // Phương thức gửi email xác nhận
+        private void SendBookingConfirmationEmail(int appointmentId)
+        {
+            try
+            {
+                var appointmentDetails = GetAppointmentDetails(appointmentId);
+                if (appointmentDetails == null) return;
+
+                string emailBody = EmailTemplateHelper.GetBookingConfirmationEmail(appointmentDetails);
+                string subject = $"[PetCare] Xác nhận đặt lịch #{appointmentId}";
+
+                bool emailSent = EmailHelper.SendMail(appointmentDetails.CustomerEmail, subject, emailBody);
+
+                // Log email
+                using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("sp_LogEmail", conn))
+                    {
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@AppointmentId", appointmentId);
+                        cmd.Parameters.AddWithValue("@RecipientEmail", appointmentDetails.CustomerEmail);
+                        cmd.Parameters.AddWithValue("@EmailType", "BookingConfirmation");
+                        cmd.Parameters.AddWithValue("@Subject", subject);
+                        cmd.Parameters.AddWithValue("@Body", emailBody);
+                        cmd.Parameters.AddWithValue("@IsSuccess", emailSent);
+                        cmd.Parameters.AddWithValue("@ErrorMessage", emailSent ? DBNull.Value : (object)"Gửi thất bại");
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi gửi email: " + ex.Message);
             }
         }
 

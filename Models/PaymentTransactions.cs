@@ -29,6 +29,10 @@ namespace _125_BCCK.Models
 
         public string Notes { get; set; }
 
+        // ===== Lưu ảnh bill chuyển khoản =====
+        [MaxLength(255)]
+        public string PaymentProofImage { get; set; }
+
         // Navigation properties
         [ForeignKey("AppointmentId")]
         public virtual Appointment Appointment { get; set; }
