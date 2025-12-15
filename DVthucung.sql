@@ -854,3 +854,12 @@ WHERE Email IN ('huong.staff@petcare.com', 'cuong.staff@petcare.com');
 UPDATE Users 
 SET PasswordHash = 'b041c0aeb35bb0fa4aa668ca5a920b590196fdaf9a00eb852c9b7f4d123cc6d6'
 WHERE Email IN ('tuan.customer@gmail.com');
+
+ALTER TABLE Users
+ADD AvatarUrl NVARCHAR(255) NULL;
+GO
+
+UPDATE Users
+SET AvatarUrl = '/Content/Images/default-avatar.png'
+WHERE AvatarUrl IS NULL OR AvatarUrl = '';
+GO

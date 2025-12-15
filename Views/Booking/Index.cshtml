@@ -49,16 +49,16 @@
                                                 @foreach (var service in category)
                                                 {
                                                     <div class="col-md-6 mb-3">
-                                                        <div class="service-checkbox-card @(Model.PreSelectedServiceId == service.ServiceId ? "selected" : "")"
+                                                        <div class="service-checkbox-card"
                                                              data-service-id="@service.ServiceId"
+                                                             data-category="@service.Category"
                                                              data-price="@service.Price"
                                                              data-duration="@service.Duration">
                                                             <input type="checkbox"
                                                                    class="service-check"
                                                                    name="services[]"
                                                                    value="@service.ServiceId"
-                                                                   id="service_@service.ServiceId"
-                                                                   @(Model.PreSelectedServiceId == service.ServiceId ? "checked" : "")>
+                                                                   id="service_@service.ServiceId">
                                                             <label for="service_@service.ServiceId">
                                                                 <div class="service-content">
                                                                     <div class="service-icon">
@@ -242,7 +242,6 @@
                                     </label>
                                     <select class="form-select" name="paymentMethod" id="paymentMethod">
                                         <option value="">-- Chọn phương thức --</option>
-                                        <option value="Cash">Tiền mặt</option>
                                         <option value="BankTransfer">Chuyển khoản</option>
                                         <option value="Momo">Ví Momo</option>
                                         <option value="ZaloPay">ZaloPay</option>
@@ -371,15 +370,15 @@
             position: relative;
         }
 
-        .service-checkbox-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-        }
+            .service-checkbox-card:hover {
+                border-color: #667eea;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            }
 
-        .service-checkbox-card.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
+            .service-checkbox-card.selected {
+                border-color: #667eea;
+                background: #f0f4ff;
+            }
 
         .service-check {
             position: absolute;
@@ -430,10 +429,10 @@
             color: #6c757d;
         }
 
-        .service-meta .price {
-            color: #28a745;
-            font-weight: 600;
-        }
+            .service-meta .price {
+                color: #28a745;
+                font-weight: 600;
+            }
 
         .check-mark {
             color: #667eea;
@@ -456,15 +455,15 @@
             overflow: hidden;
         }
 
-        .pet-radio-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-        }
+            .pet-radio-card:hover {
+                border-color: #667eea;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            }
 
-        .pet-radio-card.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
+            .pet-radio-card.selected {
+                border-color: #667eea;
+                background: #f0f4ff;
+            }
 
         .pet-radio {
             position: absolute;
@@ -485,11 +484,11 @@
             position: relative;
         }
 
-        .pet-avatar-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+            .pet-avatar-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
 
         .pet-placeholder {
             width: 100%;
@@ -556,29 +555,29 @@
             cursor: pointer;
         }
 
-        .payment-option-card:hover {
-            border-color: #667eea;
-        }
+            .payment-option-card:hover {
+                border-color: #667eea;
+            }
 
-        .payment-option-card input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
+            .payment-option-card input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
 
-        .payment-option-card input[type="radio"]:checked + label {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
+                .payment-option-card input[type="radio"]:checked + label {
+                    border-color: #667eea;
+                    background: #f0f4ff;
+                }
 
-        .payment-option-card label {
-            margin: 0;
-            cursor: pointer;
-            padding: 20px;
-            display: flex;
-            gap: 15px;
-            align-items: start;
-        }
+            .payment-option-card label {
+                margin: 0;
+                cursor: pointer;
+                padding: 20px;
+                display: flex;
+                gap: 15px;
+                align-items: start;
+            }
 
         .option-icon {
             width: 50px;
@@ -630,10 +629,10 @@
             padding: 20px;
         }
 
-        .summary-header h4 {
-            margin: 0;
-            font-size: 18px;
-        }
+            .summary-header h4 {
+                margin: 0;
+                font-size: 18px;
+            }
 
         .summary-body {
             padding: 20px;
@@ -710,9 +709,9 @@
             font-size: 14px;
         }
 
-        .info-row:last-child {
-            margin-bottom: 0;
-        }
+            .info-row:last-child {
+                margin-bottom: 0;
+            }
 
         .summary-footer {
             padding: 20px;
@@ -729,14 +728,56 @@
     <script>
     $(document).ready(function() {
         let selectedServices = [];
+        let selectedCategories = {}; // Lưu các category đã chọn
         let totalPrice = 0;
         let totalDuration = 0;
+        let preSelectedServiceId = @(Model.PreSelectedServiceId ?? 0);
 
-        // Xử lý chọn dịch vụ
-        $('.service-checkbox-card').click(function() {
-            const checkbox = $(this).find('.service-check');
-            checkbox.prop('checked', !checkbox.prop('checked'));
-            $(this).toggleClass('selected');
+        // Nếu có dịch vụ được chọn trước (từ trang chi tiết)
+        if (preSelectedServiceId > 0) {
+            const preSelectedCard = $(`.service-checkbox-card[data-service-id="${preSelectedServiceId}"]`);
+            if (preSelectedCard.length > 0) {
+                const checkbox = preSelectedCard.find('.service-check');
+                checkbox.prop('checked', true);
+                preSelectedCard.addClass('selected');
+            }
+        }
+
+        // Xử lý chọn dịch vụ với logic: chỉ chọn 1 dịch vụ trong 1 category
+        $('.service-checkbox-card').click(function(e) {
+            e.preventDefault();
+
+            const card = $(this);
+            const checkbox = card.find('.service-check');
+            const category = card.data('category');
+            const serviceId = card.data('service-id');
+            const isCurrentlyChecked = checkbox.prop('checked');
+
+            if (isCurrentlyChecked) {
+                // Nếu đang được chọn -> Bỏ chọn
+                checkbox.prop('checked', false);
+                card.removeClass('selected');
+                delete selectedCategories[category];
+            } else {
+                // Nếu chưa được chọn -> Bỏ chọn service khác trong cùng category (nếu có)
+                if (selectedCategories[category]) {
+                    // Tìm và bỏ chọn service cũ trong category này
+                    $(`.service-checkbox-card[data-category="${category}"]`).each(function() {
+                        const oldCard = $(this);
+                        const oldCheckbox = oldCard.find('.service-check');
+                        if (oldCheckbox.prop('checked')) {
+                            oldCheckbox.prop('checked', false);
+                            oldCard.removeClass('selected');
+                        }
+                    });
+                }
+
+                // Chọn service mới
+                checkbox.prop('checked', true);
+                card.addClass('selected');
+                selectedCategories[category] = serviceId;
+            }
+
             updateSummary();
         });
 

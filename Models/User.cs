@@ -42,6 +42,9 @@ namespace _125_BCCK.Models
 
         public bool IsActive { get; set; }
 
+        [StringLength(255)]
+        public string AvatarUrl { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public DateTime? UpdatedAt { get; set; }

@@ -1,0 +1,248 @@
+﻿@model _125_BCCK.Models.ViewModels.ProfileViewModel
+
+@{
+    ViewBag.Title = "Thông tin cá nhân";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- SIDEBAR -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <!-- Avatar -->
+                    <div class="mb-3">
+                        <img src="@Model.AvatarUrl" alt="Avatar" class="rounded-circle"
+                             style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #0d6efd;">
+                    </div>
+                    <h5 class="mb-1">@Model.FullName</h5>
+                    <p class="text-muted mb-3">
+                        @if (Model.Role == "Admin")
+                        {
+                            <span class="badge bg-danger">Quản trị viên</span>
+                        }
+                        else if (Model.Role == "Staff")
+                        {
+                            <span class="badge bg-info">Nhân viên</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Khách hàng</span>
+                        }
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-calendar-alt"></i>
+                        Tham gia: @Model.CreatedAt.ToString("dd/MM/yyyy")
+                    </p>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="@Url.Action("Profile", "Account")" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user me-2"></i> Thông tin cá nhân
+                    </a>
+                    <a href="@Url.Action("ChangePassword", "Account")" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key me-2"></i> Đổi mật khẩu
+                    </a>
+                    @if (Model.Role == "Customer")
+                    {
+                        <a href="@Url.Action("Index", "Pets")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-dog me-2"></i> Thú cưng của tôi
+                        </a>
+                        <a href="@Url.Action("Index", "Appointments")" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-check me-2"></i> Lịch hẹn
+                        </a>
+                    }
+                    <a href="@Url.Action("Logout", "Account")" class="list-group-item list-group-item-action text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+
+            <!-- THỐNG KÊ (chỉ cho Customer) -->
+            @if (Model.Role == "Customer")
+            {
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-line"></i> Thống kê
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="fas fa-paw text-primary"></i> Thú cưng</span>
+                                <strong class="badge bg-primary">@Model.TotalPets</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="fas fa-calendar text-info"></i> Lịch hẹn</span>
+                                <strong class="badge bg-info">@Model.TotalAppointments</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-money-bill-wave text-success"></i> Chi tiêu</span>
+                                <strong class="badge bg-success">@Model.TotalSpent.ToString("N0") đ</strong>
+                            </div>
+                        </div>
+                        @if (Model.LastVisit.HasValue)
+                        {
+                            <hr />
+                            <p class="small text-muted mb-0">
+                                <i class="fas fa-clock"></i> Lần cuối:
+                                <br />
+                                <strong>@Model.LastVisit.Value.ToString("dd/MM/yyyy")</strong>
+                            </p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-lg-9">
+            <!-- FORM CẬP NHẬT THÔNG TIN -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-edit"></i> Cập nhật thông tin
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { enctype = "multipart/form-data", @class = "needs-validation" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.UserId)
+                        @Html.HiddenFor(m => m.Role)
+                        @Html.HiddenFor(m => m.CreatedAt)
+
+                        <!-- AVATAR UPLOAD -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="text-center p-4" style="background: #f8f9fa; border-radius: 10px;">
+                                    <img id="avatarPreview" src="@Model.AvatarUrl" alt="Avatar"
+                                         class="rounded-circle mb-3"
+                                         style="width: 150px; height: 150px; object-fit: cover; border: 5px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <div>
+                                        <label for="AvatarFile" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-camera"></i> Thay đổi ảnh đại diện
+                                        </label>
+                                        <input type="file" id="AvatarFile" name="AvatarFile" accept="image/*" style="display: none;" />
+                                        <p class="small text-muted mt-2 mb-0">
+                                            <i class="fas fa-info-circle"></i> Chấp nhận: JPG, PNG, GIF (tối đa 5MB)
+                                        </p>
+                                        @Html.ValidationMessageFor(m => m.AvatarFile, "", new { @class = "text-danger small d-block mt-1" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Họ và tên -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-user text-primary"></i> Họ và tên
+                                    <span class="text-danger">*</span>
+                                </label>
+                                @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Nhập họ và tên" })
+                                @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-envelope text-primary"></i> Email
+                                    <span class="text-danger">*</span>
+                                </label>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", type = "email", placeholder = "example@email.com" })
+                                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Số điện thoại -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-phone text-primary"></i> Số điện thoại
+                                </label>
+                                @Html.TextBoxFor(m => m.Phone, new { @class = "form-control", placeholder = "0901234567", maxlength = "10" })
+                                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small" })
+                            </div>
+
+                            <!-- Vai trò -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-id-badge text-primary"></i> Vai trò
+                                </label>
+                                <input type="text" class="form-control"
+                                       value="@(Model.Role == "Admin" ? "Quản trị viên" : Model.Role == "Staff" ? "Nhân viên" : "Khách hàng")"
+                                       readonly style="background-color: #e9ecef;" />
+                            </div>
+
+                            <!-- Địa chỉ -->
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-map-marker-alt text-primary"></i> Địa chỉ
+                                </label>
+                                @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "3", placeholder = "Nhập địa chỉ của bạn" })
+                                @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Preview avatar khi chọn file
+            $('#AvatarFile').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Kiểm tra kích thước
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('File không được vượt quá 5MB!');
+                        $(this).val('');
+                        return;
+                    }
+
+                    // Kiểm tra định dạng
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Chỉ chấp nhận file ảnh (JPG, PNG, GIF)!');
+                        $(this).val('');
+                        return;
+                    }
+
+                    // Preview ảnh
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#avatarPreview').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Format số điện thoại - chỉ cho nhập số
+            $('#Phone').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            // Auto-dismiss alerts
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}

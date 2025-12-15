@@ -1,0 +1,214 @@
+﻿@model _125_BCCK.Models.ViewModels.StatisticalViewModel
+@{
+    ViewBag.Title = "Báo Cáo Thống Kê";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Thống Kê Doanh Thu & Hoạt Động</h1>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng Doanh Thu</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalRevenue.ToString("#,##0") đ</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Lịch Chờ Duyệt</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.PendingCount</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-clock fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đã Hoàn Thành</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.CompletedCount</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-check-circle fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng Khách Hàng</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalCustomers</div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Biểu đồ doanh thu năm nay (@DateTime.Now.Year)</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Dịch Vụ Phổ Biến</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="serviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">So Sánh Doanh Thu Các Năm</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top 5 Khách Hàng VIP</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Khách hàng</th>
+                                    <th>Số lần đặt</th>
+                                    <th>Tổng chi tiêu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.TopCustomers)
+                                {
+                                    <tr>
+                                        <td>@item.FullName</td>
+                                        <td class="text-center">@item.BookingCount</td>
+                                        <td class="text-right text-success font-weight-bold">@item.TotalSpent.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // --- CẤU HÌNH BIỂU ĐỒ 1: MONTHLY (LINE) ---
+        var ctxMonth = document.getElementById("monthlyChart");
+        var monthlyChart = new Chart(ctxMonth, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Encode(Model.MonthlyLabels.Select(x => "Tháng " + x))),
+                datasets: [{
+                    label: "Doanh thu",
+                    lineTension: 0.3,
+                    backgroundColor: "rgba(78, 115, 223, 0.05)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    pointRadius: 3,
+                    pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                    borderColor: "rgba(78, 115, 223, 1)",
+                    data: @Html.Raw(Json.Encode(Model.MonthlyRevenue)),
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- CẤU HÌNH BIỂU ĐỒ 2: SERVICE (DOUGHNUT) ---
+        var ctxService = document.getElementById("serviceChart");
+        var serviceChart = new Chart(ctxService, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Encode(Model.ServiceLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Encode(Model.ServiceRevenue)),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+            }
+        });
+
+        // --- CẤU HÌNH BIỂU ĐỒ 3: YEARLY (BAR) ---
+        var ctxYear = document.getElementById("yearlyChart");
+        var yearlyChart = new Chart(ctxYear, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Encode(Model.YearlyLabels)),
+                datasets: [{
+                    label: "Tổng doanh thu",
+                    backgroundColor: "#4e73df",
+                    data: @Html.Raw(Json.Encode(Model.YearlyRevenue)),
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
