@@ -258,7 +258,7 @@ namespace _125_BCCK.Controllers
 
             try
             {
-                // Kiểm tra phải có ảnh bill
+                // ✅ Kiểm tra phải có ảnh bill
                 if (paymentProofFile == null || paymentProofFile.ContentLength == 0)
                 {
                     return Json(new { success = false, message = "Vui lòng tải lên ảnh bill chuyển khoản!" });
@@ -266,17 +266,9 @@ namespace _125_BCCK.Controllers
 
                 int customerId = (int)SessionHelper.GetUserId();
                 string paymentProofPath = null;
+                int appointmentId = 0;
 
-                // Upload ảnh bill
-                try
-                {
-                    paymentProofPath = FileUploadHelper.UploadPaymentProof(paymentProofFile, 0); // appointmentId tạm = 0
-                }
-                catch (Exception ex)
-                {
-                    return Json(new { success = false, message = "Lỗi upload ảnh: " + ex.Message });
-                }
-
+                // ✅ Tạo lịch hẹn TRƯỚC
                 using (SqlConnection conn = new SqlConnection(db.Database.Connection.ConnectionString))
                 {
                     conn.Open();
@@ -297,54 +289,56 @@ namespace _125_BCCK.Controllers
                         {
                             if (reader.Read())
                             {
-                                int appointmentId = Convert.ToInt32(reader["AppointmentId"]);
-
-                                // Đổi tên file ảnh theo appointmentId thật
-                                if (!string.IsNullOrEmpty(paymentProofPath))
-                                {
-                                    string oldPath = Server.MapPath(paymentProofPath);
-                                    string extension = System.IO.Path.GetExtension(oldPath);
-                                    string newFileName = $"payment_{appointmentId}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
-                                    string newPath = Server.MapPath($"~/Content/PaymentProofs/{newFileName}");
-
-                                    if (System.IO.File.Exists(oldPath))
-                                    {
-                                        System.IO.File.Move(oldPath, newPath);
-                                        paymentProofPath = $"/Content/PaymentProofs/{newFileName}";
-                                    }
-                                }
-
-                                // Cập nhật ảnh bill vào PaymentTransactions
-                                reader.Close();
-                                string updateQuery = @"UPDATE PaymentTransactions 
-                                              SET PaymentProofImage = @Image 
-                                              WHERE AppointmentId = @AppointmentId 
-                                              AND TransactionType = 'Deposit'";
-                                using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
-                                {
-                                    updateCmd.Parameters.AddWithValue("@Image", (object)paymentProofPath ?? DBNull.Value);
-                                    updateCmd.Parameters.AddWithValue("@AppointmentId", appointmentId);
-                                    updateCmd.ExecuteNonQuery();
-                                }
-
-                                // Gửi email xác nhận
-                                SendBookingConfirmationEmail(appointmentId);
-
-                                return Json(new
-                                {
-                                    success = true,
-                                    message = "Đặt lịch và thanh toán cọc thành công!",
-                                    redirectUrl = Url.Action("Success", new { id = appointmentId })
-                                });
+                                appointmentId = Convert.ToInt32(reader["AppointmentId"]);
                             }
+                        }
+                    }
+
+                    if (appointmentId == 0)
+                    {
+                        return Json(new { success = false, message = "Không thể tạo lịch hẹn" });
+                    }
+
+                    // ✅ Upload ảnh bill SAU khi có appointmentId
+                    try
+                    {
+                        paymentProofPath = FileUploadHelper.UploadPaymentProof(paymentProofFile, appointmentId);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("⚠️ Lỗi upload ảnh: " + ex.Message);
+                        // Vẫn tiếp tục, chỉ log lỗi
+                    }
+
+                    // ✅ Cập nhật ảnh bill vào PaymentTransactions
+                    if (!string.IsNullOrEmpty(paymentProofPath))
+                    {
+                        string updateQuery = @"UPDATE PaymentTransactions 
+                                      SET PaymentProofImage = @Image 
+                                      WHERE AppointmentId = @AppointmentId 
+                                      AND TransactionType = 'Deposit'";
+                        using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
+                        {
+                            updateCmd.Parameters.AddWithValue("@Image", paymentProofPath);
+                            updateCmd.Parameters.AddWithValue("@AppointmentId", appointmentId);
+                            updateCmd.ExecuteNonQuery();
                         }
                     }
                 }
 
-                return Json(new { success = false, message = "Có lỗi xảy ra khi tạo lịch hẹn" });
+                // ✅ Gửi email xác nhận
+                SendBookingConfirmationEmail(appointmentId);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Đặt lịch và thanh toán cọc thành công!",
+                    redirectUrl = Url.Action("Success", new { id = appointmentId })
+                });
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine("❌ Lỗi ConfirmPayment: " + ex.Message);
                 return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
