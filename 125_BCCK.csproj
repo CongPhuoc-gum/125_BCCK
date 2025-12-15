@@ -131,6 +131,7 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\CustomerController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\HomeAdminController.cs" />
+    <Compile Include="Areas\Admin\Controllers\controllers\ReportController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\StaffController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AppointmentsController.cs" />
@@ -161,13 +162,16 @@
     <Compile Include="Models\ViewModels\CompleteAppointmentViewModel.cs" />
     <Compile Include="Models\ViewModels\CreateBookingViewModel.cs" />
     <Compile Include="Models\ViewModels\CustomerDetailViewModel.cs" />
+    <Compile Include="Models\ViewModels\DashboardViewModel.cs" />
     <Compile Include="Models\ViewModels\LoginViewModel.cs" />
     <Compile Include="Models\ViewModels\PaymentViewModel.cs" />
     <Compile Include="Models\ViewModels\PetDetailsViewModel.cs" />
     <Compile Include="Models\ViewModels\ProcessPaymentViewModel.cs" />
+    <Compile Include="Models\ViewModels\ProfileViewModel.cs" />
     <Compile Include="Models\ViewModels\RegisterViewModel.cs" />
     <Compile Include="Models\ViewModels\ServiceItemViewModel.cs" />
     <Compile Include="Models\ViewModels\StaffDashboardViewModel.cs" />
+    <Compile Include="Models\ViewModels\StatisticalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1874,6 +1878,7 @@
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\css\style.css" />
     <Content Include="Content\Images\banner.jpg" />
+    <Content Include="Content\Images\default-avatar.png" />
     <Content Include="Content\Images\imagetitle.jpg" />
     <Content Include="Content\Images\logo.png" />
     <Content Include="Content\Images\pets\710d1281-d353-4d00-a4e6-1e5435b77a82.jpg" />
@@ -2089,6 +2094,7 @@
     <Content Include="Areas\content_admin\vendor\fontawesome-free\webfonts\fa-solid-900.woff2" />
     <Content Include="Areas\content_admin\vendor\jquery\jquery.min.map" />
     <Content Include="Areas\content_admin\vendor\jquery\jquery.slim.min.map" />
+    <Content Include="Areas\Admin\Views\Report\Index.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -2132,9 +2138,12 @@
     <Content Include="Views\Staff\Details.cshtml" />
     <Content Include="Views\Staff\Index.cshtml" />
     <Content Include="Views\Staff\ProcessPayment.cshtml" />
+    <Content Include="Views\Account\Profile.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Content\Images\Avatars\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

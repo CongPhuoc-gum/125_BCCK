@@ -17,7 +17,8 @@ namespace _125_BCCK.Areas.Admin
             context.MapRoute(
                 "Admin_default",
                 "Admin/{controller}/{action}/{id}",
-                new { action = "Index", id = UrlParameter.Optional }
+                new { action = "Index", id = UrlParameter.Optional },
+                 new[] { "_125_BCCK.Areas.Admin.Controllers" }
             );
         }
     }

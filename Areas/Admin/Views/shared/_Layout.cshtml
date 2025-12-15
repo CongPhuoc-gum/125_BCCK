@@ -37,11 +37,13 @@
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item active">
-                <a class="nav-link" href="#">
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "Report" ? "active" : "")">
+
+                <a class="nav-link" href="@Url.Action("Index", "Report", new { area = "Admin" })">
                     <i class="fas fa-fw fa-chart-line"></i>
                     <span>Thống kê doanh thu</span>
                 </a>
+
             </li>
 
             <hr class="sidebar-divider">
@@ -81,17 +83,11 @@
                         <h6 class="collapse-header">Đối tượng quản lý:</h6>
                         <a class="collapse-item" href="@Url.Action("Index", "Customer", new { area = "Admin" })">Khách Hàng</a>
                         <a class="collapse-item" href="@Url.Action("Index","Staff",new {area = "Admin"})">Nhân Viên</a>
-                        <a class="collapse-item" href="#">Thú Cưng <i class="fas fa-paw text-gray-500"></i></a>
                     </div>
                 </div>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-user-lock"></i>
-                    <span>Phân Quyền</span>
-                </a>
-            </li>
+
 
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -180,6 +176,8 @@
     <script src="~/Areas/Content_Admin/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <script src="~/Areas/Content_Admin/js/sb-admin-2.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>

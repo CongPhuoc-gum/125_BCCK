@@ -21,7 +21,7 @@ namespace _125_BCCK.Areas.Admin.Controllers
             {
                 customers = customers.Where(u => u.FullName.Contains(searchString) || u.Email.Contains(searchString) || u.Phone.Contains(searchString));
             }
-            return View(customers.OrderByDescending(u => u.CreatedAt).ToList());    
+            return View(customers.OrderByDescending(u => u.CreatedAt).ToList());
         }
         //Chi tiết khách hàng 
         public ActionResult Details(int id)
@@ -40,7 +40,8 @@ namespace _125_BCCK.Areas.Admin.Controllers
             return View(viewModel);
         }
         //Sửa thông tin 
-        public ActionResult Edit(int? id) {
+        public ActionResult Edit(int? id)
+        {
             var user = db.Users.Find(id);
             if (user == null) return HttpNotFound();
             return View(user);
