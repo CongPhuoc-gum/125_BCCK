@@ -132,6 +132,7 @@
     <Compile Include="Areas\Admin\Controllers\controllers\CustomerController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\HomeAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\ReportController.cs" />
+    <Compile Include="Areas\Admin\Controllers\controllers\ServiceManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\StaffController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AppointmentsController.cs" />
@@ -144,6 +145,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\EmailHelper.cs" />
+    <Compile Include="Helpers\EmailReminderJob.cs" />
+    <Compile Include="Helpers\EmailTemplateHelper.cs" />
+    <Compile Include="Helpers\FileUploadHelper.cs" />
     <Compile Include="Helpers\SessionHelper.cs" />
     <Compile Include="Models\Appointment.cs" />
     <Compile Include="Models\PaymentTransactions.cs" />
@@ -2143,6 +2147,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Areas\Admin\Views\ServiceManagement\" />
     <Folder Include="Content\Images\Avatars\" />
   </ItemGroup>
   <ItemGroup>
