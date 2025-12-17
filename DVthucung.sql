@@ -863,3 +863,104 @@ UPDATE Users
 SET AvatarUrl = '/Content/Images/default-avatar.png'
 WHERE AvatarUrl IS NULL OR AvatarUrl = '';
 GO
+
+ALTER TABLE PaymentTransactions
+ADD PaymentProofImage NVARCHAR(255) NULL;
+GO
+
+USE PetCareDB;
+GO
+
+-- =============================================================
+-- 1. BỔ SUNG: Thống kê doanh thu theo THÁNG (Để vẽ biểu đồ đường)
+-- Lý do cần: Script cũ chỉ tính tổng, proc này giúp tách ra tháng 1, 2, 3...
+-- =============================================================
+CREATE PROCEDURE sp_GetMonthlyRevenueStats
+    @Year INT
+AS
+BEGIN
+    -- Tạo bảng tạm chứa 12 tháng (để đảm bảo tháng nào không có doanh thu vẫn hiện số 0)
+    WITH Months AS (
+        SELECT 1 AS Month UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
+        UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 
+        UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+    )
+    SELECT 
+        m.Month,
+        COALESCE(SUM(a.TotalPrice), 0) AS Revenue
+    FROM Months m
+    LEFT JOIN Appointments a 
+        ON MONTH(a.AppointmentDate) = m.Month 
+        AND YEAR(a.AppointmentDate) = @Year
+        AND a.Status IN ('Completed', 'Confirmed', 'InProgress') -- Chỉ tính đơn chắc chắn
+    GROUP BY m.Month
+    ORDER BY m.Month;
+END;
+GO
+
+-- =============================================================
+-- 2. BỔ SUNG: Thống kê doanh thu theo NĂM (Để vẽ biểu đồ cột so sánh)
+-- Lý do cần: Để so sánh xem năm 2024 có tăng trưởng so với 2023 không
+-- =============================================================
+CREATE PROCEDURE sp_GetYearlyRevenueStats
+AS
+BEGIN
+    SELECT 
+        YEAR(AppointmentDate) AS [Year],
+        -- Chỉ tính doanh thu thực tế (đã hoàn thành hoặc đang làm)
+        COALESCE(SUM(TotalPrice), 0) AS [TotalRevenue]
+    FROM Appointments
+    WHERE Status IN ('Completed', 'InProgress', 'Confirmed')
+    GROUP BY YEAR(AppointmentDate)
+    ORDER BY [Year] ASC; -- Sắp xếp năm tăng dần
+END;
+GO
+
+-- =============================================================
+-- 3. BỔ SUNG: Số liệu tổng quan cho các Thẻ Card (Dashboard Cards)
+-- Lý do cần: Để lấy nhanh số lượng "Lịch chờ", "Khách mới" mà không cần query nhiều lần
+-- =============================================================
+CREATE PROCEDURE sp_GetDashboardStatistics
+AS
+BEGIN
+    SELECT
+        -- Đếm số lịch đang chờ duyệt
+        (SELECT COUNT(*) FROM Appointments WHERE Status = 'Pending') AS PendingCount,
+        
+        -- Đếm số lịch đã hoàn thành
+        (SELECT COUNT(*) FROM Appointments WHERE Status = 'Completed') AS CompletedCount,
+        
+        -- Đếm tổng số khách hàng
+        (SELECT COUNT(*) FROM Users WHERE Role = 'Customer') AS TotalCustomers,
+
+        -- Tính tổng doanh thu toàn bộ hệ thống (dành cho Card Tổng Doanh Thu)
+        (SELECT COALESCE(SUM(TotalPrice), 0) 
+         FROM Appointments 
+         WHERE Status IN ('Completed', 'Confirmed')) AS TotalRevenue;
+END;
+GO
+
+PRINT N'✓ Đã bổ sung 3 thủ tục thiếu: Tháng, Năm và Dashboard Card.';
+
+
+
+-- Tạo thủ tục sp_GetTopServicesStats 
+CREATE PROCEDURE sp_GetTopServicesStats
+AS
+BEGIN
+    SELECT TOP 5
+        s.ServiceName,
+        COUNT(aps.AppointmentServiceId) AS UsageCount,
+        SUM(aps.ServicePrice) AS RevenueGenerated
+    FROM Services s
+    JOIN AppointmentServices aps ON s.ServiceId = aps.ServiceId
+    JOIN Appointments a ON aps.AppointmentId = a.AppointmentId
+    WHERE a.Status = 'Completed'
+    GROUP BY s.ServiceName
+    ORDER BY UsageCount DESC;
+END;
+GO
+
+PRINT N'✓ Đã tạo xong thủ tục sp_GetTopServicesStats';
+
+

@@ -1,0 +1,185 @@
+﻿@model _125_BCCK.Models.ViewModels.AssignStaffViewModel
+@{
+    ViewBag.Title = "Phân Công Nhân Viên";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-user-plus"></i> Phân Công Nhân Viên
+    </h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <span class="text">Quay Lại</span>
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông Tin Lịch Hẹn</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="border-left-primary pl-3">
+                            <p class="mb-1"><strong>Mã lịch hẹn:</strong></p>
+                            <h5 class="text-primary">#@Model.AppointmentId</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="border-left-info pl-3">
+                            <p class="mb-1"><strong>Ngày & Giờ:</strong></p>
+                            <h5 class="text-info">
+                                <i class="far fa-calendar-alt"></i> @Model.AppointmentDate.ToString("dd/MM/yyyy")
+                                <br />
+                                <i class="far fa-clock"></i> @Model.TimeSlot
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted"><i class="fas fa-user"></i> Khách hàng:</p>
+                        <h6>@Model.CustomerName</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted"><i class="fas fa-paw"></i> Thú cưng:</p>
+                        <h6>@Model.PetName (@Model.PetSpecies)</h6>
+                    </div>
+                </div>
+
+                <hr />
+
+                @using (Html.BeginForm("AssignStaff", "AppointmentManagement", FormMethod.Post, new { @class = "needs-validation" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.AppointmentId)
+                    @Html.HiddenFor(m => m.AppointmentDate)
+                    @Html.HiddenFor(m => m.TimeSlot)
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.SelectedStaffId, new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(m => m.SelectedStaffId, (SelectList)ViewBag.StaffList,
+                            "-- Chọn nhân viên --",
+                            new { @class = "form-control form-control-lg", id = "staffSelect" })
+                        @Html.ValidationMessageFor(m => m.SelectedStaffId, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.StaffNotes, new { @class = "font-weight-bold" })
+                        @Html.TextAreaFor(m => m.StaffNotes, new
+                        {
+                            @class = "form-control",
+                            rows = "3",
+                            placeholder = "Ghi chú cho nhân viên (tùy chọn)..."
+                        })
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Lưu ý:</strong> Sau khi phân công, lịch hẹn sẽ tự động chuyển sang trạng thái <strong>"Đã xác nhận"</strong>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check"></i> Xác Nhận Phân Công
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times"></i> Hủy Bỏ
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users"></i> Danh Sách Nhân Viên
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.StaffList != null)
+                {
+                    @* SỬA PHẦN NÀY *@
+                    var staffList = (SelectList)ViewBag.StaffList;
+
+                    if (staffList.Any())
+                    {
+                        <div class="list-group list-group-flush" id="staffList">
+                            @foreach (var staff in staffList)
+                            {
+                                <div class="list-group-item p-2" data-staff-id="@staff.Value">
+                                    <i class="fas fa-user-tie text-primary"></i>
+                                    <strong>@staff.Text</strong>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Hiện không có nhân viên nào khả dụng
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-lightbulb"></i> Gợi Ý
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li>Chọn nhân viên có kinh nghiệm phù hợp với dịch vụ</li>
+                    <li>Kiểm tra lịch làm việc của nhân viên</li>
+                    <li>Có thể thêm ghi chú đặc biệt cho nhân viên</li>
+                    <li>Sau khi phân công, nhân viên sẽ được thông báo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+            // Highlight staff khi chọn trong dropdown
+            $('#staffSelect').on('change', function () {
+                var selectedId = $(this).val();
+                $('#staffList .list-group-item').removeClass('active');
+                if (selectedId) {
+                    $('#staffList .list-group-item[data-staff-id="' + selectedId + '"]').addClass('active');
+                }
+            });
+
+            // Click vào staff trong list để chọn
+            $('#staffList .list-group-item').on('click', function () {
+                var staffId = $(this).data('staff-id');
+                $('#staffSelect').val(staffId).trigger('change');
+            });
+
+            // Trigger nếu đã có staff được chọn sẵn
+            if ($('#staffSelect').val()) {
+                $('#staffSelect').trigger('change');
+            }
+        });
+    </script>
+}

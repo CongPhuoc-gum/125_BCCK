@@ -1,0 +1,144 @@
+﻿@model _125_BCCK.Models.ViewModels.ServiceFormViewModel
+@{
+    ViewBag.Title = "Thêm Dịch Vụ Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-plus-circle"></i> Thêm Dịch Vụ Mới
+    </h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <span class="text">Quay Lại</span>
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông Tin Dịch Vụ</h6>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Create", "ServiceManagement", FormMethod.Post, new { @class = "needs-validation" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ServiceName, new { @class = "font-weight-bold" })
+                        @Html.TextBoxFor(m => m.ServiceName, new { @class = "form-control", placeholder = "Ví dụ: Tắm vệ sinh cơ bản" })
+                        @Html.ValidationMessageFor(m => m.ServiceName, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Category, new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(m => m.Category, (SelectList)ViewBag.Categories, "-- Chọn danh mục --", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Category, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Price, new { @class = "font-weight-bold" })
+                                <div class="input-group">
+                                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", min = "10000", step = "1000", placeholder = "150000" })
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Duration, new { @class = "font-weight-bold" })
+                                <div class="input-group">
+                                    @Html.TextBoxFor(m => m.Duration, new { @class = "form-control", type = "number", min = "5", max = "300", placeholder = "60" })
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">phút</span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.Duration, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Description, new { @class = "font-weight-bold" })
+                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "4", placeholder = "Mô tả chi tiết về dịch vụ..." })
+                        @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ImageUrl, new { @class = "font-weight-bold" })
+                        @Html.TextBoxFor(m => m.ImageUrl, new { @class = "form-control", placeholder = "/Content/Images/services/tam-co-ban.jpg" })
+                        <small class="form-text text-muted">
+                            Để trống nếu chưa có hình ảnh (sẽ dùng ảnh mặc định)
+                        </small>
+                        @Html.ValidationMessageFor(m => m.ImageUrl, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            @Html.CheckBoxFor(m => m.IsActive, new { @class = "custom-control-input", id = "chkIsActive" })
+                            @Html.LabelFor(m => m.IsActive, "Kích hoạt dịch vụ ngay", new { @class = "custom-control-label", @for = "chkIsActive" })
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu Dịch Vụ
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy Bỏ
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Hướng Dẫn</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Lưu ý:</strong>
+                </div>
+                <ul class="small">
+                    <li>Tên dịch vụ nên ngắn gọn, dễ hiểu</li>
+                    <li>Giá tiền: từ 10,000 - 10,000,000 VNĐ</li>
+                    <li>Thời gian: từ 5 - 300 phút</li>
+                    <li>Mô tả chi tiết giúp khách hàng hiểu rõ hơn</li>
+                    <li>Hình ảnh nên có kích thước 800x600px</li>
+                </ul>
+
+                <hr />
+
+                <p class="small mb-0">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    <strong>Gợi ý danh mục:</strong>
+                </p>
+                <ul class="small mb-0">
+                    <li><strong>Tắm rửa:</strong> Các dịch vụ làm sạch</li>
+                    <li><strong>Cắt tỉa:</strong> Cắt tỉa lông, tạo kiểu</li>
+                    <li><strong>Y tế:</strong> Khám bệnh, tiêm phòng</li>
+                    <li><strong>Spa:</strong> Dịch vụ thư giãn cao cấp</li>
+                    <li><strong>Khác:</strong> Các dịch vụ đặc biệt</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

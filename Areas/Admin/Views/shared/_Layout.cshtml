@@ -52,15 +52,15 @@
                 Quản lý dịch vụ
             </div>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "ServiceManagement" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index", "ServiceManagement", new { area = "Admin" })">
                     <i class="fas fa-fw fa-concierge-bell"></i>
                     <span>Quản Lý Dịch Vụ</span>
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
+            <li class="nav-item @(ViewContext.RouteData.Values["controller"].ToString() == "AppointmentManagement" ? "active" : "")">
+                <a class="nav-link" href="@Url.Action("Index", "AppointmentManagement", new { area = "Admin" })">
                     <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Quản Lý Lịch Hẹn</span>
                 </a>

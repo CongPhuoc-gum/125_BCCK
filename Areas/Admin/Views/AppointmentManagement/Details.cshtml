@@ -1,0 +1,514 @@
+﻿@model _125_BCCK.Models.ViewModels.AppointmentDetailViewModel
+@{
+    ViewBag.Title = "Chi Tiết Lịch Hẹn";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    string statusBadge = "";
+    string statusText = "";
+    switch (Model.Status)
+    {
+        case "Pending":
+            statusBadge = "badge-warning";
+            statusText = "Chờ xử lý";
+            break;
+        case "Confirmed":
+            statusBadge = "badge-info";
+            statusText = "Đã xác nhận";
+            break;
+        case "InProgress":
+            statusBadge = "badge-primary";
+            statusText = "Đang thực hiện";
+            break;
+        case "Completed":
+            statusBadge = "badge-success";
+            statusText = "Hoàn thành";
+            break;
+        case "Cancelled":
+            statusBadge = "badge-danger";
+            statusText = "Đã hủy";
+            break;
+    }
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-file-invoice"></i> Chi Tiết Lịch Hẹn #@Model.AppointmentId
+    </h1>
+    <div>
+        @if (Model.Status == "Pending")
+        {
+            <a href="@Url.Action("AssignStaff", new { id = Model.AppointmentId })"
+               class="btn btn-primary btn-icon-split mr-2">
+                <span class="icon text-white-50">
+                    <i class="fas fa-user-plus"></i>
+                </span>
+                <span class="text">Phân Công NV</span>
+            </a>
+        }
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Quay Lại</span>
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+}
+
+<div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-8">
+        <!-- Thông tin chung -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-info-circle"></i> Thông Tin Lịch Hẹn
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Ngày hẹn:</p>
+                        <h5><i class="far fa-calendar-alt"></i> @Model.AppointmentDate.ToString("dd/MM/yyyy")</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Giờ hẹn:</p>
+                        <h5><i class="far fa-clock"></i> @Model.TimeSlot</h5>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Trạng thái:</p>
+                        <h5><span class="badge @statusBadge">@statusText</span></h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 text-muted">Ngày tạo:</p>
+                        <h5>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</h5>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.CancelReason))
+                {
+                    <div class="alert alert-danger">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Lý do hủy:</strong><br />
+                        @Model.CancelReason
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Thông tin khách hàng & thú cưng -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user"></i> Thông Tin Khách Hàng & Thú Cưng
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Khách Hàng</h6>
+                        <p class="mb-2">
+                            <strong>Họ tên:</strong> @Model.CustomerName
+                        </p>
+                        <p class="mb-2">
+                            <strong>Email:</strong> <a href="mailto:@Model.CustomerEmail">@Model.CustomerEmail</a>
+                        </p>
+                        <p class="mb-2">
+                            <strong>Điện thoại:</strong> <a href="tel:@Model.CustomerPhone">@Model.CustomerPhone</a>
+                        </p>
+                        @if (!string.IsNullOrEmpty(Model.CustomerAddress))
+                        {
+                            <p class="mb-2">
+                                <strong>Địa chỉ:</strong> @Model.CustomerAddress
+                            </p>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Thú Cưng</h6>
+                        <p class="mb-2">
+                            <strong>Tên:</strong> @Model.PetName
+                        </p>
+                        <p class="mb-2">
+                            <strong>Loài:</strong> @Model.Species
+                        </p>
+                        @if (!string.IsNullOrEmpty(Model.Breed))
+                        {
+                            <p class="mb-2">
+                                <strong>Giống:</strong> @Model.Breed
+                            </p>
+                        }
+                        @if (Model.Age.HasValue)
+                        {
+                            <p class="mb-2">
+                                <strong>Tuổi:</strong> @Model.Age tuổi
+                            </p>
+                        }
+                        @if (Model.Weight.HasValue)
+                        {
+                            <p class="mb-2">
+                                <strong>Cân nặng:</strong> @Model.Weight kg
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Gender))
+                        {
+                            <p class="mb-2">
+                                <strong>Giới tính:</strong> @Model.Gender
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.SpecialNotes))
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <strong><i class="fas fa-exclamation-circle"></i> Lưu ý đặc biệt:</strong><br />
+                                @Model.SpecialNotes
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danh sách dịch vụ -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-concierge-bell"></i> Dịch Vụ Đã Đặt
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Tên Dịch Vụ</th>
+                                <th>Danh Mục</th>
+                                <th>Thời Gian</th>
+                                <th class="text-right">Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var service in Model.Services)
+                            {
+                                <tr>
+                                    <td>@service.ServiceName</td>
+                                    <td>
+                                        @{
+                                            string catBadge = "";
+                                            string catIcon = "";
+                                            switch (service.Category)
+                                            {
+                                                case "Tắm rửa":
+                                                    catBadge = "badge-primary";
+                                                    catIcon = "🛁";
+                                                    break;
+                                                case "Cắt tỉa":
+                                                    catBadge = "badge-info";
+                                                    catIcon = "✂️";
+                                                    break;
+                                                case "Y tế":
+                                                    catBadge = "badge-danger";
+                                                    catIcon = "💊";
+                                                    break;
+                                                case "Spa":
+                                                    catBadge = "badge-success";
+                                                    catIcon = "💆";
+                                                    break;
+                                                default:
+                                                    catBadge = "badge-secondary";
+                                                    catIcon = "📋";
+                                                    break;
+                                            }
+                                        }
+                                        <span class="badge @catBadge">@catIcon @service.Category</span>
+                                    </td>
+                                    <td>@service.Duration phút</td>
+                                    <td class="text-right">
+                                        <strong>@service.Price.ToString("N0") VNĐ</strong>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-active">
+                                <th colspan="3" class="text-right">Tổng Cộng:</th>
+                                <th class="text-right">
+                                    <h5 class="mb-0 text-success">@Model.TotalPrice.ToString("N0") VNĐ</h5>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ghi chú -->
+        @if (!string.IsNullOrEmpty(Model.CustomerNotes) || !string.IsNullOrEmpty(Model.StaffNotes))
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-sticky-note"></i> Ghi Chú
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.CustomerNotes))
+                    {
+                        <div class="mb-3">
+                            <strong>Ghi chú của khách hàng:</strong>
+                            <p class="border-left pl-3 mb-0">@Model.CustomerNotes</p>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.StaffNotes))
+                    {
+                        <div>
+                            <strong>Ghi chú của nhân viên:</strong>
+                            <p class="border-left border-primary pl-3 mb-0">@Model.StaffNotes</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Nhân viên -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-tie"></i> Nhân Viên Phụ Trách
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.StaffId.HasValue)
+                {
+                    <p class="mb-2">
+                        <strong>Họ tên:</strong> @Model.StaffName
+                    </p>
+                    if (!string.IsNullOrEmpty(Model.StaffPhone))
+                    {
+                        <p class="mb-0">
+                            <strong>Điện thoại:</strong> <a href="tel:@Model.StaffPhone">@Model.StaffPhone</a>
+                        </p>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Chưa phân công nhân viên
+                    </div>
+                    if (Model.Status == "Pending")
+                    {
+                        <a href="@Url.Action("AssignStaff", new { id = Model.AppointmentId })"
+                           class="btn btn-primary btn-block mt-3">
+                            <i class="fas fa-user-plus"></i> Phân Công Ngay
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Thanh toán -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="fas fa-money-bill-wave"></i> Thông Tin Thanh Toán
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td><strong>Tổng tiền:</strong></td>
+                        <td class="text-right">
+                            <strong class="text-success">@Model.TotalPrice.ToString("N0") VNĐ</strong>
+                        </td>
+                    </tr>
+                    @if (Model.DepositAmount > 0)
+                    {
+                        <tr>
+                            <td>Tiền cọc (30%):</td>
+                            <td class="text-right">@Model.DepositAmount.ToString("N0") VNĐ</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td><strong>Còn lại:</strong></td>
+                        <td class="text-right">
+                            <strong class="text-danger">@Model.RemainingAmount.ToString("N0") VNĐ</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trạng thái:</strong></td>
+                        <td class="text-right">
+                            @if (Model.FullyPaid)
+                            {
+                                <span class="badge badge-success">Đã thanh toán đủ ✓</span>
+                            }
+                            else if (Model.DepositPaid)
+                            {
+                                <span class="badge badge-warning">Đã cọc</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Chưa thanh toán</span>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Lịch sử thanh toán -->
+        @if (Model.PaymentHistory != null && Model.PaymentHistory.Any())
+        {
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-history"></i> Lịch Sử Thanh Toán
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach (var payment in Model.PaymentHistory)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>
+                                            @(payment.TransactionType == "Deposit" ? "Đặt cọc" : "Thanh toán cuối")
+                                        </strong>
+                                        <br />
+                                        <small class="text-muted">
+                                            @payment.PaymentDate.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                        @if (!string.IsNullOrEmpty(payment.ProcessedByName))
+                                        {
+                                            <br />
+                                            <small class="text-muted">
+                                                Xử lý bởi: @payment.ProcessedByName
+                                            </small>
+                                        }
+                                    </div>
+                                    <div class="text-right">
+                                        <strong class="text-success">@payment.Amount.ToString("N0") VNĐ</strong>
+                                        @if (!string.IsNullOrEmpty(payment.PaymentMethod))
+                                        {
+                                            <br />
+                                            <small class="badge badge-secondary">@payment.PaymentMethod</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Actions -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-cog"></i> Thao Tác
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Status == "Pending")
+                {
+                    <a href="@Url.Action("AssignStaff", new { id = Model.AppointmentId })"
+                       class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-user-plus"></i> Phân Công Nhân Viên
+                    </a>
+                }
+                @if (Model.Status == "Confirmed")
+                {
+                    <button type="button" class="btn btn-info btn-block mb-2"
+                            onclick="updateStatus(@Model.AppointmentId, 'InProgress')">
+                        <i class="fas fa-play"></i> Bắt Đầu Thực Hiện
+                    </button>
+                }
+                @if (Model.Status == "InProgress")
+                {
+                    <button type="button" class="btn btn-success btn-block mb-2"
+                            onclick="updateStatus(@Model.AppointmentId, 'Completed')">
+                        <i class="fas fa-check"></i> Hoàn Thành
+                    </button>
+                }
+                @if (Model.Status != "Cancelled" && Model.Status != "Completed")
+                {
+                    <button type="button" class="btn btn-danger btn-block"
+                            data-toggle="modal" data-target="#cancelModal">
+                        <i class="fas fa-times"></i> Hủy Lịch Hẹn
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @using (Html.BeginForm("CancelAppointment", "AppointmentManagement", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("appointmentId", Model.AppointmentId)
+
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle"></i> Xác Nhận Hủy Lịch
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn hủy lịch hẹn #@Model.AppointmentId?</p>
+                    <div class="form-group">
+                        <label><strong>Lý do hủy:</strong></label>
+                        <textarea name="cancelReason" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xác Nhận Hủy</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateStatus(appointmentId, status) {
+            if (confirm('Bạn có chắc chắn muốn cập nhật trạng thái?')) {
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus")',
+                    type: 'POST',
+                    data: { appointmentId: appointmentId, status: status },
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi cập nhật trạng thái');
+                    }
+                });
+            }
+        }
+    </script>
+}

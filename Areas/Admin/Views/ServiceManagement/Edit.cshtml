@@ -1,0 +1,127 @@
+﻿@model _125_BCCK.Models.ViewModels.ServiceFormViewModel
+@{
+    ViewBag.Title = "Chỉnh Sửa Dịch Vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-edit"></i> Chỉnh Sửa Dịch Vụ
+    </h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <span class="text">Quay Lại</span>
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-warning">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-edit"></i> Chỉnh Sửa: @Model.ServiceName
+                </h6>
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "ServiceManagement", FormMethod.Post, new { @class = "needs-validation" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.ServiceId)
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ServiceName, new { @class = "font-weight-bold" })
+                        @Html.TextBoxFor(m => m.ServiceName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ServiceName, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Category, new { @class = "font-weight-bold" })
+                        @Html.DropDownListFor(m => m.Category, (SelectList)ViewBag.Categories, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Category, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Price, new { @class = "font-weight-bold" })
+                                <div class="input-group">
+                                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", min = "10000", step = "1000" })
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">VNĐ</span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Duration, new { @class = "font-weight-bold" })
+                                <div class="input-group">
+                                    @Html.TextBoxFor(m => m.Duration, new { @class = "form-control", type = "number", min = "5", max = "300" })
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">phút</span>
+                                    </div>
+                                </div>
+                                @Html.ValidationMessageFor(m => m.Duration, "", new { @class = "text-danger small" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Description, new { @class = "font-weight-bold" })
+                        @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "4" })
+                        @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ImageUrl, new { @class = "font-weight-bold" })
+                        @Html.TextBoxFor(m => m.ImageUrl, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.ImageUrl, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            @Html.CheckBoxFor(m => m.IsActive, new { @class = "custom-control-input", id = "chkIsActive" })
+                            @Html.LabelFor(m => m.IsActive, "Đang hoạt động", new { @class = "custom-control-label", @for = "chkIsActive" })
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="form-group mb-0">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save"></i> Cập Nhật
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy Bỏ
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4 border-warning">
+            <div class="card-header py-3 bg-warning">
+                <h6 class="m-0 font-weight-bold text-white">Thông Tin</h6>
+            </div>
+            <div class="card-body">
+                <p class="small">
+                    <strong>Mã dịch vụ:</strong> #@Model.ServiceId
+                </p>
+                <hr />
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Lưu ý:</strong> Thay đổi giá chỉ áp dụng cho các lịch hẹn mới.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
