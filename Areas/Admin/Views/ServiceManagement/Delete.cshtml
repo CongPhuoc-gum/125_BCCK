@@ -1,0 +1,82 @@
+﻿@model _125_BCCK.Models.ViewModels.ServiceItemViewModel
+@{
+    ViewBag.Title = "Xóa Dịch Vụ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-trash"></i> Xác Nhận Xóa Dịch Vụ
+    </h1>
+    <a href="@Url.Action("Index")" class="btn btn-secondary btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-arrow-left"></i>
+        </span>
+        <span class="text">Quay Lại</span>
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4 border-danger">
+            <div class="card-header py-3 bg-danger">
+                <h6 class="m-0 font-weight-bold text-white">
+                    <i class="fas fa-exclamation-triangle"></i> Cảnh Báo!
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5><i class="fas fa-exclamation-circle"></i> Bạn có chắc chắn muốn xóa dịch vụ này?</h5>
+                    <p class="mb-0">Hành động này không thể hoàn tác!</p>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Mã dịch vụ:</strong></p>
+                                <h4 class="text-primary">#@Model.ServiceId</h4>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Tên dịch vụ:</strong></p>
+                                <h4>@Model.ServiceName</h4>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Danh mục:</strong></p>
+                                <span class="badge @Model.CategoryBadgeClass badge-lg">
+                                    @Model.CategoryDisplay
+                                </span>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Giá:</strong></p>
+                                <h5 class="text-success">@Model.PriceFormatted</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Thời gian:</strong></p>
+                                <h5>@Model.DurationDisplay</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("Delete", "ServiceManagement", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("id", Model.ServiceId)
+
+                    <div class="form-group mb-0 text-center">
+                        <button type="submit" class="btn btn-danger btn-lg mr-2">
+                            <i class="fas fa-trash"></i> Xác Nhận Xóa
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times"></i> Hủy Bỏ
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

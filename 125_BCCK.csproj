@@ -129,6 +129,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
+    <Compile Include="Areas\Admin\Controllers\controllers\AppointmentManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\CustomerController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\HomeAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\ReportController.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="Models\ViewModels\AppointmentListItemViewModel.cs" />
     <Compile Include="Models\ViewModels\AppointmentReminderViewModel.cs" />
     <Compile Include="Models\ViewModels\AppointmentViewModel.cs" />
+    <Compile Include="Models\ViewModels\AssignStaffViewModel.cs" />
     <Compile Include="Models\ViewModels\BookingSuccessViewModel.cs" />
     <Compile Include="Models\ViewModels\BookingSummaryViewModel.cs" />
     <Compile Include="Models\ViewModels\BookingViewModel.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="Models\ViewModels\ProcessPaymentViewModel.cs" />
     <Compile Include="Models\ViewModels\ProfileViewModel.cs" />
     <Compile Include="Models\ViewModels\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModels\ServiceFormViewModel.cs" />
     <Compile Include="Models\ViewModels\ServiceItemViewModel.cs" />
     <Compile Include="Models\ViewModels\StaffDashboardViewModel.cs" />
     <Compile Include="Models\ViewModels\StatisticalViewModel.cs" />
@@ -2099,6 +2102,13 @@
     <Content Include="Areas\content_admin\vendor\jquery\jquery.min.map" />
     <Content Include="Areas\content_admin\vendor\jquery\jquery.slim.min.map" />
     <Content Include="Areas\Admin\Views\Report\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\AppointmentManagement\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\AppointmentManagement\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\ServiceManagement\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\AppointmentManagement\AssignStaff.cshtml" />
+    <Content Include="Areas\Admin\Views\ServiceManagement\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\ServiceManagement\Delete.cshtml" />
+    <Content Include="Areas\Admin\Views\ServiceManagement\Create.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -2147,7 +2157,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Admin\Views\ServiceManagement\" />
     <Folder Include="Content\Images\Avatars\" />
   </ItemGroup>
   <ItemGroup>

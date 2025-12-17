@@ -1,0 +1,310 @@
+﻿@model List<_125_BCCK.Models.ViewModels.AppointmentListItemViewModel>
+@{
+    ViewBag.Title = "Quản Lý Lịch Hẹn";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    // THÊM DÒNG NÀY - Cast ViewBag.StatusCounts sang Dictionary
+    var statusCounts = ViewBag.StatusCounts as Dictionary<string, int>;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="fas fa-calendar-alt"></i> Quản Lý Lịch Hẹn
+    </h1>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "Pending" })"
+           class="card border-left-warning shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Chờ xử lý
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @statusCounts["Pending"]
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "Confirmed" })"
+           class="card border-left-info shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Đã xác nhận
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @statusCounts["Confirmed"]
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "InProgress" })"
+           class="card border-left-primary shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Đang thực hiện
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @statusCounts["InProgress"]
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-spinner fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "Completed" })"
+           class="card border-left-success shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Hoàn thành
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @statusCounts["Completed"]
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-double fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "Cancelled" })"
+           class="card border-left-danger shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Đã hủy
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @statusCounts["Cancelled"]
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl-2 col-md-4 mb-2">
+        <a href="@Url.Action("Index", new { status = "All" })"
+           class="card border-left-secondary shadow h-100 py-2 text-decoration-none">
+            <div class="card-body p-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                            Tất cả
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            @(statusCounts["Pending"] + statusCounts["Confirmed"] + statusCounts["InProgress"] + statusCounts["Completed"] + statusCounts["Cancelled"])
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Danh Sách Lịch Hẹn -
+            @{
+                string statusBadge = "";
+                string statusText = "";
+                switch (ViewBag.CurrentStatus)
+                {
+                    case "Pending":
+                        statusBadge = "badge-warning";
+                        statusText = "Chờ xử lý";
+                        break;
+                    case "Confirmed":
+                        statusBadge = "badge-info";
+                        statusText = "Đã xác nhận";
+                        break;
+                    case "InProgress":
+                        statusBadge = "badge-primary";
+                        statusText = "Đang thực hiện";
+                        break;
+                    case "Completed":
+                        statusBadge = "badge-success";
+                        statusText = "Hoàn thành";
+                        break;
+                    case "Cancelled":
+                        statusBadge = "badge-danger";
+                        statusText = "Đã hủy";
+                        break;
+                    default:
+                        statusBadge = "badge-secondary";
+                        statusText = "Tất cả";
+                        break;
+                }
+            }
+            <span class="badge @statusBadge">@statusText</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="appointmentsTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="10%">Ngày</th>
+                            <th width="10%">Giờ</th>
+                            <th width="15%">Khách Hàng</th>
+                            <th width="12%">Thú Cưng</th>
+                            <th width="15%">Dịch Vụ</th>
+                            <th width="10%">Giá</th>
+                            <th width="10%">Trạng Thái</th>
+                            <th width="13%" class="text-center">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string rowStatusBadge = "";
+                            string rowStatusText = "";
+                            switch (item.Status)
+                            {
+                                case "Pending":
+                                    rowStatusBadge = "badge-warning";
+                                    rowStatusText = "Chờ xử lý";
+                                    break;
+                                case "Confirmed":
+                                    rowStatusBadge = "badge-info";
+                                    rowStatusText = "Đã xác nhận";
+                                    break;
+                                case "InProgress":
+                                    rowStatusBadge = "badge-primary";
+                                    rowStatusText = "Đang thực hiện";
+                                    break;
+                                case "Completed":
+                                    rowStatusBadge = "badge-success";
+                                    rowStatusText = "Hoàn thành";
+                                    break;
+                                case "Cancelled":
+                                    rowStatusBadge = "badge-danger";
+                                    rowStatusText = "Đã hủy";
+                                    break;
+                            }
+
+                            <tr>
+                                <td><strong>@item.AppointmentId</strong></td>
+                                <td>
+                                    <i class="far fa-calendar"></i>
+                                    @item.AppointmentDate.ToString("dd/MM/yyyy")
+                                </td>
+                                <td>
+                                    <i class="far fa-clock"></i>
+                                    @item.TimeSlot
+                                </td>
+                                <td>
+                                    <strong>@item.CustomerName</strong>
+                                </td>
+                                <td>
+                                    <i class="fas fa-paw"></i> <strong>@item.PetName</strong><br />
+                                    <small class="text-muted">@item.Species</small>
+                                </td>
+                                <td>
+                                    <small>@(item.Services ?? "Chưa có dịch vụ")</small>
+                                </td>
+                                <td>
+                                    <strong class="text-success">@item.TotalPrice.ToString("N0") VNĐ</strong>
+                                    @if (item.DepositPaid)
+                                    {
+                                        <br /><small class="badge badge-success">Đã cọc ✓</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge @rowStatusBadge">
+                                        @rowStatusText
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group-vertical btn-group-sm" role="group">
+                                        <a href="@Url.Action("Details", new { id = item.AppointmentId })"
+                                           class="btn btn-info btn-sm" title="Chi tiết">
+                                            <i class="fas fa-eye"></i> Chi tiết
+                                        </a>
+                                        @if (item.Status == "Pending")
+                                        {
+                                            <a href="@Url.Action("AssignStaff", new { id = item.AppointmentId })"
+                                               class="btn btn-primary btn-sm" title="Phân công">
+                                                <i class="fas fa-user-plus"></i> Phân công
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                <p class="text-gray-600">Không có lịch hẹn nào</p>
+            </div>
+        }
+    </div>
+</div>
