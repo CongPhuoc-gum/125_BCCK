@@ -1,7 +1,7 @@
 ﻿@model _125_BCCK.Models.ViewModels.CompleteAppointmentViewModel
 @{
     ViewBag.Title = "Hoàn thành lịch hẹn";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/Staff/Views/Shared/_LayoutStaff.cshtml";
 }
 
 <div class="container my-4">
@@ -53,7 +53,7 @@
                         <hr>
 
                         @* Phần thanh toán *@
-                        @if (Model.NeedPayment && Model.RemainingAmount > 0)
+                        if (Model.NeedPayment && Model.RemainingAmount > 0)
                         {
                             <div class="alert alert-warning">
                                 <h5 class="alert-heading">

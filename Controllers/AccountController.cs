@@ -137,6 +137,7 @@ namespace _125_BCCK.Controllers
         public ActionResult Logout()
         {
             SessionHelper.ClearSession();
+            TempData["Success"] = "Đã đăng xuất thành công!";
             return RedirectToAction("Index", "Home");
         }
 
@@ -381,9 +382,9 @@ namespace _125_BCCK.Controllers
             string role = SessionHelper.GetRole();
 
             if (role == "Admin")
-                return RedirectToAction("Index", "homeadmin", new { area = "Admin" });
+                return RedirectToAction("Index", "Report", new { area = "Admin" });
             else if (role == "Staff")
-                return RedirectToAction("Index", "Staff", new { area = "" });
+                return RedirectToAction("Index", "Staff", new { area = "Staff" });
             else
                 return RedirectToAction("Index", "Home");
         }
