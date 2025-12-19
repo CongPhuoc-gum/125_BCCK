@@ -7,7 +7,6 @@
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <!-- Header -->
                 <div class="text-center mb-4">
                     <h1 class="display-5 fw-bold">
                         <i class="fas fa-credit-card text-primary"></i> Thanh toán cọc
@@ -15,7 +14,6 @@
                     <p class="text-muted">Hoàn tất thanh toán để xác nhận lịch hẹn</p>
                 </div>
 
-                <!-- Payment Card -->
                 <div class="payment-card">
                     <div class="payment-header">
                         <div class="step-indicator">
@@ -37,7 +35,6 @@
                     </div>
 
                     <div class="payment-body">
-                        <!-- Booking Info -->
                         <div class="info-section">
                             <h4 class="section-title">
                                 <i class="fas fa-info-circle"></i> Thông tin đặt lịch
@@ -72,7 +69,6 @@
                             }
                         </div>
 
-                        <!-- Services List -->
                         <div class="info-section">
                             <h4 class="section-title">
                                 <i class="fas fa-list"></i> Dịch vụ đã chọn
@@ -94,7 +90,6 @@
                             </div>
                         </div>
 
-                        <!-- Price Summary -->
                         <div class="price-summary">
                             <div class="price-row subtotal">
                                 <span>Tổng tiền dịch vụ:</span>
@@ -113,7 +108,6 @@
                             </div>
                         </div>
 
-                        <!-- QR Code Section -->
                         <div class="qr-section">
                             <h4 class="section-title text-center">
                                 <i class="fas fa-qrcode"></i> Quét mã QR để thanh toán
@@ -154,7 +148,6 @@
                             </div>
                         </div>
 
-                        <!-- ===== UPLOAD ẢNH BILL ===== -->
                         <div class="upload-section">
                             <h4 class="section-title text-center">
                                 <i class="fas fa-upload"></i> Tải ảnh bill chuyển khoản
@@ -166,18 +159,20 @@
                                     </div>
                                     <p class="upload-text">Nhấp để chọn ảnh hoặc kéo thả ảnh vào đây</p>
                                     <p class="upload-note">JPG, PNG, GIF tối đa 5MB</p>
-                                    <input type="file" id="paymentProofFile" accept="image/*" style="display: none;">
                                 </div>
-                                <div id="imagePreview" style="display: none;">
+
+                                <input type="file" id="paymentProofFile" name="paymentProofFile" accept="image/*" style="display: none;">
+
+                                <div id="imagePreview" style="display: none; margin-top: 20px; text-align: center;">
                                     <img id="previewImg" src="" alt="Preview">
-                                    <button type="button" class="btn-remove-image" id="btnRemoveImage">
-                                        <i class="fas fa-times"></i> Xóa ảnh
+                                    <br />
+                                    <button type="button" class="btn-remove-image mt-3" id="btnRemoveImage">
+                                        <i class="fas fa-times"></i> Chọn lại ảnh khác
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Form Submit -->
                         @using (Html.BeginForm("ConfirmPayment", "Booking", FormMethod.Post, new { enctype = "multipart/form-data", id = "paymentForm" }))
                         {
                             @Html.AntiForgeryToken()
@@ -188,17 +183,17 @@
                             @Html.HiddenFor(m => m.CustomerNotes)
                             @Html.HiddenFor(m => m.PaymentMethod)
 
-                            <div class="payment-actions">
-                                <button type="submit" class="btn btn-primary btn-lg" id="btnConfirmPayment">
+                            <div class="payment-actions mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="btnConfirmPayment">
                                     <i class="fas fa-check-circle"></i> Tôi đã thanh toán
                                 </button>
-                                <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-secondary btn-lg">
+                                <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-secondary btn-lg w-100">
                                     <i class="fas fa-arrow-left"></i> Quay lại
                                 </a>
                             </div>
                         }
 
-                        <div class="payment-note">
+                        <div class="payment-note mt-4">
                             <i class="fas fa-shield-alt"></i>
                             Thông tin thanh toán của bạn được bảo mật tuyệt đối.
                             Sau khi xác nhận thanh toán, bạn sẽ nhận được email xác nhận lịch hẹn.
@@ -212,7 +207,6 @@
 
 @section scripts {
     <style>
-
         .payment-page {
             background: #f8f9fa;
             min-height: 100vh;
@@ -247,32 +241,32 @@
             transition: all 0.3s;
         }
 
-        .step.completed,
-        .step.active {
-            opacity: 1;
-        }
+            .step.completed,
+            .step.active {
+                opacity: 1;
+            }
 
-        .step i {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+            .step i {
+                width: 50px;
+                height: 50px;
+                background: rgba(255,255,255,0.2);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+            }
 
-        .step.completed i,
-        .step.active i {
-            background: white;
-            color: #667eea;
-        }
+            .step.completed i,
+            .step.active i {
+                background: white;
+                color: #667eea;
+            }
 
-        .step span {
-            font-size: 14px;
-            font-weight: 500;
-        }
+            .step span {
+                font-size: 14px;
+                font-weight: 500;
+            }
 
         .step-line {
             width: 80px;
@@ -411,15 +405,15 @@
             font-size: 15px;
         }
 
-        .price-row.subtotal {
-            color: #6c757d;
-        }
+            .price-row.subtotal {
+                color: #6c757d;
+            }
 
-        .price-row.deposit {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-        }
+            .price-row.deposit {
+                font-size: 24px;
+                font-weight: bold;
+                color: #667eea;
+            }
 
         .deposit-amount {
             color: #28a745;
@@ -458,11 +452,11 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .qr-code img {
-            width: 250px;
-            height: 250px;
-            display: block;
-        }
+            .qr-code img {
+                width: 250px;
+                height: 250px;
+                display: block;
+            }
 
         .bank-info {
             display: flex;
@@ -528,7 +522,7 @@
             background: #f8f9fa;
             padding: 30px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 40px; /* Tăng khoảng cách dưới của upload section */
         }
 
         .upload-container {
@@ -545,15 +539,15 @@
             transition: all 0.3s;
         }
 
-        .upload-box:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
+            .upload-box:hover {
+                border-color: #667eea;
+                background: #f0f4ff;
+            }
 
-        .upload-box.dragover {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
+            .upload-box.dragover {
+                border-color: #667eea;
+                background: #f0f4ff;
+            }
 
         .upload-icon {
             color: #667eea;
@@ -578,15 +572,14 @@
             text-align: center;
         }
 
-        #imagePreview img {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+            #imagePreview img {
+                max-width: 100%;
+                max-height: 400px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
 
         .btn-remove-image {
-            margin-top: 15px;
             padding: 10px 20px;
             background: #dc3545;
             color: white;
@@ -596,23 +589,20 @@
             transition: background 0.3s;
         }
 
-        .btn-remove-image:hover {
-            background: #c82333;
-        }
+            .btn-remove-image:hover {
+                background: #c82333;
+            }
 
         .payment-actions {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .payment-actions .btn {
-            padding: 15px 30px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-        }
+            .payment-actions .btn {
+                padding: 15px 30px;
+                font-size: 16px;
+                font-weight: 600;
+                border-radius: 12px;
+            }
 
         .payment-note {
             text-align: center;
@@ -629,10 +619,10 @@
             border: none;
         }
 
-        .alert ol {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
+            .alert ol {
+                padding-left: 20px;
+                margin-top: 10px;
+            }
 
         @@media (max-width: 768px) {
             .payment-body {
@@ -647,10 +637,6 @@
             .qr-code img {
                 width: 200px;
                 height: 200px;
-            }
-
-            .payment-actions {
-                grid-template-columns: 1fr;
             }
 
             .step-indicator {
@@ -668,17 +654,19 @@
         $(document).ready(function () {
             let selectedFile = null;
 
-            // Xử lý click vào upload box
+            // Click để chọn file
             $('#uploadBox').click(function () {
                 $('#paymentProofFile').click();
             });
 
-            // Xử lý khi chọn file
+            // Khi chọn file
             $('#paymentProofFile').change(function (e) {
-                handleFileSelect(e.target.files[0]);
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
             });
 
-            // Xử lý drag & drop
+            // Drag & Drop
             $('#uploadBox')
                 .on('dragover', function (e) {
                     e.preventDefault();
@@ -698,16 +686,14 @@
                     }
                 });
 
-            // Hàm xử lý file được chọn
+            // Xử lý file được chọn
             function handleFileSelect(file) {
-                // Kiểm tra định dạng file
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
                 if (!allowedTypes.includes(file.type)) {
                     alert('Chỉ chấp nhận file ảnh: JPG, PNG, GIF, BMP');
                     return;
                 }
 
-                // Kiểm tra kích thước (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Kích thước file không được vượt quá 5MB');
                     return;
@@ -735,22 +721,25 @@
 
             // Submit form
             $('#paymentForm').submit(function (e) {
-                // Kiểm tra phải có ảnh bill
+                e.preventDefault();
+
+                // Kiểm tra phải có ảnh
                 if (!selectedFile) {
-                    e.preventDefault();
                     alert('Vui lòng tải lên ảnh bill chuyển khoản để xác thực thanh toán!');
                     return false;
                 }
 
-                // Tạo FormData để gửi file
+                // Tạo FormData từ form
                 const formData = new FormData(this);
+
+                // QUAN TRỌNG: Phải thủ công append file vào vì input file nằm ngoài form
                 formData.append('paymentProofFile', selectedFile);
 
-                // Vô hiệu hóa nút submit
-                $('#btnConfirmPayment').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
+                // Disable nút submit
+                $('#btnConfirmPayment').prop('disabled', true)
+                    .html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
 
                 // Gửi AJAX
-                e.preventDefault();
                 $.ajax({
                     url: $(this).attr('action'),
                     type: 'POST',
@@ -762,12 +751,14 @@
                             window.location.href = response.redirectUrl;
                         } else {
                             alert(response.message || 'Có lỗi xảy ra!');
-                            $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check-circle"></i> Tôi đã thanh toán');
+                            $('#btnConfirmPayment').prop('disabled', false)
+                                .html('<i class="fas fa-check-circle"></i> Tôi đã thanh toán');
                         }
                     },
                     error: function () {
                         alert('Có lỗi kết nối! Vui lòng thử lại.');
-                        $('#btnConfirmPayment').prop('disabled', false).html('<i class="fas fa-check-circle"></i> Tôi đã thanh toán');
+                        $('#btnConfirmPayment').prop('disabled', false)
+                            .html('<i class="fas fa-check-circle"></i> Tôi đã thanh toán');
                     }
                 });
             });
