@@ -131,17 +131,17 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\AppointmentManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\CustomerController.cs" />
-    <Compile Include="Areas\Admin\Controllers\controllers\HomeAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\ReportController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\ServiceManagementController.cs" />
     <Compile Include="Areas\Admin\Controllers\controllers\StaffController.cs" />
+    <Compile Include="Areas\Staff\StaffAreaRegistration.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AppointmentsController.cs" />
     <Compile Include="Controllers\BookingController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PetsController.cs" />
     <Compile Include="Controllers\ServicesController.cs" />
-    <Compile Include="Controllers\StaffController.cs" />
+    <Compile Include="Areas\Staff\Controllers\StaffController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -1919,7 +1919,6 @@
     <Content Include="Areas\Admin\Views\customer\Details.cshtml" />
     <Content Include="Areas\Admin\Views\customer\Edit.cshtml" />
     <Content Include="Areas\Admin\Views\customer\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\homeadmin\Index.cshtml" />
     <Content Include="Areas\Admin\Views\shared\_Layout.cshtml" />
     <Content Include="Areas\Admin\Views\staff\Create.cshtml" />
     <Content Include="Areas\Admin\Views\staff\Delete.cshtml" />
@@ -2109,6 +2108,9 @@
     <Content Include="Areas\Admin\Views\ServiceManagement\Edit.cshtml" />
     <Content Include="Areas\Admin\Views\ServiceManagement\Delete.cshtml" />
     <Content Include="Areas\Admin\Views\ServiceManagement\Create.cshtml" />
+    <Content Include="Areas\Staff\Views\Shared\_LayoutStaff.cshtml" />
+    <Content Include="Areas\Staff\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\Staff\Views\web.config" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -2147,17 +2149,18 @@
     <Content Include="Views\Appointments\Index.cshtml" />
     <Content Include="Views\Appointments\Details.cshtml" />
     <Content Include="Views\Booking\Payment.cshtml" />
-    <Content Include="Views\Staff\Appointments.cshtml" />
-    <Content Include="Views\Staff\Complete.cshtml" />
-    <Content Include="Views\Staff\Details.cshtml" />
-    <Content Include="Views\Staff\Index.cshtml" />
-    <Content Include="Views\Staff\ProcessPayment.cshtml" />
+    <Content Include="Areas\Staff\Views\Staff\Appointments.cshtml" />
+    <Content Include="Areas\Staff\Views\Staff\Complete.cshtml" />
+    <Content Include="Areas\Staff\Views\Staff\Details.cshtml" />
+    <Content Include="Areas\Staff\Views\Staff\Index.cshtml" />
+    <Content Include="Areas\Staff\Views\Staff\ProcessPayment.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\Images\Avatars\" />
+    <Folder Include="Data\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

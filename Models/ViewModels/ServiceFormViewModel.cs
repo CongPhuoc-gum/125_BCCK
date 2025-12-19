@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Web;
 
 namespace _125_BCCK.Models.ViewModels
 {
@@ -35,6 +36,10 @@ namespace _125_BCCK.Models.ViewModels
         [StringLength(255)]
         [Display(Name = "URL hình ảnh")]
         public string ImageUrl { get; set; }
+
+        // ✅ THÊM THUỘC TÍNH NÀY để nhận file upload
+        [Display(Name = "Chọn hình ảnh")]
+        public HttpPostedFileBase ImageFile { get; set; }
 
         [Display(Name = "Đang hoạt động")]
         public bool IsActive { get; set; } = true;

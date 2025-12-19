@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Web;
 using System.Web.Mvc;
 using _125_BCCK.Models;
 using _125_BCCK.Models.ViewModels;
@@ -20,13 +22,11 @@ namespace _125_BCCK.Areas.Admin.Controllers
         {
             var services = db.Services.AsQueryable();
 
-            // Lọc theo category
             if (!string.IsNullOrEmpty(category))
             {
                 services = services.Where(s => s.Category == category);
             }
 
-            // Tìm kiếm theo tên
             if (!string.IsNullOrEmpty(search))
             {
                 services = services.Where(s => s.ServiceName.Contains(search));
@@ -72,6 +72,20 @@ namespace _125_BCCK.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // ✅ XỬ LÝ UPLOAD FILE
+                string imageUrl = "/Content/Images/services/default.jpg"; // Ảnh mặc định
+
+                if (model.ImageFile != null && model.ImageFile.ContentLength > 0)
+                {
+                    imageUrl = SaveImageFile(model.ImageFile);
+                    if (imageUrl == null)
+                    {
+                        ModelState.AddModelError("ImageFile", "Không thể lưu file. Vui lòng thử lại.");
+                        ViewBag.Categories = GetCategorySelectList();
+                        return View(model);
+                    }
+                }
+
                 var service = new Service
                 {
                     ServiceName = model.ServiceName,
@@ -79,8 +93,8 @@ namespace _125_BCCK.Areas.Admin.Controllers
                     Category = model.Category,
                     Duration = model.Duration,
                     Price = model.Price,
-                    ImageUrl = model.ImageUrl ?? "/Content/Images/services/default.jpg",
-                    IsActive = true,
+                    ImageUrl = imageUrl,
+                    IsActive = model.IsActive,
                     CreatedAt = DateTime.Now
                 };
 
@@ -140,12 +154,36 @@ namespace _125_BCCK.Areas.Admin.Controllers
                     return HttpNotFound();
                 }
 
+                // ✅ XỬ LÝ UPLOAD FILE MỚI
+                if (model.ImageFile != null && model.ImageFile.ContentLength > 0)
+                {
+                    // Xóa ảnh cũ nếu không phải ảnh mặc định
+                    if (!string.IsNullOrEmpty(service.ImageUrl) &&
+                        service.ImageUrl != "/Content/Images/services/default.jpg")
+                    {
+                        DeleteImageFile(service.ImageUrl);
+                    }
+
+                    // Lưu ảnh mới
+                    string newImageUrl = SaveImageFile(model.ImageFile);
+                    if (newImageUrl != null)
+                    {
+                        service.ImageUrl = newImageUrl;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("ImageFile", "Không thể lưu file. Vui lòng thử lại.");
+                        ViewBag.Categories = GetCategorySelectList();
+                        return View(model);
+                    }
+                }
+                // Nếu không upload file mới, giữ nguyên ImageUrl cũ
+
                 service.ServiceName = model.ServiceName;
                 service.Description = model.Description;
                 service.Category = model.Category;
                 service.Duration = model.Duration;
                 service.Price = model.Price;
-                service.ImageUrl = model.ImageUrl;
                 service.IsActive = model.IsActive;
 
                 db.Entry(service).State = EntityState.Modified;
@@ -198,13 +236,19 @@ namespace _125_BCCK.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
-            // Kiểm tra xem dịch vụ có đang được sử dụng không
             var hasAppointments = db.AppointmentServices.Any(a => a.ServiceId == id);
 
             if (hasAppointments)
             {
                 TempData["ErrorMessage"] = "Không thể xóa dịch vụ này vì đã có lịch hẹn sử dụng!";
                 return RedirectToAction("Index");
+            }
+
+            // Xóa ảnh nếu không phải ảnh mặc định
+            if (!string.IsNullOrEmpty(service.ImageUrl) &&
+                service.ImageUrl != "/Content/Images/services/default.jpg")
+            {
+                DeleteImageFile(service.ImageUrl);
             }
 
             db.Services.Remove(service);
@@ -241,6 +285,77 @@ namespace _125_BCCK.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        // ✅ HELPER: Lưu file ảnh
+        private string SaveImageFile(HttpPostedFileBase file)
+        {
+            try
+            {
+                // Kiểm tra file hợp lệ
+                if (file == null || file.ContentLength == 0)
+                    return null;
+
+                // Kiểm tra định dạng
+                string[] allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+                string fileExtension = Path.GetExtension(file.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(fileExtension))
+                    return null;
+
+                // Kiểm tra kích thước (max 5MB)
+                if (file.ContentLength > 5 * 1024 * 1024)
+                    return null;
+
+                // Tạo tên file unique
+                string fileName = Guid.NewGuid().ToString() + fileExtension;
+
+                // Đường dẫn thư mục lưu
+                string uploadPath = Server.MapPath("~/Content/Images/services");
+
+                // Tạo thư mục nếu chưa có
+                if (!Directory.Exists(uploadPath))
+                {
+                    Directory.CreateDirectory(uploadPath);
+                }
+
+                // Đường dẫn đầy đủ
+                string filePath = Path.Combine(uploadPath, fileName);
+
+                // Lưu file
+                file.SaveAs(filePath);
+
+                // Trả về URL tương đối
+                return "/Content/Images/services/" + fileName;
+            }
+            catch (Exception ex)
+            {
+                // Log error nếu cần
+                System.Diagnostics.Debug.WriteLine("Error saving image: " + ex.Message);
+                return null;
+            }
+        }
+
+        // ✅ HELPER: Xóa file ảnh
+        private void DeleteImageFile(string imageUrl)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(imageUrl))
+                    return;
+
+                string filePath = Server.MapPath(imageUrl);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error nếu cần
+                System.Diagnostics.Debug.WriteLine("Error deleting image: " + ex.Message);
             }
         }
 

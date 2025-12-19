@@ -6,8 +6,9 @@ using System.Web.Mvc;
 using _125_BCCK.Models;
 using _125_BCCK.Models.ViewModels;
 
-namespace _125_BCCK.Controllers
+namespace _125_BCCK.Areas.Staff.Controllers
 {
+    [RouteArea("Staff")]
     public class StaffController : Controller
     {
         private PetCareContext db = new PetCareContext();
