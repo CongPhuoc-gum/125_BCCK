@@ -2,15 +2,14 @@
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using System.Threading;
+using Hangfire;
+using Hangfire.SqlServer;
 using _125_BCCK.Helpers;
 
 namespace _125_BCCK
 {
     public class MvcApplication : System.Web.HttpApplication
     {
-        private static Timer _emailTimer;
-
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -18,29 +17,31 @@ namespace _125_BCCK
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            // ===== Khởi động job gửi email =====
-            StartEmailReminderJob();
-        }
+            // ===== CẤU HÌNH HANGFIRE TRƯỚC =====
+            GlobalConfiguration.Configuration
+                .UseSqlServerStorage(
+                    "Data Source=ASUS\\SQLEXPRESS;Initial Catalog=PetCareDB;Integrated Security=True;TrustServerCertificate=True;",
+                    new SqlServerStorageOptions
+                    {
+                        CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                        SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                        QueuePollInterval = TimeSpan.Zero,
+                        UseRecommendedIsolationLevel = true,
+                        DisableGlobalLocks = true
+                    });
 
-        private void StartEmailReminderJob()
-        {
+            // ===== SAU ĐÓ MỚI DÙNG HANGFIRE =====
             // Chạy ngay 1 lần khi start
-            EmailReminderJob.SendAppointmentReminders();
+            BackgroundJob.Enqueue(() => EmailReminderJob.SendAppointmentReminders());
 
-            // Sau đó chạy mỗi 30 phút
-            _emailTimer = new Timer(
-                callback: (state) => EmailReminderJob.SendAppointmentReminders(),
-                state: null,
-                dueTime: TimeSpan.FromMinutes(30), // Lần đầu sau 30 phút
-                period: TimeSpan.FromMinutes(30)   // Lặp lại mỗi 30 phút
+            // Sau đó chạy tự động mỗi 30 phút
+            RecurringJob.AddOrUpdate(
+                "send-appointment-reminders",
+                () => EmailReminderJob.SendAppointmentReminders(),
+                "*/30 * * * *" // Cron expression: mỗi 30 phút
             );
 
-            System.Diagnostics.Debug.WriteLine("✓ Email Reminder Job đã được khởi động");
-        }
-
-        protected void Application_End()
-        {
-            _emailTimer?.Dispose();
+            System.Diagnostics.Debug.WriteLine("✓ Email Reminder Job đã được khởi động với Hangfire");
         }
     }
 }
